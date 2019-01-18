@@ -3,21 +3,28 @@ unit DataModule.Main;
 interface
 
 uses
-  System.SysUtils, System.Classes, FireDAC.Stan.Intf, FireDAC.Stan.Option,
-  FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
-  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.VCLUI.Wait,
-  FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt,
-  FireDAC.Phys.MySQLDef, FireDAC.Phys.FBDef, FireDAC.Phys.PGDef,
-  FireDAC.Phys.IBDef, FireDAC.Stan.ExprFuncs, FireDAC.Phys.SQLiteDef,
-  FireDAC.Phys.OracleDef, FireDAC.Phys.DB2Def, FireDAC.Phys.MSSQLDef,
-  FireDAC.Phys.MSSQL, FireDAC.Phys.ODBCBase, FireDAC.Phys.DB2,
-  FireDAC.Phys.Oracle, FireDAC.Phys.SQLite, FireDAC.Phys.IB, FireDAC.Phys.PG,
-  FireDAC.Phys.IBBase, FireDAC.Phys.FB, FireDAC.Phys.MySQL, Data.DB,
-  FireDAC.Comp.DataSet, FireDAC.Comp.Client;
+  System.SysUtils, System.Classes,
+  Data.DB,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error,
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Stan.Def,
+  FireDAC.Stan.ExprFuncs,
+  FireDAC.Stan.Param,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client,
+  FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt,
+  FireDAC.UI.Intf, FireDAC.VCLUI.Wait,
+  FireDAC.Phys.Intf, FireDAC.Phys,
+  FireDAC.Phys.MySQLDef, FireDAC.Phys.MySQL,
+  FireDAC.Phys.IBBase,
+  FireDAC.Phys.IBDef, FireDAC.Phys.IB,
+  FireDAC.Phys.FBDef, FireDAC.Phys.FB,
+  FireDAC.Phys.PGDef, FireDAC.Phys.PG,
+  FireDAC.Phys.SQLiteDef, FireDAC.Phys.SQLite,
+  FireDAC.Phys.OracleDef, FireDAC.Phys.Oracle,
+  FireDAC.Phys.DB2Def, FireDAC.Phys.DB2,
+  FireDAC.Phys.MSSQLDef, FireDAC.Phys.MSSQL, FireDAC.Phys.ODBCBase,
+  Plus.Types;
 
 type
-  TStringArray = array of String;
-
   TDataModule1 = class(TDataModule)
     FDConnection1: TFDConnection;
     FDQuery1: TFDQuery;

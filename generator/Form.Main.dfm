@@ -44,7 +44,6 @@ object FormMain: TFormMain
       Action = actConnect
       Align = alLeft
       TabOrder = 1
-      ExplicitLeft = 175
     end
   end
   object PageControl1: TPageControl
@@ -53,7 +52,7 @@ object FormMain: TFormMain
     Top = 58
     Width = 522
     Height = 386
-    ActivePage = tshDaoCode
+    ActivePage = tshDataSet
     Align = alRight
     TabOrder = 1
     object tshDataSet: TTabSheet
@@ -77,13 +76,13 @@ object FormMain: TFormMain
         Caption = ' '
         ColumnCollection = <
           item
-            Value = 33.333333333333330000
+            Value = 33.333333333333340000
           end
           item
-            Value = 33.333333333333330000
+            Value = 33.333333333333340000
           end
           item
-            Value = 33.333333333333330000
+            Value = 33.333333333333340000
           end>
         ControlCollection = <
           item
@@ -225,7 +224,6 @@ object FormMain: TFormMain
               Value = 100.000000000000000000
             end>
           TabOrder = 1
-          ExplicitTop = 196
           object Button3: TButton
             AlignWithMargins = True
             Left = 3
@@ -235,10 +233,6 @@ object FormMain: TFormMain
             Action = actExecSQL
             Align = alClient
             TabOrder = 0
-            ExplicitLeft = 224
-            ExplicitTop = 8
-            ExplicitWidth = 75
-            ExplicitHeight = 25
           end
           object Label3: TLabel
             AlignWithMargins = True
@@ -269,10 +263,6 @@ object FormMain: TFormMain
             Action = actQueryBuilder
             Align = alClient
             TabOrder = 1
-            ExplicitLeft = 224
-            ExplicitTop = 8
-            ExplicitWidth = 75
-            ExplicitHeight = 25
           end
         end
       end
@@ -318,7 +308,7 @@ object FormMain: TFormMain
       OnExecute = actSelectConnectionDefExecute
     end
     object actExecSQL: TAction
-      Caption = 'actExecSQL'
+      Caption = 'Exec SQL'
       OnExecute = actExecSQLExecute
     end
     object actGenerateProxy: TAction
