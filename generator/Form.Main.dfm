@@ -52,13 +52,11 @@ object FormMain: TFormMain
     Top = 58
     Width = 522
     Height = 376
-    ActivePage = tshDaoCode
+    ActivePage = tshProxyCode
     Align = alRight
     TabOrder = 1
-    ExplicitHeight = 386
     object tshDataSet: TTabSheet
       Caption = 'SQL Statement'
-      ExplicitHeight = 358
       object Splitter1: TSplitter
         Left = 0
         Top = 225
@@ -102,7 +100,6 @@ object FormMain: TFormMain
             Value = 100.000000000000000000
           end>
         TabOrder = 2
-        ExplicitTop = 326
         object btnGenerateDAO: TButton
           AlignWithMargins = True
           Left = 174
@@ -270,10 +267,9 @@ object FormMain: TFormMain
         end
       end
     end
-    object tshDaoCode: TTabSheet
+    object tshProxyCode: TTabSheet
       Caption = 'Generated DAO Code'
       ImageIndex = 1
-      ExplicitHeight = 358
       object mmProxyCode: TMemo
         AlignWithMargins = True
         Left = 3
@@ -287,7 +283,7 @@ object FormMain: TFormMain
         Font.Name = 'Consolas'
         Font.Style = []
         Lines.Strings = (
-          'mmDaoCode')
+          'mmProxyCode')
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0

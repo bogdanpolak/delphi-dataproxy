@@ -16,7 +16,7 @@ type
     Button1: TButton;
     PageControl1: TPageControl;
     tshDataSet: TTabSheet;
-    tshDaoCode: TTabSheet;
+    tshProxyCode: TTabSheet;
     GridPanel2: TGridPanel;
     btnGenerateDAO: TButton;
     DBGrid1: TDBGrid;
