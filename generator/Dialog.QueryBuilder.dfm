@@ -23,8 +23,6 @@ object DialogQueryBuilder: TDialogQueryBuilder
     BevelOuter = bvNone
     Caption = ' '
     TabOrder = 0
-    ExplicitLeft = 89
-    ExplicitTop = 8
     object Label1: TLabel
       AlignWithMargins = True
       Left = 3
@@ -34,8 +32,6 @@ object DialogQueryBuilder: TDialogQueryBuilder
       Margins.Bottom = 0
       Align = alTop
       Caption = 'Main table / view:'
-      ExplicitLeft = 4
-      ExplicitTop = 4
       ExplicitWidth = 85
     end
     object Label2: TLabel
@@ -47,11 +43,9 @@ object DialogQueryBuilder: TDialogQueryBuilder
       Margins.Bottom = 0
       Align = alTop
       Caption = 'Join table / view (multi-select):'
-      ExplicitLeft = 4
-      ExplicitTop = 47
       ExplicitWidth = 147
     end
-    object cbxTablesMain: TComboBox
+    object cbxMainTables: TComboBox
       AlignWithMargins = True
       Left = 3
       Top = 19
@@ -59,10 +53,7 @@ object DialogQueryBuilder: TDialogQueryBuilder
       Height = 21
       Align = alTop
       TabOrder = 0
-      Text = 'cbxTablesMain'
-      ExplicitLeft = 24
-      ExplicitTop = 96
-      ExplicitWidth = 145
+      Text = 'cbxMainTables'
     end
     object lbxJoinTables: TListBox
       AlignWithMargins = True
@@ -73,10 +64,6 @@ object DialogQueryBuilder: TDialogQueryBuilder
       Align = alClient
       ItemHeight = 13
       TabOrder = 1
-      ExplicitLeft = 40
-      ExplicitTop = 144
-      ExplicitWidth = 121
-      ExplicitHeight = 97
     end
   end
   object pnCommands: TPanel
@@ -88,8 +75,6 @@ object DialogQueryBuilder: TDialogQueryBuilder
     BevelOuter = bvNone
     Caption = ' '
     TabOrder = 1
-    ExplicitTop = 236
-    ExplicitWidth = 474
     object Button1: TButton
       AlignWithMargins = True
       Left = 484
@@ -99,7 +84,6 @@ object DialogQueryBuilder: TDialogQueryBuilder
       Action = actUseSQL
       Align = alRight
       TabOrder = 0
-      ExplicitLeft = 304
     end
     object Button2: TButton
       AlignWithMargins = True
@@ -110,7 +94,6 @@ object DialogQueryBuilder: TDialogQueryBuilder
       Action = actCancel
       Align = alRight
       TabOrder = 1
-      ExplicitLeft = 384
     end
     object Button3: TButton
       AlignWithMargins = True

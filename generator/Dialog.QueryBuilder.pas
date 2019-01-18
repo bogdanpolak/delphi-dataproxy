@@ -14,7 +14,7 @@ type
     pnTables: TPanel;
     pnCommands: TPanel;
     Label1: TLabel;
-    cbxTablesMain: TComboBox;
+    cbxMainTables: TComboBox;
     lbxJoinTables: TListBox;
     Label2: TLabel;
     mmSqlPreview: TMemo;
@@ -41,6 +41,7 @@ type
   private
     FTables: TStringArray;
     procedure PaintBox1Paint(Sender: TObject);
+    procedure DrawInfoListBoxNotImplemented(APaintBox: TPaintBox);
   public
     class function Execute: string;
   end;
@@ -72,17 +73,23 @@ procedure TDialogQueryBuilder.FormCreate(Sender: TObject);
 var
   s: String;
 begin
-  cbxTablesMain.OnChange := nil;
+  FTables := DataModule1.GetTablesAndViewsNames;
+  // -------------------------------------------------------------------
+  // Configure dialog controls
+  // -------------------------------------------------------------------
   mmSqlPreview.Align := alClient;
   mmSqlPreview.Text := '';
-  FTables := DataModule1.GetTablesAndViewsNames;
-  cbxTablesMain.Style := csDropDownList;
-  cbxTablesMain.AddItem('<select object>', nil);
-  cbxTablesMain.ItemIndex := 0;
-  cbxTablesMain.DropDownCount := 25;
+  // -------------------------------------------------------------------
+  // Configure cbxMainTables
+  // -------------------------------------------------------------------
+  cbxMainTables.OnChange := nil;
+  cbxMainTables.Style := csDropDownList;
+  cbxMainTables.AddItem('<select object>', nil);
+  cbxMainTables.ItemIndex := 0;
+  cbxMainTables.DropDownCount := 25;
   for s in FTables do
-    cbxTablesMain.Items.Add(s);
-  cbxTablesMain.OnChange := cbxTablesMainChange;
+    cbxMainTables.Items.Add(s);
+  cbxMainTables.OnChange := cbxTablesMainChange;
   // -------------------------------------------------------------------
   // Not implemented join tables selection
   // -------------------------------------------------------------------
@@ -133,9 +140,9 @@ var
   FieldCount: Integer;
   sFieldsList: string;
 begin
-  if cbxTablesMain.ItemIndex > 0 then
+  if cbxMainTables.ItemIndex > 0 then
   begin
-    aTableName := cbxTablesMain.Text;
+    aTableName := cbxMainTables.Text;
     Fields := DataModule1.GetFieldNames(aTableName);
     FieldCount := Length(Fields);
     mmSqlPreview.Clear;
@@ -186,18 +193,23 @@ begin
 end;
 
 procedure TDialogQueryBuilder.PaintBox1Paint(Sender: TObject);
+begin
+  Self.DrawInfoListBoxNotImplemented(Sender as TPaintBox);
+end;
+
+procedure TDialogQueryBuilder.DrawInfoListBoxNotImplemented
+  (APaintBox: TPaintBox);
 var
   Canv: TCanvas;
   rectA: TRect;
   xc: Integer;
   yc: Integer;
-  sLine: String;
+  sLine: string;
   hgText: Integer;
   wdText: Integer;
 begin
-  Canv := (Sender as TPaintBox).Canvas;
-  rectA := Rect(1, 1, (Sender as TPaintBox).Width-1,
-    (Sender as TPaintBox).Height-1);
+  Canv := APaintBox.Canvas;
+  rectA := Rect(1, 1, APaintBox.Width - 1, APaintBox.Height - 1);
   Canv.Pen.Color := $E0E0E0;
   Canv.Pen.Width := 3;
   Canv.MoveTo(rectA.Left, rectA.Top);
@@ -212,13 +224,12 @@ begin
   yc := rectA.Top + (rectA.Bottom - rectA.Top) div 2;
   Canv.Font.Color := $505050;
   Canv.Font.Style := [];
-  sLine := 'ListBox: '+lbxJoinTables.Name;
+  sLine := 'ListBox: ' + lbxJoinTables.Name;
   hgText := Canv.TextHeight(sLine);
   wdText := Canv.TextWidth(sLine);
   Canv.TextOut(xc - wdText div 2, yc - hgText - 2, sLine);
   sLine := 'Not implemented yet';
   Canv.Font.Style := [fsItalic];
-  hgText := Canv.TextHeight(sLine);
   wdText := Canv.TextWidth(sLine);
   Canv.TextOut(xc - wdText div 2, yc + 2, sLine);
 end;

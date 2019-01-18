@@ -186,7 +186,7 @@ end;
 
 procedure TFormMain.actGenerateProxyExecute(Sender: TObject);
 begin
-  PageControl1.ActivePage := tshDaoCode;
+  PageControl1.ActivePage := tshProxyCode;
   ProxyGenerator.DataSet := DataSource1.DataSet;
   ProxyGenerator.Generate;
   mmProxyCode.Text := ProxyGenerator.Code;
