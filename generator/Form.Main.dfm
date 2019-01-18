@@ -2,7 +2,7 @@ object FormMain: TFormMain
   Left = 0
   Top = 0
   Caption = 'FormMain'
-  ClientHeight = 447
+  ClientHeight = 437
   ClientWidth = 669
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -51,12 +51,14 @@ object FormMain: TFormMain
     Left = 144
     Top = 58
     Width = 522
-    Height = 386
-    ActivePage = tshDataSet
+    Height = 376
+    ActivePage = tshDaoCode
     Align = alRight
     TabOrder = 1
+    ExplicitHeight = 386
     object tshDataSet: TTabSheet
       Caption = 'SQL Statement'
+      ExplicitHeight = 358
       object Splitter1: TSplitter
         Left = 0
         Top = 225
@@ -68,7 +70,7 @@ object FormMain: TFormMain
       end
       object GridPanel2: TGridPanel
         Left = 0
-        Top = 326
+        Top = 316
         Width = 514
         Height = 32
         Align = alBottom
@@ -100,6 +102,7 @@ object FormMain: TFormMain
             Value = 100.000000000000000000
           end>
         TabOrder = 2
+        ExplicitTop = 326
         object btnGenerateDAO: TButton
           AlignWithMargins = True
           Left = 174
@@ -135,7 +138,7 @@ object FormMain: TFormMain
         Left = 3
         Top = 232
         Width = 508
-        Height = 91
+        Height = 81
         Margins.Top = 1
         Align = alClient
         DataSource = DataSource1
@@ -270,6 +273,7 @@ object FormMain: TFormMain
     object tshDaoCode: TTabSheet
       Caption = 'Generated DAO Code'
       ImageIndex = 1
+      ExplicitHeight = 358
       object mmProxyCode: TMemo
         AlignWithMargins = True
         Left = 3

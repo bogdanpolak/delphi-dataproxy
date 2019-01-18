@@ -43,7 +43,6 @@ object DialogSelectDefinition: TDialogSelectDefinition
       ItemHeight = 13
       TabOrder = 1
       OnDblClick = ListBox1DblClick
-      ExplicitLeft = 7
     end
   end
 end

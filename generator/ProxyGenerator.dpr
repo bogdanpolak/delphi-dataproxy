@@ -9,7 +9,8 @@ uses
   Plus.ProxyGenerator in 'Plus.ProxyGenerator.pas',
   App.AppInfo in 'App.AppInfo.pas',
   Helper.TDBGrid in 'Helper.TDBGrid.pas',
-  Plus.Types in 'Plus.Types.pas';
+  Plus.Types in 'Plus.Types.pas',
+  Dialog.QueryBuilder in 'Dialog.QueryBuilder.pas' {DialogQueryBuilder};
 
 {$R *.res}
 

@@ -44,6 +44,8 @@ type
     procedure CloseConnection;
     function GetMainDataQuery : TDataSet;
     procedure ExecuteSQL (const TextSQL: String);
+    function GetTablesAndViewsNames: TStringArray;
+    function GetFieldNames (const TableName: string): TStringArray;
   end;
 
 var
@@ -54,6 +56,28 @@ implementation
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
 {$R *.dfm}
+
+{ TStrings helper }
+// TODO: Extract to helper repository (requires thought, commnts below)
+// 1) How to resolve dependency on Plus.Types.TStringArray
+//    * maybe change to Helper.Types or Base.Types
+
+type
+  TStringsHelper = class helper for TStrings
+    function ToStringArray: TStringArray;
+  end;
+
+function TStringsHelper.ToStringArray: TStringArray;
+var
+  i: Integer;
+begin
+  SetLength(Result, Self.Count);
+  for i := 0 to Self.Count - 1 do
+    Result[i] := Self[i];
+end;
+
+
+
 
 { TDataModule1 }
 
@@ -95,6 +119,32 @@ procedure TDataModule1.ExecuteSQL(const TextSQL: String);
 begin
   FDQuery1.SQL.Text := '';
   FDQuery1.Open(TextSQL);
+end;
+
+function TDataModule1.GetTablesAndViewsNames: TStringArray;
+var
+  sl: TStringList;
+begin
+  sl := TStringList.Create;
+  try
+    FDConnection1.GetTableNames('','','',sl);
+    Result := sl.ToStringArray;
+  finally
+    sl.Free;
+  end;
+end;
+
+function TDataModule1.GetFieldNames(const TableName: string): TStringArray;
+var
+  sl: TStringList;
+begin
+  sl := TStringList.Create;
+  try
+    FDConnection1.GetFieldNames('','',TableName,'',sl);
+    Result := sl.ToStringArray;
+  finally
+    sl.Free;
+  end;
 end;
 
 end.
