@@ -107,7 +107,7 @@ begin
   code.Add('procedure T{ObjectName}Proxy.ConnectFields;');
   code.Add('begin');
   for fld in Fields do
-    code.Add('  ' + fld.FieldName + ' := FDataSet.FieldByName(' +
+    code.Add('  F' + fld.FieldName + ' := FDataSet.FieldByName(' +
       QuotedStr(fld.FieldName) + ') as ' + fld.ToClass.ClassName + ';');
   code.Add('end;');
 end;
