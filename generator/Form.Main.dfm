@@ -2,7 +2,7 @@ object FormMain: TFormMain
   Left = 0
   Top = 0
   Caption = 'FormMain'
-  ClientHeight = 447
+  ClientHeight = 437
   ClientWidth = 669
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -44,7 +44,6 @@ object FormMain: TFormMain
       Action = actConnect
       Align = alLeft
       TabOrder = 1
-      ExplicitLeft = 175
     end
   end
   object PageControl1: TPageControl
@@ -52,12 +51,16 @@ object FormMain: TFormMain
     Left = 144
     Top = 58
     Width = 522
-    Height = 386
-    ActivePage = tshDaoCode
+    Height = 376
+    ActivePage = tshProxyCode
     Align = alRight
     TabOrder = 1
     object tshDataSet: TTabSheet
       Caption = 'SQL Statement'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Splitter1: TSplitter
         Left = 0
         Top = 225
@@ -69,7 +72,7 @@ object FormMain: TFormMain
       end
       object GridPanel2: TGridPanel
         Left = 0
-        Top = 326
+        Top = 316
         Width = 514
         Height = 32
         Align = alBottom
@@ -77,13 +80,13 @@ object FormMain: TFormMain
         Caption = ' '
         ColumnCollection = <
           item
-            Value = 33.333333333333330000
+            Value = 33.333333333333340000
           end
           item
-            Value = 33.333333333333330000
+            Value = 33.333333333333340000
           end
           item
-            Value = 33.333333333333330000
+            Value = 33.333333333333340000
           end>
         ControlCollection = <
           item
@@ -115,8 +118,8 @@ object FormMain: TFormMain
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 165
-          Height = 26
+          Width = 111
+          Height = 13
           Align = alClient
           Alignment = taCenter
           Caption = 'Ctrl+Enter to generate'
@@ -127,8 +130,6 @@ object FormMain: TFormMain
           Font.Style = [fsItalic]
           ParentFont = False
           WordWrap = True
-          ExplicitWidth = 111
-          ExplicitHeight = 13
         end
       end
       object DBGrid1: TDBGrid
@@ -136,7 +137,7 @@ object FormMain: TFormMain
         Left = 3
         Top = 232
         Width = 508
-        Height = 91
+        Height = 81
         Margins.Top = 1
         Align = alClient
         DataSource = DataSource1
@@ -225,7 +226,6 @@ object FormMain: TFormMain
               Value = 100.000000000000000000
             end>
           TabOrder = 1
-          ExplicitTop = 196
           object Button3: TButton
             AlignWithMargins = True
             Left = 3
@@ -235,16 +235,12 @@ object FormMain: TFormMain
             Action = actExecSQL
             Align = alClient
             TabOrder = 0
-            ExplicitLeft = 224
-            ExplicitTop = 8
-            ExplicitWidth = 75
-            ExplicitHeight = 25
           end
           object Label3: TLabel
             AlignWithMargins = True
             Left = 181
             Top = 3
-            Width = 151
+            Width = 143
             Height = 26
             Margins.Left = 10
             Margins.Right = 10
@@ -258,7 +254,6 @@ object FormMain: TFormMain
             Font.Style = [fsItalic]
             ParentFont = False
             WordWrap = True
-            ExplicitWidth = 143
           end
           object Button4: TButton
             AlignWithMargins = True
@@ -269,15 +264,11 @@ object FormMain: TFormMain
             Action = actQueryBuilder
             Align = alClient
             TabOrder = 1
-            ExplicitLeft = 224
-            ExplicitTop = 8
-            ExplicitWidth = 75
-            ExplicitHeight = 25
           end
         end
       end
     end
-    object tshDaoCode: TTabSheet
+    object tshProxyCode: TTabSheet
       Caption = 'Generated DAO Code'
       ImageIndex = 1
       object mmProxyCode: TMemo
@@ -293,7 +284,7 @@ object FormMain: TFormMain
         Font.Name = 'Consolas'
         Font.Style = []
         Lines.Strings = (
-          'mmDaoCode')
+          'mmProxyCode')
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
@@ -318,7 +309,7 @@ object FormMain: TFormMain
       OnExecute = actSelectConnectionDefExecute
     end
     object actExecSQL: TAction
-      Caption = 'actExecSQL'
+      Caption = 'Exec SQL'
       OnExecute = actExecSQLExecute
     end
     object actGenerateProxy: TAction

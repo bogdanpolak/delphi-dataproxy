@@ -32,7 +32,6 @@ object DialogSelectDefinition: TDialogSelectDefinition
       Align = alBottom
       Caption = 'btnSelect'
       TabOrder = 0
-      OnClick = btnSelectClick
     end
     object ListBox1: TListBox
       AlignWithMargins = True
@@ -43,10 +42,7 @@ object DialogSelectDefinition: TDialogSelectDefinition
       Align = alClient
       ItemHeight = 13
       TabOrder = 1
+      OnDblClick = ListBox1DblClick
     end
-  end
-  object FDConnection1: TFDConnection
-    Left = 96
-    Top = 152
   end
 end

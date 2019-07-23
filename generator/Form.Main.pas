@@ -16,7 +16,7 @@ type
     Button1: TButton;
     PageControl1: TPageControl;
     tshDataSet: TTabSheet;
-    tshDaoCode: TTabSheet;
+    tshProxyCode: TTabSheet;
     GridPanel2: TGridPanel;
     btnGenerateDAO: TButton;
     DBGrid1: TDBGrid;
@@ -76,10 +76,10 @@ uses
   DataModule.Main,
   Dialog.SelectDefinition,
   Helper.TApplication,
-  App.AppInfo, Helper.TDBGrid;
+  App.AppInfo, Helper.TDBGrid, Dialog.QueryBuilder;
 
 const
-  APP_Config_AutoOpenConnectionWithSQLite = False;
+  AUTOOPEN_Application = True;
 
   // --------------------------------------------------------------------------
   // Applicationo start-up
@@ -113,29 +113,16 @@ end;
 procedure TFormMain.tmrReadyTimer(Sender: TObject);
 begin
   tmrReady.Enabled := False;
-  if Application.InDeveloperMode and APP_Config_AutoOpenConnectionWithSQLite
+  if Application.InDeveloperMode and AUTOOPEN_Application
   then
   begin
     CurrentConnDefName := 'SQLite_Demo';
+    actSelectConnectionDef.Caption := 'Definition: ' + CurrentConnDefName;
     actConnect.Enabled := True;
-    actConnect.Caption := 'Connect to: ' + CurrentConnDefName;
     actConnect.Execute;
-    mmSqlStatement.Text := 'SELECT Orders.OrderID, ' + sLineBreak +
-      '  Orders.CustomerID, Customers.CompanyName,  Orders.EmployeeID, ' +
-      sLineBreak +
-      '  Employees.FirstName||'' ''||Employees.LastName EmployeeName, ' +
-      sLineBreak +
-      '  Orders.OrderDate, Orders.RequiredDate, Orders.ShippedDate, ' +
-      sLineBreak + '  Orders.ShipVia, Orders.Freight ' + sLineBreak +
-      'FROM {id Orders} Orders ' + sLineBreak +
-      '  INNER JOIN {id Employees} Employees ' + sLineBreak +
-      '    ON Orders.EmployeeID = Employees.EmployeeID ' + sLineBreak +
-      '  INNER JOIN {id Customers} Customers ' + sLineBreak +
-      '    ON Orders.CustomerID = Customers.CustomerID ' + sLineBreak +
-      'WHERE {year(OrderDate)} = 1997 ' + sLineBreak +
-      'ORDER BY Orders.OrderID ';
-    actExecSQL.Execute;
-    actGenerateProxy.Execute;
+    actQueryBuilder.Execute;
+    // actExecSQL.Execute;
+    // actGenerateProxy.Execute;
   end;
 end;
 
@@ -199,26 +186,19 @@ end;
 
 procedure TFormMain.actGenerateProxyExecute(Sender: TObject);
 begin
-  PageControl1.ActivePage := tshDaoCode;
+  PageControl1.ActivePage := tshProxyCode;
   ProxyGenerator.DataSet := DataSource1.DataSet;
   ProxyGenerator.Generate;
   mmProxyCode.Text := ProxyGenerator.Code;
 end;
 
 procedure TFormMain.actQueryBuilderExecute(Sender: TObject);
+var
+  sql: string;
 begin
-  mmSqlStatement.Text := 'SELECT Orders.OrderID, ' + sLineBreak +
-    '  Orders.CustomerID, Customers.CompanyName,  Orders.EmployeeID, ' +
-    sLineBreak +
-    '  Employees.FirstName||'' ''||Employees.LastName EmployeeName, ' +
-    sLineBreak + '  Orders.OrderDate, Orders.RequiredDate, Orders.ShippedDate, '
-    + sLineBreak + '  Orders.ShipVia, Orders.Freight ' + sLineBreak +
-    'FROM {id Orders} Orders ' + sLineBreak +
-    '  INNER JOIN {id Employees} Employees ' + sLineBreak +
-    '    ON Orders.EmployeeID = Employees.EmployeeID ' + sLineBreak +
-    '  INNER JOIN {id Customers} Customers ' + sLineBreak +
-    '    ON Orders.CustomerID = Customers.CustomerID ' + sLineBreak +
-    'WHERE {year(OrderDate)} = 1997 ' + sLineBreak + 'ORDER BY Orders.OrderID ';
+  sql := TDialogQueryBuilder.Execute;
+  if sql<>'' then
+    mmSqlStatement.Text := sql;
 end;
 
 procedure TFormMain.Action5Execute(Sender: TObject);
