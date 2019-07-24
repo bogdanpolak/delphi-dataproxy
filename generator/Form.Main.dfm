@@ -320,10 +320,6 @@ object FormMain: TFormMain
       Caption = 'Build SELECT'
       OnExecute = actQueryBuilderExecute
     end
-    object Action5: TAction
-      Caption = 'Action5'
-      OnExecute = Action5Execute
-    end
   end
   object DataSource1: TDataSource
     Left = 376

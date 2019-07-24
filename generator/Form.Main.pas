@@ -33,7 +33,6 @@ type
     actSelectConnectionDef: TAction;
     actExecSQL: TAction;
     actQueryBuilder: TAction;
-    Action5: TAction;
     // --------------------------------------------------------------------
     Panel1: TPanel;
     Label2: TLabel;
@@ -54,7 +53,6 @@ type
     procedure actExecSQLExecute(Sender: TObject);
     procedure actGenerateProxyExecute(Sender: TObject);
     procedure actQueryBuilderExecute(Sender: TObject);
-    procedure Action5Execute(Sender: TObject);
     // --------------------------------------------------------------------
   private
     CurrentConnDefName: string;
@@ -76,6 +74,7 @@ implementation
 {$R *.dfm}
 
 uses
+  System.Win.Registry,
   Helper.TApplication, Helper.TDBGrid,
   App.AppInfo,
   DataModule.Main,
@@ -221,11 +220,6 @@ begin
   sql := TDialogQueryBuilder.Execute;
   if sql<>'' then
     mmSqlStatement.Text := sql;
-end;
-
-procedure TFormMain.Action5Execute(Sender: TObject);
-begin
-  // TODO: Place for new feature (implement later)
 end;
 
 // --------------------------------------------------------------------------
