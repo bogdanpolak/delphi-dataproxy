@@ -58,6 +58,7 @@ type
     CurrentConnDefName: string;
     ProxyGenerator: TProxyGenerator;
     FMainDataSet: TDataSet;
+    ConnectionMruList: string;
     procedure InitializeControls;
     procedure UpdateActionEnable;
     procedure StoreConnectionDefinitionInMRUList (const ConnDefName:string);
@@ -82,10 +83,31 @@ uses
 
 const
   AUTOOPEN_Application = False;
+  AppRegistryKey = 'Software\DelphiPower\DataSetProxyGenerator';
 
-  // --------------------------------------------------------------------------
-  // Applicationo start-up
-  // --------------------------------------------------------------------------
+// --------------------------------------------------------------------------
+// TStringsHelper
+// Copy-Paste from DataModule.Main
+// before extraction read information in the unit: DataModule.Main.pas
+// --------------------------------------------------------------------------
+
+type
+  TStringsHelper = class helper for TStrings
+    function ToStringArray: TStringArray;
+  end;
+
+function TStringsHelper.ToStringArray: TStringArray;
+var
+  i: Integer;
+begin
+  SetLength(Result, Self.Count);
+  for i := 0 to Self.Count - 1 do
+    Result[i] := Self[i];
+end;
+
+// --------------------------------------------------------------------------
+// Applicationo start-up
+// --------------------------------------------------------------------------
 
 procedure TFormMain.InitializeControls;
 begin
@@ -99,13 +121,57 @@ end;
 
 procedure TFormMain.StoreConnectionDefinitionInMRUList(
   const ConnDefName: string);
+var
+  reg: TRegistry;
 begin
+  reg := TRegistry.Create(KEY_READ);
+  try
+    reg.RootKey := HKEY_LOCAL_MACHINE;
+    if not reg.KeyExists(AppRegistryKey) then
+    begin
+      reg.CreateKey(AppRegistryKey);
+      // TODO: Check if CreateKey = True and log error
+    end;
+    reg.Access := KEY_WRITE;
+    if reg.OpenKey(AppRegistryKey,False) then
+    begin
+      reg.WriteString('ConnectionMruList',ConnectionMruList);
+    end;
+  finally
+    reg.Free;
+  end;
   // TODO: Implement StoreConnectionDefinitionInMRUList
 end;
 
 function TFormMain.GetConnectionDefinitionMRUList: TStringArray;
+var
+  reg: TRegistry;
+  sl: TStringList;
 begin
-  // TODO: Implement GetConnectionDefinitionMRUList
+  if ConnectionMruList='' then
+  begin
+    reg := TRegistry.Create(KEY_READ);
+    try
+      reg.RootKey := HKEY_LOCAL_MACHINE;
+      if reg.KeyExists(AppRegistryKey) then
+        if reg.OpenKey(AppRegistryKey,False) then
+          ConnectionMruList := reg.ReadString('ConnectionMruList');
+    finally
+      reg.Free;
+    end;
+  end;
+  if ConnectionMruList='' then
+    Result := nil
+  else begin
+    sl := TStringList.Create;
+    try
+      sl.Delimiter := ',';
+      sl.DelimitedText := ConnectionMruList;
+      
+    finally
+      sl.Free;
+    end;
+  end;
 end;
 
 procedure TFormMain.FillConnectionMRUPopupMenu;
