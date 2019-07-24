@@ -57,10 +57,6 @@ object FormMain: TFormMain
     TabOrder = 1
     object tshDataSet: TTabSheet
       Caption = 'SQL Statement'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Splitter1: TSplitter
         Left = 0
         Top = 225
@@ -118,8 +114,8 @@ object FormMain: TFormMain
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 111
-          Height = 13
+          Width = 165
+          Height = 26
           Align = alClient
           Alignment = taCenter
           Caption = 'Ctrl+Enter to generate'
@@ -130,6 +126,8 @@ object FormMain: TFormMain
           Font.Style = [fsItalic]
           ParentFont = False
           WordWrap = True
+          ExplicitWidth = 111
+          ExplicitHeight = 13
         end
       end
       object DBGrid1: TDBGrid
@@ -240,7 +238,7 @@ object FormMain: TFormMain
             AlignWithMargins = True
             Left = 181
             Top = 3
-            Width = 143
+            Width = 151
             Height = 26
             Margins.Left = 10
             Margins.Right = 10
@@ -254,6 +252,7 @@ object FormMain: TFormMain
             Font.Style = [fsItalic]
             ParentFont = False
             WordWrap = True
+            ExplicitWidth = 143
           end
           object Button4: TButton
             AlignWithMargins = True

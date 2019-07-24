@@ -7,8 +7,8 @@ uses
   System.SysUtils, System.Variants, System.Classes, System.Actions,
   Data.DB,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Grids,
-  Vcl.DBGrids, Vcl.ComCtrls, Vcl.ActnList, Vcl.StdCtrls,
-  Plus.ProxyGenerator, Vcl.Menus;
+  Vcl.DBGrids, Vcl.ComCtrls, Vcl.ActnList, Vcl.StdCtrls, Vcl.Menus,
+  Plus.Types, Plus.ProxyGenerator;
 
 type
   TFormMain = class(TForm)
@@ -62,6 +62,9 @@ type
     FMainDataSet: TDataSet;
     procedure InitializeControls;
     procedure UpdateActionEnable;
+    procedure StoreConnectionDefinitionInMRUList (const ConnDefName:string);
+    function GetConnectionDefinitionMRUList: TStringArray;
+    procedure FillConnectionMRUPopupMenu;
   public
   end;
 
@@ -73,13 +76,13 @@ implementation
 {$R *.dfm}
 
 uses
+  Helper.TApplication, Helper.TDBGrid,
+  App.AppInfo,
   DataModule.Main,
-  Dialog.SelectDefinition,
-  Helper.TApplication,
-  App.AppInfo, Helper.TDBGrid, Dialog.QueryBuilder;
+  Dialog.SelectDefinition, Dialog.QueryBuilder;
 
 const
-  AUTOOPEN_Application = True;
+  AUTOOPEN_Application = False;
 
   // --------------------------------------------------------------------------
   // Applicationo start-up
@@ -93,6 +96,23 @@ begin
   mmSqlStatement.Clear;
   mmProxyCode.Clear;
   Self.Caption := TAppInfo.AppName + ' - ' + TAppInfo.Version;
+end;
+
+procedure TFormMain.StoreConnectionDefinitionInMRUList(
+  const ConnDefName: string);
+begin
+  // TODO: Implement StoreConnectionDefinitionInMRUList
+end;
+
+function TFormMain.GetConnectionDefinitionMRUList: TStringArray;
+begin
+  // TODO: Implement GetConnectionDefinitionMRUList
+end;
+
+procedure TFormMain.FillConnectionMRUPopupMenu;
+begin
+  GetConnectionDefinitionMRUList;
+  // TODO: Implement FillConnectionMRUPopupMenu
 end;
 
 procedure TFormMain.FormCreate(Sender: TObject);
@@ -113,6 +133,7 @@ end;
 procedure TFormMain.tmrReadyTimer(Sender: TObject);
 begin
   tmrReady.Enabled := False;
+  FillConnectionMRUPopupMenu;
   if Application.InDeveloperMode and AUTOOPEN_Application
   then
   begin
@@ -165,6 +186,7 @@ begin
   if not DataModule1.IsConnected then
   begin
     DataModule1.OpenConnection(CurrentConnDefName);
+    StoreConnectionDefinitionInMRUList(CurrentConnDefName);
     actConnect.Caption := 'Disconnect';
   end
   else
