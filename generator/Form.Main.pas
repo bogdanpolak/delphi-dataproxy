@@ -106,18 +106,11 @@ begin
 end;
 
 // --------------------------------------------------------------------------
-// Applicationo start-up
+// Connection Definition MRU List
+// * Storage level
+// * Domain level
 // --------------------------------------------------------------------------
-
-procedure TFormMain.InitializeControls;
-begin
-  PageControl1.ActivePageIndex := 0;
-  PageControl1.Align := alClient;
-  mmProxyCode.Align := alClient;
-  mmSqlStatement.Clear;
-  mmProxyCode.Clear;
-  Self.Caption := TAppInfo.AppName + ' - ' + TAppInfo.Version;
-end;
+// TODO: Extract because of SOLID #1: SRP (Single Responsibility)
 
 procedure TFormMain.StoreConnectionDefinitionInMRUList(
   const ConnDefName: string);
@@ -167,7 +160,7 @@ begin
     try
       sl.Delimiter := ',';
       sl.DelimitedText := ConnectionMruList;
-      
+
     finally
       sl.Free;
     end;
@@ -223,6 +216,23 @@ begin
   actExecSQL.Enabled := IsConnected;
   actGenerateProxy.Enabled := IsDataSetActive;
 end;
+
+
+// --------------------------------------------------------------------------
+// Applicationo start-up
+// --------------------------------------------------------------------------
+
+procedure TFormMain.InitializeControls;
+begin
+  PageControl1.ActivePageIndex := 0;
+  PageControl1.Align := alClient;
+  mmProxyCode.Align := alClient;
+  mmSqlStatement.Clear;
+  mmProxyCode.Clear;
+  Self.Caption := TAppInfo.AppName + ' - ' + TAppInfo.Version;
+end;
+
+
 
 // --------------------------------------------------------------------------
 // Action events
