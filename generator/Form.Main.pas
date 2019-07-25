@@ -65,7 +65,9 @@ type
     procedure StoreConnectionDefinitionInMRUList(const ConnDefName: string);
     function GetConnectionDefinitionMRUList: TStringDynArray;
     procedure FillConnectionMRUPopupMenu;
+    procedure PopupMenuRecentConnectionsItemClick (Sender: TObject);
     function UpdateMRUList(const ConnDefName: string): boolean;
+    procedure SetCurrentConnectionDefinition(ConnDefName: string);
   public
   end;
 
@@ -146,6 +148,22 @@ begin
   end;
 end;
 
+procedure TFormMain.SetCurrentConnectionDefinition(ConnDefName: string);
+var
+  IsSelectedDef: Boolean;
+begin
+  if (CurrentConnDefName = '') or (ConnDefName <> '') then
+  begin
+    CurrentConnDefName := ConnDefName;
+    IsSelectedDef := (CurrentConnDefName <> '');
+    if IsSelectedDef then
+      actSelectConnectionDef.Caption := 'Definition: ' + CurrentConnDefName
+    else
+      actSelectConnectionDef.Caption := 'Select Connection';
+    actConnect.Enabled := IsSelectedDef;
+  end;
+end;
+
 procedure TFormMain.StoreConnectionDefinitionInMRUList
   (const ConnDefName: string);
 var
@@ -200,9 +218,31 @@ end;
 procedure TFormMain.FillConnectionMRUPopupMenu;
 var
   list: System.Types.TStringDynArray;
+  i: Integer;
+  item: TMenuItem;
 begin
   list := GetConnectionDefinitionMRUList;
-  // TODO: Implement FillConnectionMRUPopupMenu
+  pmnRecentConnections.Items.Clear;
+  for i := 0 to High(list) do
+  begin
+    item := TMenuItem.Create(pmnRecentConnections);
+    with item do begin
+      Caption := list[i];
+      Tag := i;
+      OnClick := PopupMenuRecentConnectionsItemClick;
+    end;
+    pmnRecentConnections.Items.Add(item);
+  end;
+end;
+
+procedure TFormMain.PopupMenuRecentConnectionsItemClick(Sender: TObject);
+var
+  ConnDefName: string;
+begin
+  if Sender is TMenuItem then begin
+    ConnDefName := Vcl.Menus.StripHotkey( (Sender as TMenuItem).Caption );
+    SetCurrentConnectionDefinition ( ConnDefName );
+  end;
 end;
 
 
@@ -269,21 +309,8 @@ end;
 // --------------------------------------------------------------------------
 
 procedure TFormMain.actSelectConnectionDefExecute(Sender: TObject);
-var
-  ConnDefName: string;
-  IsSelectedDef: boolean;
 begin
-  ConnDefName := TDialogSelectDefinition.Execute;
-  if (CurrentConnDefName = '') or (ConnDefName <> '') then
-  begin
-    CurrentConnDefName := ConnDefName;
-    IsSelectedDef := (CurrentConnDefName <> '');
-    if IsSelectedDef then
-      actSelectConnectionDef.Caption := 'Definition: ' + CurrentConnDefName
-    else
-      actSelectConnectionDef.Caption := 'Select Connection';
-    actConnect.Enabled := IsSelectedDef;
-  end;
+  SetCurrentConnectionDefinition( TDialogSelectDefinition.Execute );
 end;
 
 procedure TFormMain.actConnectExecute(Sender: TObject);

@@ -80,13 +80,13 @@ object FormMain: TFormMain
         Caption = ' '
         ColumnCollection = <
           item
-            Value = 33.333333333333340000
+            Value = 33.333333333333330000
           end
           item
-            Value = 33.333333333333340000
+            Value = 33.333333333333330000
           end
           item
-            Value = 33.333333333333340000
+            Value = 33.333333333333330000
           end>
         ControlCollection = <
           item
@@ -197,13 +197,13 @@ object FormMain: TFormMain
           Caption = ' '
           ColumnCollection = <
             item
-              Value = 33.333333333333340000
+              Value = 33.333333333333330000
             end
             item
-              Value = 33.333333333333340000
+              Value = 33.333333333333330000
             end
             item
-              Value = 33.333333333333340000
+              Value = 33.333333333333330000
             end>
           ControlCollection = <
             item
