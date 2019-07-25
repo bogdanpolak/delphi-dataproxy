@@ -178,7 +178,6 @@ end;
 function TFormMain.GetConnectionDefinitionMRUList: TStringDynArray;
 var
   reg: TRegistry;
-  sl: TStringList;
 begin
   if ConnectionMruList = '' then
   begin
@@ -195,21 +194,14 @@ begin
   if ConnectionMruList = '' then
     Result := nil
   else
-  begin
-    sl := TStringList.Create;
-    try
-      sl.Delimiter := ',';
-      sl.DelimitedText := ConnectionMruList;
-
-    finally
-      sl.Free;
-    end;
-  end;
+    Result := System.StrUtils.SplitString(ConnectionMruList, ',')
 end;
 
 procedure TFormMain.FillConnectionMRUPopupMenu;
+var
+  list: System.Types.TStringDynArray;
 begin
-  GetConnectionDefinitionMRUList;
+  list := GetConnectionDefinitionMRUList;
   // TODO: Implement FillConnectionMRUPopupMenu
 end;
 
