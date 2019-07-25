@@ -5,6 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
+  System.StrUtils, System.Types,
   Data.DB,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Grids,
   Vcl.DBGrids, Vcl.ComCtrls, Vcl.ActnList, Vcl.StdCtrls, Vcl.Menus,
@@ -61,9 +62,10 @@ type
     ConnectionMruList: string;
     procedure InitializeControls;
     procedure UpdateActionEnable;
-    procedure StoreConnectionDefinitionInMRUList (const ConnDefName:string);
-    function GetConnectionDefinitionMRUList: TStringArray;
+    procedure StoreConnectionDefinitionInMRUList(const ConnDefName: string);
+    function GetConnectionDefinitionMRUList: TStringDynArray;
     procedure FillConnectionMRUPopupMenu;
+    function UpdateMRUList(const ConnDefName: string): boolean;
   public
   end;
 
@@ -85,11 +87,11 @@ const
   AUTOOPEN_Application = False;
   AppRegistryKey = 'Software\DelphiPower\DataSetProxyGenerator';
 
-// --------------------------------------------------------------------------
-// TStringsHelper
-// Copy-Paste from DataModule.Main
-// before extraction read information in the unit: DataModule.Main.pas
-// --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // TStringsHelper
+  // Copy-Paste from DataModule.Main
+  // before extraction read information in the unit: DataModule.Main.pas
+  // --------------------------------------------------------------------------
 
 type
   TStringsHelper = class helper for TStrings
@@ -112,50 +114,88 @@ end;
 // --------------------------------------------------------------------------
 // TODO: Extract because of SOLID #1: SRP (Single Responsibility)
 
-procedure TFormMain.StoreConnectionDefinitionInMRUList(
-  const ConnDefName: string);
+function TFormMain.UpdateMRUList(const ConnDefName: string): boolean;
+var
+  list: System.Types.TStringDynArray;
+  len: Integer;
+  i: Integer;
+  j: Integer;
+begin
+  if ConnectionMruList = '' then
+  begin
+    ConnectionMruList := ConnDefName;
+    Result := True;
+  end
+  else
+  begin
+    list := System.StrUtils.SplitString(ConnectionMruList, ',');
+    len := Length(list);
+    if (list[0] = ConnDefName) then
+      Result := False
+    else
+    begin
+      i := 1;
+      while (i < len) and (list[i] <> ConnDefName) do
+        inc(i);
+      for j := i+1 to len-1 do
+        list[j-1] := list[j-1];
+      SetLength(list,len-1);
+      ConnectionMruList := ConnDefName + ',' + String.Join(',',list);
+      Result := True;
+    end;
+  end;
+end;
+
+procedure TFormMain.StoreConnectionDefinitionInMRUList
+  (const ConnDefName: string);
 var
   reg: TRegistry;
 begin
-  reg := TRegistry.Create(KEY_READ);
-  try
-    reg.RootKey := HKEY_CURRENT_USER;
-    if not reg.KeyExists(AppRegistryKey) then
-    begin
-      reg.CreateKey(AppRegistryKey);
-      // TODO: Check if CreateKey = True and log error
+  if UpdateMRUList(ConnDefName) then
+  begin
+    // ----
+    // Store MRU list
+    // ----
+    reg := TRegistry.Create(KEY_READ);
+    try
+      reg.RootKey := HKEY_CURRENT_USER;
+      if not reg.KeyExists(AppRegistryKey) then
+      begin
+        reg.CreateKey(AppRegistryKey);
+        // TODO: Check if CreateKey = True and log error
+      end;
+      reg.Access := KEY_WRITE;
+      if reg.OpenKey(AppRegistryKey, False) then
+      begin
+        reg.WriteString('ConnectionMruList', ConnectionMruList);
+      end;
+    finally
+      reg.Free;
     end;
-    reg.Access := KEY_WRITE;
-    if reg.OpenKey(AppRegistryKey,False) then
-    begin
-      reg.WriteString('ConnectionMruList',ConnectionMruList);
-    end;
-  finally
-    reg.Free;
   end;
-  // TODO: Implement StoreConnectionDefinitionInMRUList
 end;
 
-function TFormMain.GetConnectionDefinitionMRUList: TStringArray;
+function TFormMain.GetConnectionDefinitionMRUList: TStringDynArray;
 var
   reg: TRegistry;
   sl: TStringList;
 begin
-  if ConnectionMruList='' then
+  if ConnectionMruList = '' then
   begin
     reg := TRegistry.Create(KEY_READ);
     try
       reg.RootKey := HKEY_CURRENT_USER;
       if reg.KeyExists(AppRegistryKey) then
-        if reg.OpenKey(AppRegistryKey,False) then
+        if reg.OpenKey(AppRegistryKey, False) then
           ConnectionMruList := reg.ReadString('ConnectionMruList');
     finally
       reg.Free;
     end;
   end;
-  if ConnectionMruList='' then
+  if ConnectionMruList = '' then
     Result := nil
-  else begin
+  else
+  begin
     sl := TStringList.Create;
     try
       sl.Delimiter := ',';
@@ -207,8 +247,7 @@ procedure TFormMain.tmrReadyTimer(Sender: TObject);
 begin
   tmrReady.Enabled := False;
   FillConnectionMRUPopupMenu;
-  if Application.InDeveloperMode and AUTOOPEN_Application
-  then
+  if Application.InDeveloperMode and AUTOOPEN_Application then
   begin
     CurrentConnDefName := 'SQLite_Demo';
     actSelectConnectionDef.Caption := 'Definition: ' + CurrentConnDefName;
@@ -222,8 +261,8 @@ end;
 
 procedure TFormMain.UpdateActionEnable();
 var
-  IsConnected: Boolean;
-  IsDataSetActive: Boolean;
+  IsConnected: boolean;
+  IsDataSetActive: boolean;
 begin
   IsConnected := DataModule1.IsConnected;
   IsDataSetActive := FMainDataSet.Active;
@@ -240,7 +279,7 @@ end;
 procedure TFormMain.actSelectConnectionDefExecute(Sender: TObject);
 var
   ConnDefName: string;
-  IsSelectedDef: Boolean;
+  IsSelectedDef: boolean;
 begin
   ConnDefName := TDialogSelectDefinition.Execute;
   if (CurrentConnDefName = '') or (ConnDefName <> '') then
@@ -293,7 +332,7 @@ var
   sql: string;
 begin
   sql := TDialogQueryBuilder.Execute;
-  if sql<>'' then
+  if sql <> '' then
     mmSqlStatement.Text := sql;
 end;
 
