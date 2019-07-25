@@ -173,21 +173,6 @@ begin
   // TODO: Implement FillConnectionMRUPopupMenu
 end;
 
-procedure TFormMain.FormCreate(Sender: TObject);
-begin
-  ProxyGenerator := TProxyGenerator.Create(Self);
-  FMainDataSet := DataModule1.GetMainDataQuery;
-  DataSource1.DataSet := FMainDataSet;
-  InitializeControls;
-  // -------------------------------------------------------
-  // Inititialize actions
-  // -------------------------------------------------------
-  if Application.InDeveloperMode then
-    ReportMemoryLeaksOnShutdown := True;
-  actConnect.Enabled := False;
-  UpdateActionEnable;
-end;
-
 
 // --------------------------------------------------------------------------
 // Application start-up
@@ -201,6 +186,21 @@ begin
   mmSqlStatement.Clear;
   mmProxyCode.Clear;
   Self.Caption := TAppInfo.AppName + ' - ' + TAppInfo.Version;
+end;
+
+procedure TFormMain.FormCreate(Sender: TObject);
+begin
+  ProxyGenerator := TProxyGenerator.Create(Self);
+  FMainDataSet := DataModule1.GetMainDataQuery;
+  DataSource1.DataSet := FMainDataSet;
+  InitializeControls;
+  // -------------------------------------------------------
+  // Inititialize actions
+  // -------------------------------------------------------
+  if Application.InDeveloperMode then
+    ReportMemoryLeaksOnShutdown := True;
+  actConnect.Enabled := False;
+  UpdateActionEnable;
 end;
 
 procedure TFormMain.tmrReadyTimer(Sender: TObject);
