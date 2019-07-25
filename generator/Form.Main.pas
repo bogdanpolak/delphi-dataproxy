@@ -188,6 +188,21 @@ begin
   UpdateActionEnable;
 end;
 
+
+// --------------------------------------------------------------------------
+// Application start-up
+// --------------------------------------------------------------------------
+
+procedure TFormMain.InitializeControls;
+begin
+  PageControl1.ActivePageIndex := 0;
+  PageControl1.Align := alClient;
+  mmProxyCode.Align := alClient;
+  mmSqlStatement.Clear;
+  mmProxyCode.Clear;
+  Self.Caption := TAppInfo.AppName + ' - ' + TAppInfo.Version;
+end;
+
 procedure TFormMain.tmrReadyTimer(Sender: TObject);
 begin
   tmrReady.Enabled := False;
@@ -216,22 +231,6 @@ begin
   actExecSQL.Enabled := IsConnected;
   actGenerateProxy.Enabled := IsDataSetActive;
 end;
-
-
-// --------------------------------------------------------------------------
-// Applicationo start-up
-// --------------------------------------------------------------------------
-
-procedure TFormMain.InitializeControls;
-begin
-  PageControl1.ActivePageIndex := 0;
-  PageControl1.Align := alClient;
-  mmProxyCode.Align := alClient;
-  mmSqlStatement.Clear;
-  mmProxyCode.Clear;
-  Self.Caption := TAppInfo.AppName + ' - ' + TAppInfo.Version;
-end;
-
 
 
 // --------------------------------------------------------------------------
