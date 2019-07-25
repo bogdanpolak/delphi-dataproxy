@@ -119,7 +119,7 @@ var
 begin
   reg := TRegistry.Create(KEY_READ);
   try
-    reg.RootKey := HKEY_LOCAL_MACHINE;
+    reg.RootKey := HKEY_CURRENT_USER;
     if not reg.KeyExists(AppRegistryKey) then
     begin
       reg.CreateKey(AppRegistryKey);
@@ -145,7 +145,7 @@ begin
   begin
     reg := TRegistry.Create(KEY_READ);
     try
-      reg.RootKey := HKEY_LOCAL_MACHINE;
+      reg.RootKey := HKEY_CURRENT_USER;
       if reg.KeyExists(AppRegistryKey) then
         if reg.OpenKey(AppRegistryKey,False) then
           ConnectionMruList := reg.ReadString('ConnectionMruList');
