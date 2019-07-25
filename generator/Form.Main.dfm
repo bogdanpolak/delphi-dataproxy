@@ -80,13 +80,13 @@ object FormMain: TFormMain
         Caption = ' '
         ColumnCollection = <
           item
-            Value = 33.333333333333340000
+            Value = 33.333333333333330000
           end
           item
-            Value = 33.333333333333340000
+            Value = 33.333333333333330000
           end
           item
-            Value = 33.333333333333340000
+            Value = 33.333333333333330000
           end>
         ControlCollection = <
           item
@@ -197,13 +197,13 @@ object FormMain: TFormMain
           Caption = ' '
           ColumnCollection = <
             item
-              Value = 33.333333333333340000
+              Value = 33.333333333333330000
             end
             item
-              Value = 33.333333333333340000
+              Value = 33.333333333333330000
             end
             item
-              Value = 33.333333333333340000
+              Value = 33.333333333333330000
             end>
           ControlCollection = <
             item
@@ -320,10 +320,6 @@ object FormMain: TFormMain
     object actQueryBuilder: TAction
       Caption = 'Build SELECT'
       OnExecute = actQueryBuilderExecute
-    end
-    object Action5: TAction
-      Caption = 'Action5'
-      OnExecute = Action5Execute
     end
   end
   object DataSource1: TDataSource
