@@ -61,6 +61,9 @@ implementation
 // TODO: Extract to helper repository (requires thought, commnts below)
 // 1) How to resolve dependency on Plus.Types.TStringArray
 //    * maybe change to Helper.Types or Base.Types
+// 2) Consider convertion Helper.Types.TStringArray => System.Types.TStringDynArray
+// Copy-Paste to: Form.Main.pas
+
 
 type
   TStringsHelper = class helper for TStrings
