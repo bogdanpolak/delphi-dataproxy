@@ -3,7 +3,7 @@ unit DataModule.Main;
 interface
 
 uses
-  System.SysUtils, System.Classes,
+  System.SysUtils, System.Classes, System.Types,
   Data.DB,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Stan.Def,
@@ -38,14 +38,14 @@ type
     FDPhysMSSQLDriverLink1: TFDPhysMSSQLDriverLink;
   private
   public
-    function GetConnectionDefList: TStringArray;
+    function GetConnectionDefList: TStringDynArray;
     function IsConnected: boolean;
     procedure OpenConnection (const ConnDefName: String);
     procedure CloseConnection;
     function GetMainDataQuery : TDataSet;
     procedure ExecuteSQL (const TextSQL: String);
-    function GetTablesAndViewsNames: TStringArray;
-    function GetFieldNames (const TableName: string): TStringArray;
+    function GetTablesAndViewsNames: TStringDynArray;
+    function GetFieldNames (const TableName: string): TStringDynArray;
   end;
 
 var
@@ -58,19 +58,16 @@ implementation
 {$R *.dfm}
 
 { TStrings helper }
-// TODO: Extract to helper repository (requires thought, commnts below)
-// 1) How to resolve dependency on Plus.Types.TStringArray
-//    * maybe change to Helper.Types or Base.Types
-// 2) Consider convertion Helper.Types.TStringArray => System.Types.TStringDynArray
+// TODO: Extract to helper repository
 // Copy-Paste to: Form.Main.pas
 
 
 type
   TStringsHelper = class helper for TStrings
-    function ToStringArray: TStringArray;
+    function ToStringArray: System.Types.TStringDynArray;
   end;
 
-function TStringsHelper.ToStringArray: TStringArray;
+function TStringsHelper.ToStringArray: TStringDynArray;
 var
   i: Integer;
 begin
@@ -84,7 +81,7 @@ end;
 
 { TDataModule1 }
 
-function TDataModule1.GetConnectionDefList: TStringArray;
+function TDataModule1.GetConnectionDefList: TStringDynArray;
 var
   i: Integer;
   ConnectionDef: IFDStanConnectionDef;
@@ -124,7 +121,7 @@ begin
   FDQuery1.Open(TextSQL);
 end;
 
-function TDataModule1.GetTablesAndViewsNames: TStringArray;
+function TDataModule1.GetTablesAndViewsNames: TStringDynArray;
 var
   sl: TStringList;
 begin
@@ -137,7 +134,7 @@ begin
   end;
 end;
 
-function TDataModule1.GetFieldNames(const TableName: string): TStringArray;
+function TDataModule1.GetFieldNames(const TableName: string): TStringDynArray;
 var
   sl: TStringList;
 begin

@@ -97,10 +97,10 @@ const
 
 type
   TStringsHelper = class helper for TStrings
-    function ToStringArray: TStringArray;
+    function ToStringArray: TStringDynArray;
   end;
 
-function TStringsHelper.ToStringArray: TStringArray;
+function TStringsHelper.ToStringArray: TStringDynArray;
 var
   i: Integer;
 begin
