@@ -33,6 +33,7 @@ type
     procedure InsertRecord(const Values: array of const);
     function IsEmpty: Boolean; inline;
     procedure Last; inline;
+    function Eof: boolean;
     function Locate(const KeyFields: string; const KeyValues: Variant;
       Options: TLocateOptions): Boolean;
     function Lookup(const KeyFields: string; const KeyValues: Variant;
@@ -114,6 +115,11 @@ end;
 procedure TGenericDataSetProxy.EnableControls;
 begin
   FDataSet.EnableControls;
+end;
+
+function TGenericDataSetProxy.Eof: boolean;
+begin
+  Result := FDataSet.Eof;
 end;
 
 procedure TGenericDataSetProxy.First;
