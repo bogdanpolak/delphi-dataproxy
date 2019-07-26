@@ -57,10 +57,6 @@ object FormMain: TFormMain
     TabOrder = 1
     object tshDataSet: TTabSheet
       Caption = 'SQL Statement'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Splitter1: TSplitter
         Left = 0
         Top = 225

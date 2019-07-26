@@ -5,8 +5,9 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ExtCtrls, Vcl.ActnList,
+  System.Types,
+  Vcl.ActnList, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Graphics,
+  Vcl.Forms, Vcl.Dialogs,
   Plus.Types;
 
 type
@@ -39,7 +40,7 @@ type
     procedure actUseSQLUpdate(Sender: TObject);
     procedure cbxTablesMainChange(Sender: TObject);
   private
-    FTables: TStringArray;
+    FTables: System.Types.TStringDynArray;
     procedure PaintBox1Paint(Sender: TObject);
     procedure DrawInfoListBoxNotImplemented(APaintBox: TPaintBox);
   public
@@ -135,7 +136,7 @@ end;
 procedure TDialogQueryBuilder.actMainTableSelectedExecute(Sender: TObject);
 var
   aTableName: String;
-  Fields: TStringArray;
+  Fields: System.Types.TStringDynArray;
   fldName: String;
   FieldCount: Integer;
   sFieldsList: string;

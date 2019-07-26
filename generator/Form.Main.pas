@@ -89,26 +89,6 @@ const
   AUTOOPEN_Application = False;
   AppRegistryKey = 'Software\DelphiPower\DataSetProxyGenerator';
 
-  // --------------------------------------------------------------------------
-  // TStringsHelper
-  // Copy-Paste from DataModule.Main
-  // before extraction read information in the unit: DataModule.Main.pas
-  // --------------------------------------------------------------------------
-
-type
-  TStringsHelper = class helper for TStrings
-    function ToStringArray: TStringArray;
-  end;
-
-function TStringsHelper.ToStringArray: TStringArray;
-var
-  i: Integer;
-begin
-  SetLength(Result, Self.Count);
-  for i := 0 to Self.Count - 1 do
-    Result[i] := Self[i];
-end;
-
 // --------------------------------------------------------------------------
 // Connection Definition MRU List
 // * Storage level

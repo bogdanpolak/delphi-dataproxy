@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes,
+  System.SysUtils, System.Variants, System.Classes, System.Types,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ActnList,
   Plus.Types;
@@ -18,7 +18,7 @@ type
     procedure ListBox1DblClick(Sender: TObject);
   private
     actSelectConnection: TAction;
-    FConnectionList: TStringArray;
+    FConnectionList: System.Types.TStringDynArray;
     procedure actSelectConnectionExecute (Sender: TObject);
     procedure actSelectConnectionUpdate (Sender: TObject);
   public
@@ -52,7 +52,7 @@ end;
 
 procedure TDialogSelectDefinition.FormCreate(Sender: TObject);
 var
-  DefinitionNames: TStringArray;
+  DefinitionNames: System.Types.TStringDynArray;
   s: String;
 begin
   ListBox1.Clear;
