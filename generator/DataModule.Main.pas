@@ -57,28 +57,6 @@ implementation
 
 {$R *.dfm}
 
-{ TStrings helper }
-// TODO: Extract to helper repository
-// Copy-Paste to: Form.Main.pas
-
-
-type
-  TStringsHelper = class helper for TStrings
-    function ToStringArray: System.Types.TStringDynArray;
-  end;
-
-function TStringsHelper.ToStringArray: TStringDynArray;
-var
-  i: Integer;
-begin
-  SetLength(Result, Self.Count);
-  for i := 0 to Self.Count - 1 do
-    Result[i] := Self[i];
-end;
-
-
-
-
 { TDataModule1 }
 
 function TDataModule1.GetConnectionDefList: TStringDynArray;
