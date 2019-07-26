@@ -1,4 +1,4 @@
-program DataProxyDemo;
+program BooksDataProxy;
 
 uses
   Vcl.Forms,
