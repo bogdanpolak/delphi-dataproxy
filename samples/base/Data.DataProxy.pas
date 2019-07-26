@@ -1,3 +1,7 @@
+﻿{ * ------------------------------------------------------------------------
+  * ♥  Delphi DataProxy Project © 2019  ♥
+  * https://github.com/bogdanpolak/delphi-dataproxy
+  *  ----------------------------------------------------------------------- * }
 unit Data.DataProxy;
 
 interface
