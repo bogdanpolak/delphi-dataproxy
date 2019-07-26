@@ -1,3 +1,7 @@
+ï»¿{ * ------------------------------------------------------------------------
+  * â™¥  Delphi DataProxy Project Â© 2019  â™¥
+  * https://github.com/bogdanpolak/delphi-dataproxy
+  *  ----------------------------------------------------------------------- * }
 unit Data.DataProxy;
 
 interface
@@ -33,6 +37,7 @@ type
     procedure InsertRecord(const Values: array of const);
     function IsEmpty: Boolean; inline;
     procedure Last; inline;
+    function Eof: boolean;
     function Locate(const KeyFields: string; const KeyValues: Variant;
       Options: TLocateOptions): Boolean;
     function Lookup(const KeyFields: string; const KeyValues: Variant;
@@ -46,14 +51,12 @@ type
   end;
 
   TDatasetProxy = class(TGenericDataSetProxy)
-    procedure ForEach(OnElem: TProc<TDatasetProxy>);
+    procedure ForEach(OnElem: TProc);
   end;
 
 implementation
 
 { TGenericDataObject }
-
-uses Helper.TDataSet;
 
 procedure TGenericDataSetProxy.Append;
 begin
@@ -116,6 +119,11 @@ end;
 procedure TGenericDataSetProxy.EnableControls;
 begin
   FDataSet.EnableControls;
+end;
+
+function TGenericDataSetProxy.Eof: boolean;
+begin
+  Result := FDataSet.Eof;
 end;
 
 procedure TGenericDataSetProxy.First;
@@ -188,14 +196,28 @@ end;
 
 { TItarableDataObject }
 
-procedure TDatasetProxy.ForEach(OnElem: TProc<TDatasetProxy>);
+procedure TDatasetProxy.ForEach(OnElem: TProc);
+var
+  Bookmark: TBookmark;
 begin
-  // TODO: Wyci¹gnij kod z helper-a (reu¿ywalnoœæ vs wydajnoœæ)
-  FDataSet.WhileNotEof(
-    procedure()
-    begin
-      OnElem (self);
-    end);
+  self.DisableControls;
+  try
+    Bookmark := FDataSet.GetBookmark;
+    try
+      self.First;
+      while not FDataSet.Eof do
+      begin
+        OnElem();
+        FDataSet.Next;
+      end;
+    finally
+      if FDataSet.BookmarkValid(Bookmark) then
+        FDataSet.GotoBookmark(Bookmark);
+      FDataSet.FreeBookmark(Bookmark);
+    end;
+  finally
+    FDataSet.EnableControls;
+  end;
 end;
 
 end.
