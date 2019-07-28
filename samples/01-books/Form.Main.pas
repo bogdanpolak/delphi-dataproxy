@@ -40,18 +40,17 @@ implementation
 {$R *.dfm}
 
 uses
-  Data.DataProxy;
+  Data.DataProxy, Data.DataProxy.Factory;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
   ds: TDataSet;
 begin
   InitializeMoreExpensiveButtons(nil);
-  BookProxy := TBookProxy.Create(Self);
-  FDConnection1.ExecSQL('SELECT ISBN, Title, Authors, Status, ' +
-    'ReleseDate, Pages, Price, Currency, Imported, Description FROM Books', ds);
-  BookProxy.ConnectWithDataSet(ds);
-  BookProxy.Open;
+  BookProxy := TDataProxyFactory.CreateAndOpenProxy(TBookProxy, Self,
+    FDConnection1, 'SELECT ISBN, Title, Authors, Status, ' +
+    'ReleseDate, Pages, Price, Currency, Imported, Description FROM Books')
+    as TBookProxy;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);

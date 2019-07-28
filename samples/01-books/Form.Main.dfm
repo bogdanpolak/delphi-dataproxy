@@ -31,9 +31,6 @@ object Form1: TForm1
     Align = alLeft
     Caption = 'GroupBox1'
     TabOrder = 0
-    ExplicitLeft = 0
-    ExplicitTop = -2
-    ExplicitHeight = 312
     object Button1: TButton
       AlignWithMargins = True
       Left = 5
@@ -56,7 +53,6 @@ object Form1: TForm1
       TabOrder = 1
       WordWrap = True
       OnClick = Button2Click
-      ExplicitTop = 49
     end
   end
   object ListBox1: TListBox
@@ -69,8 +65,6 @@ object Form1: TForm1
     ItemHeight = 13
     TabOrder = 1
     OnClick = ListBox1Click
-    ExplicitWidth = 478
-    ExplicitHeight = 312
   end
   object FDConnection1: TFDConnection
     Params.Strings = (
