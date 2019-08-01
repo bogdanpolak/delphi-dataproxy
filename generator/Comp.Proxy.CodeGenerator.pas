@@ -33,7 +33,7 @@ implementation
 
 uses
   Helper.TField,
-  App.AppInfo;
+  App.AppInfo, Comp.GenerateDataSetCode;
 
 resourcestring
   ErrDataSetIsRequired = 'DataSet is required to generate new proxy';

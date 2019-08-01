@@ -10,7 +10,8 @@ uses
   App.AppInfo in 'App.AppInfo.pas',
   Helper.TDBGrid in 'Helper.TDBGrid.pas',
   Dialog.QueryBuilder in 'Dialog.QueryBuilder.pas' {DialogQueryBuilder},
-  Helper.TField in 'Helper.TField.pas';
+  Helper.TField in 'Helper.TField.pas',
+  Comp.GenerateDataSetCode in 'Comp.GenerateDataSetCode.pas';
 
 {$R *.res}
 
