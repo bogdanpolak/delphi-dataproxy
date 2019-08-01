@@ -43,8 +43,6 @@ uses
   Data.DataProxy, Data.DataProxy.Factory;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var
-  ds: TDataSet;
 begin
   InitializeMoreExpensiveButtons(nil);
   BookProxy := TDataProxyFactory.CreateAndOpenProxy(TBookProxy, Self,
