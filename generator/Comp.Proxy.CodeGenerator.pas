@@ -11,7 +11,7 @@ uses
 type
   EProxyGenError = class(Exception);
 
-  TProxyGenerator = class(TComponent)
+  TProxyCodeGenerator = class(TComponent)
   private
     Fields: TList<TField>;
     FDataSet: TDataSet;
@@ -51,19 +51,19 @@ end;
 
 { TProxyGenerator }
 
-constructor TProxyGenerator.Create(Owner: TComponent);
+constructor TProxyCodeGenerator.Create(Owner: TComponent);
 begin
   inherited;
   Fields := TList<TField>.Create();
 end;
 
-destructor TProxyGenerator.Destroy;
+destructor TProxyCodeGenerator.Destroy;
 begin
   Fields.Free;
   inherited;
 end;
 
-procedure TProxyGenerator.FillFieldsFromDataSet(ds: TDataSet);
+procedure TProxyCodeGenerator.FillFieldsFromDataSet(ds: TDataSet);
 var
   i: Integer;
 begin
@@ -72,7 +72,7 @@ begin
     Fields.Add(ds.Fields[i]);
 end;
 
-procedure TProxyGenerator.DoGenerateProxy(ds: TDataSet; const code: TStrings);
+procedure TProxyCodeGenerator.DoGenerateProxy(ds: TDataSet; const code: TStrings);
 var
   fld: TField;
 begin
@@ -112,7 +112,7 @@ begin
   code.Add('end;');
 end;
 
-procedure TProxyGenerator.Generate;
+procedure TProxyCodeGenerator.Generate;
 var
   CodeList: TStringList;
 begin
@@ -129,12 +129,12 @@ begin
   end;
 end;
 
-procedure TProxyGenerator.SetCode(const aCode: String);
+procedure TProxyCodeGenerator.SetCode(const aCode: String);
 begin
   FCode := aCode;
 end;
 
-procedure TProxyGenerator.SetDataSet(const aDataSet: TDataSet);
+procedure TProxyCodeGenerator.SetDataSet(const aDataSet: TDataSet);
 begin
   FDataSet := aDataSet;
 end;
