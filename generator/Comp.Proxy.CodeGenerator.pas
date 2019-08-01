@@ -1,4 +1,4 @@
-unit Plus.ProxyGenerator;
+unit Comp.Proxy.CodeGenerator;
 
 interface
 

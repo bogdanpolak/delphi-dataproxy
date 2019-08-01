@@ -6,7 +6,7 @@ uses
   Dialog.SelectDefinition in 'Dialog.SelectDefinition.pas' {DialogSelectDefinition},
   DataModule.Main in 'DataModule.Main.pas' {DataModule1: TDataModule},
   Helper.TApplication in 'Helper.TApplication.pas',
-  Plus.ProxyGenerator in 'Plus.ProxyGenerator.pas',
+  Comp.Proxy.CodeGenerator in 'Comp.Proxy.CodeGenerator.pas',
   App.AppInfo in 'App.AppInfo.pas',
   Helper.TDBGrid in 'Helper.TDBGrid.pas',
   Dialog.QueryBuilder in 'Dialog.QueryBuilder.pas' {DialogQueryBuilder};
