@@ -9,7 +9,8 @@ uses
   Comp.Proxy.CodeGenerator in 'Comp.Proxy.CodeGenerator.pas',
   App.AppInfo in 'App.AppInfo.pas',
   Helper.TDBGrid in 'Helper.TDBGrid.pas',
-  Dialog.QueryBuilder in 'Dialog.QueryBuilder.pas' {DialogQueryBuilder};
+  Dialog.QueryBuilder in 'Dialog.QueryBuilder.pas' {DialogQueryBuilder},
+  Helper.TField in 'Helper.TField.pas';
 
 {$R *.res}
 

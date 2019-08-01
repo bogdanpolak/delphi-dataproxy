@@ -31,25 +31,13 @@ type
 
 implementation
 
-uses App.AppInfo;
+uses
+  Helper.TField,
+  App.AppInfo;
 
 resourcestring
   ErrDataSetIsRequired = 'DataSet is required to generate new proxy';
   ErrDataSetNotActive = 'DataSet have to be active!';
-
-type
-  TFieldHelper = class helper for TField
-    function ToClass: TClass;
-  end;
-
-  { TFieldHelper }
-
-function TFieldHelper.ToClass: TClass;
-begin
-  Result := Data.DB.DefaultFieldClasses[Self.DataType];
-end;
-
-{ TProxyGenerator }
 
 constructor TProxyCodeGenerator.Create(Owner: TComponent);
 begin
