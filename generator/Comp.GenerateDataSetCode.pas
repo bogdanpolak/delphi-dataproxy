@@ -86,11 +86,10 @@ begin
     Result := 'FieldDefs.Add(' + QuotedStr(fld.FieldName) + ', ' +
       FieldTypeToString(fld.DataType) + ');'
   else if (fld.DataType in [ftBCD, ftFMTBcd]) then
-    Result := 'with FieldDefs.AddFieldDef do begin' + sLineBreak +
-      '    Name := ''f1'';  ' +
-      Format('DataType := %s;  Precision := %d;  Size := %d;',
-      [FieldTypeToString(fld.DataType), GetDataFieldPrecision(fld), fld.Size]) +
-      sLineBreak + '  end;'
+    Result := 'with FieldDefs.AddFieldDef do begin' + sLineBreak + '    ' +
+      Format('Name := ''%s'';  DataType := %s;  Precision := %d;  Size := %d;',
+      [fld.FieldName, FieldTypeToString(fld.DataType),
+      GetDataFieldPrecision(fld), fld.Size]) + sLineBreak + '  end;'
   else if (fld.DataType in [ftString, ftWideString]) and (fld.Size > 9999) then
     Result := 'FieldDefs.Add(' + QuotedStr(fld.FieldName) + ', ' +
       FieldTypeToString(fld.DataType) + ', 100);'
