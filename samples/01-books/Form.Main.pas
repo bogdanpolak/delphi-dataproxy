@@ -28,6 +28,7 @@ type
     procedure ListBox1Click(Sender: TObject);
   private
     BookProxy: TBookProxy;
+    InsideUnitTests: Boolean;
     procedure InitializeMoreExpensiveButtons(ABookProxy: TBookProxy);
   public
   end;
@@ -43,8 +44,24 @@ uses
   Data.DataProxy, Data.DataProxy.Factory;
 
 procedure TForm1.FormCreate(Sender: TObject);
+var
+  ds: TDataSet;
 begin
   InitializeMoreExpensiveButtons(nil);
+  // ----------------------------------
+  InsideUnitTests := True;
+  // ----------------------------------
+  if InsideUnitTests then
+  begin
+    BookProxy := TBookProxy.Create(Self);
+    ds := CreateMockTableBook(BookProxy);
+    with BookProxy do
+    begin
+      ConnectWithDataSet(ds);
+      Open;
+    end;
+  end
+  else
   BookProxy := TDataProxyFactory.CreateAndOpenProxy(TBookProxy, Self,
     FDConnection1, 'SELECT ISBN, Title, Authors, Status, ' +
     'ReleseDate, Pages, Price, Currency, Imported, Description FROM Books')
