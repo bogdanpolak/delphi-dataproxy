@@ -38,7 +38,7 @@ object Form1: TForm1
       Width = 164
       Height = 39
       Align = alTop
-      Caption = 'Load Books'
+      Caption = 'Read Books -> ListBox'
       TabOrder = 0
       OnClick = Button1Click
     end
@@ -69,6 +69,7 @@ object Form1: TForm1
   object FDConnection1: TFDConnection
     Params.Strings = (
       'ConnectionDef=SQLite_Books')
+    LoginPrompt = False
     Left = 392
     Top = 24
   end
