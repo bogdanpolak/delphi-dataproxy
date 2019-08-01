@@ -25,7 +25,7 @@ begin
     FieldDefs.Add('ReleseDate', ftDate);
     FieldDefs.Add('Pages', ftInteger);
     with FieldDefs.AddFieldDef do begin
-      Name := 'f1';  DataType := ftBCD;  Precision := 12;  Size := 2;
+      Name := 'Price';  DataType := ftBCD;  Precision := 12;  Size := 2;
     end;
     FieldDefs.Add('Currency', ftWideString, 10);
     FieldDefs.Add('Imported', ftDateTime);
