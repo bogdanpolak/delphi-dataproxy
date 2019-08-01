@@ -21,8 +21,7 @@ uses
   FireDAC.Phys.SQLiteDef, FireDAC.Phys.SQLite,
   FireDAC.Phys.OracleDef, FireDAC.Phys.Oracle,
   FireDAC.Phys.DB2Def, FireDAC.Phys.DB2,
-  FireDAC.Phys.MSSQLDef, FireDAC.Phys.MSSQL, FireDAC.Phys.ODBCBase,
-  Plus.Types;
+  FireDAC.Phys.MSSQLDef, FireDAC.Phys.MSSQL, FireDAC.Phys.ODBCBase;
 
 type
   TDataModule1 = class(TDataModule)
