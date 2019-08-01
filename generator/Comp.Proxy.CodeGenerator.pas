@@ -19,6 +19,7 @@ type
     procedure FillFieldsFromDataSet(ds: TDataSet);
     procedure SetDataSet(const aDataSet: TDataSet);
     procedure SetCode(const aCode: String);
+    function IdentCodeLines(Code: string; spaces: integer): string;
   protected
     procedure DoGenerateProxy(ds: TDataSet; const Code: TStrings);
   public
@@ -58,6 +59,24 @@ begin
   Fields.Clear;
   for i := 0 to ds.Fields.Count - 1 do
     Fields.Add(ds.Fields[i]);
+end;
+
+function TProxyCodeGenerator.IdentCodeLines(Code: string;
+  spaces: integer): string;
+var
+  sl: TStringList;
+  i: integer;
+  len: integer;
+begin
+  sl := TStringList.Create;
+  sl.Text := Code;
+  len := sl.Count;
+  while (sl[sl.Count - 1] = '') do
+    sl.Delete(sl.Count - 1);
+  for i := 0 to sl.Count - 1 do
+    sl[i] := StringOfChar(' ', spaces) + sl[i];
+  Result := sl.Text;
+  sl.Free;
 end;
 
 procedure TProxyCodeGenerator.DoGenerateProxy(ds: TDataSet;
@@ -108,6 +127,7 @@ begin
   Code.Add('  ds: TFDMemTable;');
   Code.Add('begin');
   MemTableCode := TGenerateDataSetCode.GenerateAsString(ds);
+  MemTableCode := IdentCodeLines(MemTableCode, 2);
   Code.Add(MemTableCode);
   Code.Add('  Result := ds;');
   Code.Add('end;');
