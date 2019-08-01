@@ -7,8 +7,7 @@ uses
   System.SysUtils, System.Variants, System.Classes, System.Actions,
   System.Types,
   Vcl.ActnList, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Graphics,
-  Vcl.Forms, Vcl.Dialogs,
-  Plus.Types;
+  Vcl.Forms, Vcl.Dialogs;
 
 type
   TDialogQueryBuilder = class(TForm)

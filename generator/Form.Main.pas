@@ -9,7 +9,7 @@ uses
   Data.DB,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Grids,
   Vcl.DBGrids, Vcl.ComCtrls, Vcl.ActnList, Vcl.StdCtrls, Vcl.Menus,
-  Plus.Types, Plus.ProxyGenerator;
+  Comp.Proxy.CodeGenerator;
 
 type
   TFormMain = class(TForm)
@@ -57,7 +57,7 @@ type
     // --------------------------------------------------------------------
   private
     CurrentConnDefName: string;
-    ProxyGenerator: TProxyGenerator;
+    ProxyGenerator: TProxyCodeGenerator;
     FMainDataSet: TDataSet;
     ConnectionMruList: string;
     procedure InitializeControls;
@@ -242,7 +242,7 @@ end;
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-  ProxyGenerator := TProxyGenerator.Create(Self);
+  ProxyGenerator := TProxyCodeGenerator.Create(Self);
   FMainDataSet := DataModule1.GetMainDataQuery;
   DataSource1.DataSet := FMainDataSet;
   InitializeControls;
