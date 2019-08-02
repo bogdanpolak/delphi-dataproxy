@@ -103,6 +103,7 @@ var
   i: Integer;
   j: Integer;
 begin
+  // TODO: Separate mru-list as an independent component
   if ConnectionMruList = '' then
   begin
     ConnectionMruList := ConnDefName;
