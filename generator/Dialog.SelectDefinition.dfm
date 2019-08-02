@@ -1,6 +1,7 @@
 object DialogSelectDefinition: TDialogSelectDefinition
   Left = 0
   Top = 0
+  BorderIcons = [biSystemMenu]
   Caption = 'DialogSelectDefinition'
   ClientHeight = 355
   ClientWidth = 203
