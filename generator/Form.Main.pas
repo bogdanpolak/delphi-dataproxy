@@ -302,6 +302,7 @@ begin
     // * AddOrUpdateConnection_MruList = UpdateMRUList
     // * WriteConnectionMruList
     StoreConnectionDefinitionInMRUList(CurrentConnDefName);
+    FillConnectionMRUPopupMenu;
     actConnect.Caption := 'Disconnect';
   end
   else
