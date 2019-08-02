@@ -120,10 +120,13 @@ begin
       i := 1;
       while (i < len) and (list[i] <> ConnDefName) do
         inc(i);
-      for j := i+1 to len-1 do
-        list[j-1] := list[j-1];
-      SetLength(list,len-1);
-      ConnectionMruList := ConnDefName + ',' + String.Join(',',list);
+      if i < len then
+      begin
+        for j := i + 1 to len - 1 do
+          list[j - 1] := list[j - 1];
+        SetLength(list, len - 1);
+      end;
+      ConnectionMruList := ConnDefName + ',' + String.Join(',', list);
       Result := True;
     end;
   end;
