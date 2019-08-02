@@ -298,6 +298,9 @@ begin
   if not DataModule1.IsConnected then
   begin
     DataModule1.OpenConnection(CurrentConnDefName);
+    // TODO: misleading method name (2 responsibilities)
+    // * AddOrUpdateConnection_MruList = UpdateMRUList
+    // * WriteConnectionMruList
     StoreConnectionDefinitionInMRUList(CurrentConnDefName);
     actConnect.Caption := 'Disconnect';
   end
