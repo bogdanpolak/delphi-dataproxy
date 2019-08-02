@@ -294,7 +294,10 @@ end;
 
 procedure TFormMain.actSelectConnectionDefExecute(Sender: TObject);
 begin
-  SetCurrentConnectionDefinition( TDialogSelectDefinition.Execute );
+  if TDialogSelectDefinition.Execute then
+  begin
+    SetCurrentConnectionDefinition( TDialogSelectDefinition.ConnectionDef );
+  end;
 end;
 
 procedure TFormMain.actConnectExecute(Sender: TObject);

@@ -18,11 +18,12 @@ type
   private
     actSelectConnection: TAction;
     FConnectionList: System.Types.TStringDynArray;
+    SelectedConnectionDef: string;
     procedure actSelectConnectionExecute (Sender: TObject);
     procedure actSelectConnectionUpdate (Sender: TObject);
   public
-    SelectedConnectionDef: string;
-    class function Execute: String;
+    class var ConnectionDef: String;
+    class function Execute: boolean;
   end;
 
 
@@ -32,18 +33,18 @@ implementation
 
 uses DataModule.Main;
 
-class function TDialogSelectDefinition.Execute: String;
+class function TDialogSelectDefinition.Execute: boolean;
 var
   dialog: TDialogSelectDefinition;
   mr: Integer;
 begin
   dialog := TDialogSelectDefinition.Create(nil);
   try
+    ConnectionDef := '';
     mr := dialog.ShowModal;
-    if mr = mrOK then
-      Result := dialog.SelectedConnectionDef
-    else
-      Result := ''
+    Result := (mr = mrOK);
+    if Result then
+      ConnectionDef := dialog.SelectedConnectionDef
   finally
     dialog.Free;
   end;
