@@ -225,6 +225,8 @@ var
 begin
   if Sender is TMenuItem then begin
     ConnDefName := Vcl.Menus.StripHotkey( (Sender as TMenuItem).Caption );
+    if DataModule1.IsConnected then
+      actConnect.Execute;
     SetCurrentConnectionDefinition ( ConnDefName );
   end;
 end;
@@ -294,7 +296,12 @@ end;
 
 procedure TFormMain.actSelectConnectionDefExecute(Sender: TObject);
 begin
-  SetCurrentConnectionDefinition( TDialogSelectDefinition.Execute );
+  if TDialogSelectDefinition.Execute then
+  begin
+    if DataModule1.IsConnected then
+      actConnect.Execute;
+    SetCurrentConnectionDefinition( TDialogSelectDefinition.ConnectionDef );
+  end;
 end;
 
 procedure TFormMain.actConnectExecute(Sender: TObject);
