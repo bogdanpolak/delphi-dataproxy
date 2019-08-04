@@ -10,7 +10,8 @@ TDataSetProxy is a wrapper component for the TDataSet component. It allows to re
 
 ## Documentation
 
-
+1. [Proxy Generator User Guide](doc/generator-guide.md)
+1. [Using TProxyDataSet in the project](doc/using-proxydataset.md)
 
 ## More
 
