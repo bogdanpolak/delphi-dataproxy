@@ -2,6 +2,7 @@
 
 /OpenConsole.bat
 secure-data.json
+.vscode/**
 
 # ########## OS X hidden file index data
 
