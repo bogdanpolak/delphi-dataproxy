@@ -24,6 +24,20 @@ Main generator's goals are:
   * Creates a Delphi code which builds a `TFDMemTable` component with the same structure as the input dataset
   * Creates a Delphi code that clones data using the `Append` procedure
 
+## Samples
+
+Check `samples` subfolder
+
+1) Books sample
+    1) see the setup documentation: [Samples README](./samples/README.md)
+    1) `TDatasetProxy` class source code is in the `/samples/base` folder
+    1) Generated proxy = `TBookProxy` in (`Data.Proxy.Book.pas` unit)
+    1) Generated mock factory = `function CreateMockTableBook` in (`Data.Mock.Book.pas` unit)
+
+<script src="https://gist.github.com/bogdanpolak/b13f0c5a677c3401734918dbfa7ae755.js"></script>
+
+<script src="https://gist.github.com/bogdanpolak/1622fcc3e4f1185fb4ead8263c9b8b31.js"></script>
+
 ## Documentation
 
 1. [Proxy Generator User Guide](doc/generator-guide.md)
