@@ -34,7 +34,7 @@ type
 implementation
 
 uses
-  System.Rtti;
+  System.Rtti {$IF CompilerVersion < 30.0}, Helper.TStrings {$ENDIF};
 
 constructor TGenerateDataSetCode.Create(AOwner: TComponent);
 begin

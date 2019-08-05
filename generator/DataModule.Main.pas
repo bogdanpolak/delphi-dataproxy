@@ -54,6 +54,8 @@ implementation
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
+{$IF CompilerVersion < 20.0} uses Helper.TStrings; {$ENDIF}
+
 {$R *.dfm}
 
 { TDataModule1 }
