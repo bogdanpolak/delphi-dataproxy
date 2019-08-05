@@ -34,9 +34,89 @@ Check `samples` subfolder
     1) Generated proxy = `TBookProxy` in (`Data.Proxy.Book.pas` unit)
     1) Generated mock factory = `function CreateMockTableBook` in (`Data.Mock.Book.pas` unit)
 
-<script src="https://gist.github.com/bogdanpolak/b13f0c5a677c3401734918dbfa7ae755.js"></script>
+```pas
+unit Data.Proxy.Book;
 
-<script src="https://gist.github.com/bogdanpolak/1622fcc3e4f1185fb4ead8263c9b8b31.js"></script>
+interface
+uses
+  Data.DB,
+  Data.DataProxy;
+
+type
+  TBookProxy = class(TDatasetProxy)
+  private
+    FISBN :TWideStringField;
+    FTitle :TWideStringField;
+    FAuthors :TWideStringField;
+    FStatus :TWideStringField;
+    FReleseDate :TDateField;
+    FPages :TIntegerField;
+    FPrice :TBCDField;
+    FCurrency :TWideStringField;
+    FImported :TDateTimeField;
+    FDescription :TWideStringField;
+  protected
+    procedure ConnectFields; override;
+  public
+    function ToString: String;  override;
+    function CountMoreExpensiveBooks: integer;
+    function LocateISBN (const ISBN: string): boolean;
+    // --------
+    property ISBN :TWideStringField read FISBN;
+    property Title :TWideStringField read FTitle;
+    property Authors :TWideStringField read FAuthors;
+    property Status :TWideStringField read FStatus;
+    property ReleseDate :TDateField read FReleseDate;
+    property Pages :TIntegerField read FPages;
+    property Price :TBCDField read FPrice;
+    property Currency :TWideStringField read FCurrency;
+    property Imported :TDateTimeField read FImported;
+    property Description :TWideStringField read FDescription;
+  end;
+  ...
+```
+[... more code - Gist sample (Data.Proxy.Book.pas)](https://gist.github.com/bogdanpolak/b13f0c5a677c3401734918dbfa7ae755)
+
+```pas
+unit Data.Mock.Book;
+
+interface
+
+uses
+  System.Classes, System.SysUtils,
+  Data.DB,
+  FireDAC.Comp.Client;
+
+function CreateMockTableBook(AOwner: TComponent): TFDMemTable;
+
+implementation
+
+function CreateMockTableBook(AOwner: TComponent): TFDMemTable;
+var
+  ds: TFDMemTable;
+begin
+  ds := TFDMemTable.Create(AOwner);
+  with ds do
+  begin
+    FieldDefs.Add('ISBN', ftWideString, 20);
+    FieldDefs.Add('Title', ftWideString, 100);
+    FieldDefs.Add('Authors', ftWideString, 100);
+    FieldDefs.Add('Status', ftWideString, 15);
+    FieldDefs.Add('ReleseDate', ftDate);
+    FieldDefs.Add('Pages', ftInteger);
+    with FieldDefs.AddFieldDef do begin
+      Name := 'Price';  DataType := ftBCD;  Precision := 12;  Size := 2;
+    end;
+    FieldDefs.Add('Currency', ftWideString, 10);
+    FieldDefs.Add('Imported', ftDateTime);
+    FieldDefs.Add('Description', ftWideString, 2000);
+    CreateDataSet;
+  end;
+  ...
+  Result := ds;
+end;
+```
+[... more code - Gist sample (Data.Mock.Book.pas)](https://gist.github.com/bogdanpolak/1622fcc3e4f1185fb4ead8263c9b8b31)
 
 ## Documentation
 
