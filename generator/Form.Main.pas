@@ -103,6 +103,7 @@ var
   i: Integer;
   j: Integer;
 begin
+  // TODO: Separate mru-list as an independent component
   if ConnectionMruList = '' then
   begin
     ConnectionMruList := ConnDefName;
@@ -119,10 +120,13 @@ begin
       i := 1;
       while (i < len) and (list[i] <> ConnDefName) do
         inc(i);
-      for j := i+1 to len-1 do
-        list[j-1] := list[j-1];
-      SetLength(list,len-1);
-      ConnectionMruList := ConnDefName + ',' + String.Join(',',list);
+      if i < len then
+      begin
+        for j := i + 1 to len - 1 do
+          list[j - 1] := list[j - 1];
+        SetLength(list, len - 1);
+      end;
+      ConnectionMruList := ConnDefName + ',' + String.Join(',', list);
       Result := True;
     end;
   end;
@@ -221,6 +225,8 @@ var
 begin
   if Sender is TMenuItem then begin
     ConnDefName := Vcl.Menus.StripHotkey( (Sender as TMenuItem).Caption );
+    if DataModule1.IsConnected then
+      actConnect.Execute;
     SetCurrentConnectionDefinition ( ConnDefName );
   end;
 end;
@@ -290,7 +296,12 @@ end;
 
 procedure TFormMain.actSelectConnectionDefExecute(Sender: TObject);
 begin
-  SetCurrentConnectionDefinition( TDialogSelectDefinition.Execute );
+  if TDialogSelectDefinition.Execute then
+  begin
+    if DataModule1.IsConnected then
+      actConnect.Execute;
+    SetCurrentConnectionDefinition( TDialogSelectDefinition.ConnectionDef );
+  end;
 end;
 
 procedure TFormMain.actConnectExecute(Sender: TObject);
@@ -298,7 +309,11 @@ begin
   if not DataModule1.IsConnected then
   begin
     DataModule1.OpenConnection(CurrentConnDefName);
+    // TODO: misleading method name (2 responsibilities)
+    // * AddOrUpdateConnection_MruList = UpdateMRUList
+    // * WriteConnectionMruList
     StoreConnectionDefinitionInMRUList(CurrentConnDefName);
+    FillConnectionMRUPopupMenu;
     actConnect.Caption := 'Disconnect';
   end
   else
