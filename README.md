@@ -10,7 +10,7 @@ TDataSetProxy is a wrapper component for the TDataSet component (Delphi). The pr
 
 ## Generator Application
 
-The Generator application automatically creates Delphi source code based od sample SQL query (eg. SELECT statement). The project contains its source code. In current release the `Generator App` uses FireDAC to connect to RDBMS server and execute query, but it's possible to extend support to other Delphi DAC components (eg. AnyDAC). 
+The Generator application automatically creates Delphi source code based od sample SQL query (eg. SELECT statement). The project contains its source code (foder `/generator`). In current release the `Generator App` uses FireDAC to connect to RDBMS server and execute query, but it's possible to extend support to other Delphi DAC components (eg. AnyDAC). 
 
 ![](./doc/resources/generator-app.png)
 
