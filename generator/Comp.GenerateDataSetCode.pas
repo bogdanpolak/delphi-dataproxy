@@ -34,7 +34,7 @@ type
 implementation
 
 uses
-  System.Rtti {$IF CompilerVersion < 30.0}, Helper.TStrings {$ENDIF};
+  System.Rtti, Helper.TStrings;
 
 constructor TGenerateDataSetCode.Create(AOwner: TComponent);
 begin
@@ -213,7 +213,7 @@ begin
   try
     gen.dataSet := ds;
     gen.Execute;
-    Result := gen.Code.ToStringArray;
+    Result := gen.Code.ToStringDynArray;
   finally
     gen.Free;
   end;
