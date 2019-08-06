@@ -66,11 +66,9 @@ function TProxyCodeGenerator.IdentCodeLines(Code: string;
 var
   sl: TStringList;
   i: integer;
-  len: integer;
 begin
   sl := TStringList.Create;
   sl.Text := Code;
-  len := sl.Count;
   while (sl[sl.Count - 1] = '') do
     sl.Delete(sl.Count - 1);
   for i := 0 to sl.Count - 1 do
