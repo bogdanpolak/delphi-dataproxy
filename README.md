@@ -2,7 +2,7 @@
 
 ## Overview
 
-TDataSetProxy is a wrapper component for the TDataSet component (Delphi). It allows to replace a data set component with a mock - memory table. Solution can be used to separate a business class from used by this class datasets during unit testing.
+TDataSetProxy is a wrapper component for the TDataSet component (Delphi). The proxy allows to replace any dataset (TDataSet descendant) with a mock dataset - memory table. Solution can be used to separate a business class from  datasets during unit testing. Another use is to allow easy replacement of one DAC's components with another.
 
 ![](./doc/resources/datasetproxy-01.png)
 
@@ -10,7 +10,7 @@ TDataSetProxy is a wrapper component for the TDataSet component (Delphi). It all
 
 ## Generator Application
 
-This project includes the source code of the Generator application which automatically creates Delphi source code based od sample SQL query (eg. SELECT statement). This application is based on FireDAC's data connections, but it's possible to extend support to other Delphi DAC components (eg. AnyDAC). 
+The Generator application automatically creates Delphi source code based od sample SQL query (eg. SELECT statement). The project contains its source code. In current release the `Generator App` uses FireDAC to connect to RDBMS server and execute query, but it's possible to extend support to other Delphi DAC components (eg. AnyDAC). 
 
 ![](./doc/resources/generator-app.png)
 
