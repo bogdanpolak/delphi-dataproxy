@@ -23,6 +23,8 @@ Main generator's goals are:
 * Generate a dataset mock `MemTable`
   * Creates a Delphi code which builds a `TFDMemTable` component with the same structure as the input dataset
   * Creates a Delphi code that clones data using the `Append` procedure
+  
+Supported Delphi versions: XE8, 10 Seattle, 10.1 Berlin, 10.2 Tokyo, 10.3 Rio
 
 ## Samples
 
