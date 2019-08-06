@@ -54,6 +54,8 @@ implementation
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
+uses Helper.TStrings;
+
 {$R *.dfm}
 
 { TDataModule1 }
@@ -105,7 +107,7 @@ begin
   sl := TStringList.Create;
   try
     FDConnection1.GetTableNames('','','',sl);
-    Result := sl.ToStringArray;
+    Result := sl.ToStringDynArray;
   finally
     sl.Free;
   end;
@@ -118,7 +120,7 @@ begin
   sl := TStringList.Create;
   try
     FDConnection1.GetFieldNames('','',TableName,'',sl);
-    Result := sl.ToStringArray;
+    Result := sl.ToStringDynArray;
   finally
     sl.Free;
   end;
