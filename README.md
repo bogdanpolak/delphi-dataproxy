@@ -6,7 +6,7 @@ TDataSetProxy is a wrapper component for the TDataSet component (Delphi). The pr
 
 ![](./doc/resources/datasetproxy-01.png)
 
-**Inspiration**. Idea is based on Proxy GoF Pattern and Table Module Pattern (from: Martin Fowler - Patterns of Enterprise Application Architecture). 
+**Inspiration**. Idea is based on Proxy GoF pattern and Active Record pattern (from: Martin Fowler - Patterns of Enterprise Application Architecture). See article: [Evolving Toward a Persistence Layer by Patkos Csaba](https://code.tutsplus.com/tutorials/evolving-toward-a-persistence-layer--net-27138)
 
 ## Generator Application
 
