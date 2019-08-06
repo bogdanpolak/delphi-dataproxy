@@ -17,20 +17,22 @@ uses
   System.SysUtils;
 
 function THelperApplication.InDeveloperMode: boolean;
+{$IFDEF DEBUG}
 var
   Extention: string;
   AExeName: string;
   ProjectFileName: string;
 begin
-{$IFDEF DEBUG}
   Extention := '.dpr';
   AExeName := ExtractFileName(Application.ExeName);
   ProjectFileName := ChangeFileExt(AExeName, Extention);
   Result := FileExists(ProjectFileName) or
     FileExists('..\..\' + ProjectFileName);
-{$ELSE}
-  Result := False;
-{$ENDIF}
 end;
+{$ELSE}
+begin
+  Result := False;
+end;
+{$ENDIF}
 
 end.

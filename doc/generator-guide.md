@@ -12,6 +12,10 @@ Application is required modern Delphi IDE with FireDAC components installed (it 
 1) Add a connection definition to your database
     - Can use `FireDAC Explorer` tool or Delphi IDE
 
+Supported Delphi complier versions: 
+- XE8, 
+- 10 Seattle, ... 10.3 Rio
+
 ## First steps
 
 1) Run generator
