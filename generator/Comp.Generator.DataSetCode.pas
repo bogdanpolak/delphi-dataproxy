@@ -1,4 +1,4 @@
-﻿unit Comp.GenerateDataSetCode;
+﻿unit Comp.Generator.DataSetCode;
 
 interface
 
