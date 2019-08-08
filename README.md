@@ -45,35 +45,21 @@ uses
   Data.DataProxy;
 
 type
-  TBookProxy = class(TDatasetProxy)
+  TBookProxy = class(Data.DataProxy.TDatasetProxy)
   private
     FISBN :TWideStringField;
     FTitle :TWideStringField;
-    FAuthors :TWideStringField;
-    FStatus :TWideStringField;
     FReleseDate :TDateField;
     FPages :TIntegerField;
     FPrice :TBCDField;
-    FCurrency :TWideStringField;
-    FImported :TDateTimeField;
-    FDescription :TWideStringField;
   protected
     procedure ConnectFields; override;
   public
-    function ToString: String;  override;
-    function CountMoreExpensiveBooks: integer;
-    function LocateISBN (const ISBN: string): boolean;
-    // --------
     property ISBN :TWideStringField read FISBN;
     property Title :TWideStringField read FTitle;
-    property Authors :TWideStringField read FAuthors;
-    property Status :TWideStringField read FStatus;
     property ReleseDate :TDateField read FReleseDate;
     property Pages :TIntegerField read FPages;
     property Price :TBCDField read FPrice;
-    property Currency :TWideStringField read FCurrency;
-    property Imported :TDateTimeField read FImported;
-    property Description :TWideStringField read FDescription;
   end;
   ...
 ```
@@ -89,11 +75,11 @@ uses
   Data.DB,
   FireDAC.Comp.Client;
 
-function CreateMockTableBook(AOwner: TComponent): TFDMemTable;
+function CreateMemDataSet_Book(AOwner: TComponent): TDataSet;
 
 implementation
 
-function CreateMockTableBook(AOwner: TComponent): TFDMemTable;
+function CreateMemDataSet_Book(AOwner: TComponent): TDataSet;
 var
   ds: TFDMemTable;
 begin
@@ -102,19 +88,24 @@ begin
   begin
     FieldDefs.Add('ISBN', ftWideString, 20);
     FieldDefs.Add('Title', ftWideString, 100);
-    FieldDefs.Add('Authors', ftWideString, 100);
-    FieldDefs.Add('Status', ftWideString, 15);
     FieldDefs.Add('ReleseDate', ftDate);
     FieldDefs.Add('Pages', ftInteger);
     with FieldDefs.AddFieldDef do begin
       Name := 'Price';  DataType := ftBCD;  Precision := 12;  Size := 2;
     end;
-    FieldDefs.Add('Currency', ftWideString, 10);
-    FieldDefs.Add('Imported', ftDateTime);
-    FieldDefs.Add('Description', ftWideString, 2000);
     CreateDataSet;
   end;
-  ...
+  with ds do
+  begin
+    Append;
+    FieldByName('ISBN').Value := '978-0131177055';
+    FieldByName('Title').Value := 'Working Effectively with Legacy Code';
+    FieldByName('ReleseDate').Value := EncodeDate(2004,10,1);
+    FieldByName('Pages').Value := 464;
+    FieldByName('Price').Value := 52.69;
+    Post;
+  end;
+  // ... more rows appended here ...
   Result := ds;
 end;
 ```
