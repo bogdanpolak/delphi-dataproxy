@@ -27,21 +27,23 @@ object DialogQueryBuilder: TDialogQueryBuilder
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 85
+      Width = 187
       Height = 13
       Margins.Bottom = 0
       Align = alTop
       Caption = 'Main table / view:'
+      ExplicitWidth = 85
     end
     object Label2: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 46
-      Width = 147
+      Width = 187
       Height = 13
       Margins.Bottom = 0
       Align = alTop
       Caption = 'Join table / view (multi-select):'
+      ExplicitWidth = 147
     end
     object cbxMainTables: TComboBox
       AlignWithMargins = True
@@ -121,7 +123,6 @@ object DialogQueryBuilder: TDialogQueryBuilder
     Lines.Strings = (
       'mmSqlPreview')
     ParentFont = False
-    ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 2
   end
