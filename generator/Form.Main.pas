@@ -65,7 +65,7 @@ type
     procedure StoreConnectionDefinitionInMRUList(const ConnDefName: string);
     function GetConnectionDefinitionMRUList: TStringDynArray;
     procedure FillConnectionMRUPopupMenu;
-    procedure PopupMenuRecentConnectionsItemClick (Sender: TObject);
+    procedure PopupMenuRecentConnectionsItemClick(Sender: TObject);
     function UpdateMRUList(const ConnDefName: string): boolean;
     procedure SetCurrentConnectionDefinition(ConnDefName: string);
   public
@@ -89,12 +89,13 @@ const
   AUTOOPEN_Application = False;
   AppRegistryKey = 'Software\DelphiPower\DataSetProxyGenerator';
 
-// --------------------------------------------------------------------------
-// Connection Definition MRU List
-// * Storage level
-// * Domain level
-// --------------------------------------------------------------------------
-// TODO: Extract because of SOLID #1: SRP (Single Responsibility)
+
+  // --------------------------------------------------------------------------
+  // Connection Definition MRU List
+  // * Storage level
+  // * Domain level
+  // --------------------------------------------------------------------------
+  // TODO: Extract because of SOLID #1: SRP (Single Responsibility)
 
 function TFormMain.UpdateMRUList(const ConnDefName: string): boolean;
 var
@@ -134,7 +135,7 @@ end;
 
 procedure TFormMain.SetCurrentConnectionDefinition(ConnDefName: string);
 var
-  IsSelectedDef: Boolean;
+  IsSelectedDef: boolean;
 begin
   if (CurrentConnDefName = '') or (ConnDefName <> '') then
   begin
@@ -210,7 +211,8 @@ begin
   for i := 0 to High(list) do
   begin
     item := TMenuItem.Create(pmnRecentConnections);
-    with item do begin
+    with item do
+    begin
       Caption := list[i];
       Tag := i;
       OnClick := PopupMenuRecentConnectionsItemClick;
@@ -223,11 +225,12 @@ procedure TFormMain.PopupMenuRecentConnectionsItemClick(Sender: TObject);
 var
   ConnDefName: string;
 begin
-  if Sender is TMenuItem then begin
-    ConnDefName := Vcl.Menus.StripHotkey( (Sender as TMenuItem).Caption );
+  if Sender is TMenuItem then
+  begin
+    ConnDefName := Vcl.Menus.StripHotkey((Sender as TMenuItem).Caption);
     if DataModule1.IsConnected then
       actConnect.Execute;
-    SetCurrentConnectionDefinition ( ConnDefName );
+    SetCurrentConnectionDefinition(ConnDefName);
   end;
 end;
 
@@ -300,7 +303,7 @@ begin
   begin
     if DataModule1.IsConnected then
       actConnect.Execute;
-    SetCurrentConnectionDefinition( TDialogSelectDefinition.ConnectionDef );
+    SetCurrentConnectionDefinition(TDialogSelectDefinition.ConnectionDef);
   end;
 end;
 
