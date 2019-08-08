@@ -11,7 +11,7 @@ uses
   Helper.TDBGrid in 'Helper.TDBGrid.pas',
   Dialog.QueryBuilder in 'Dialog.QueryBuilder.pas' {DialogQueryBuilder},
   Helper.TField in 'Helper.TField.pas',
-  Comp.GenerateDataSetCode in 'Comp.GenerateDataSetCode.pas',
+  Comp.Generator.DataSetCode in 'Comp.Generator.DataSetCode.pas',
   Helper.TStrings in 'Helper.TStrings.pas';
 
 {$R *.res}

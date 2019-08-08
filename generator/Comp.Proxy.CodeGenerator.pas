@@ -34,7 +34,7 @@ implementation
 
 uses
   Helper.TField,
-  App.AppInfo, Comp.GenerateDataSetCode;
+  App.AppInfo, Comp.Generator.DataSetCode;
 
 resourcestring
   ErrDataSetIsRequired = 'DataSet is required to generate new proxy';
