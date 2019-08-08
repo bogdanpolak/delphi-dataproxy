@@ -9,7 +9,7 @@ uses
   Data.DB,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Grids,
   Vcl.DBGrids, Vcl.ComCtrls, Vcl.ActnList, Vcl.StdCtrls, Vcl.Menus,
-  Comp.Proxy.CodeGenerator;
+  Comp.Proxy.CodeGenerator, Comp.Generator.DataSetCode;
 
 type
   TFormMain = class(TForm)
@@ -58,6 +58,7 @@ type
   private
     CurrentConnDefName: string;
     ProxyGenerator: TProxyCodeGenerator;
+    DataSetGenerator: TGenerateDataSetCode;
     FMainDataSet: TDataSet;
     ConnectionMruList: string;
     procedure InitializeControls;
@@ -252,6 +253,7 @@ end;
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
   ProxyGenerator := TProxyCodeGenerator.Create(Self);
+  DataSetGenerator := TGenerateDataSetCode.Create(Self);
   FMainDataSet := DataModule1.GetMainDataQuery;
   DataSource1.DataSet := FMainDataSet;
   InitializeControls;
@@ -337,11 +339,34 @@ begin
 end;
 
 procedure TFormMain.actGenerateProxyExecute(Sender: TObject);
+var
+  ds: TDataSet;
 begin
   PageControl1.ActivePage := tshProxyCode;
-  ProxyGenerator.DataSet := DataSource1.DataSet;
+  ds := DataSource1.DataSet;
+  ProxyGenerator.DataSet := ds;
   ProxyGenerator.Generate;
-  mmProxyCode.Text := ProxyGenerator.Code;
+  // -----------
+  DataSetGenerator.dataSet := ds;
+  with DataSetGenerator.Header do begin
+    Clear;
+    Add('// -----------------------------------------------------------');
+    Add('');
+    Add('function CreateMockTable{ObjectName} (AOwner: TComponent): TFDMemTable;');
+    Add('var');
+    Add('  ds: TFDMemTable;');
+    Add('begin');
+  end;
+  with DataSetGenerator.Footer do begin
+    Clear;
+    Add('  Result := ds;');
+    Add('end;');
+  end;
+  DataSetGenerator.IndentationText := '  ';
+  DataSetGenerator.Execute;
+  // -----------
+  mmProxyCode.Lines.Text := ProxyGenerator.Code + sLineBreak +
+      DataSetGenerator.Code.Text;
 end;
 
 procedure TFormMain.actQueryBuilderExecute(Sender: TObject);
