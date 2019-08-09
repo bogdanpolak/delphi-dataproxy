@@ -73,7 +73,7 @@ begin
     ds := CreateMockTableBook(AOwner)
   else
     ds := CreateSQLDataSet_Book(AOwner, FDConnection1);
-  BookProxy := TDataProxyFactoryNew.CreateProxy<TBookProxy>(AOwner, ds);
+  BookProxy := TDataProxyFactory.CreateProxy<TBookProxy>(AOwner, ds);
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);

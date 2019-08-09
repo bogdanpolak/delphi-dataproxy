@@ -12,14 +12,14 @@ uses
   FireDAC.Comp.Client;
 
 type
-  TDataProxyFactoryNew = class
+  TDataProxyFactory = class
     class function CreateProxy<T: TDataSetProxy> (Owner: TComponent;
       ADataSet: TDataSet): T;
   end;
 
 implementation
 
-class function TDataProxyFactoryNew.CreateProxy<T>(Owner: TComponent;
+class function TDataProxyFactory.CreateProxy<T>(Owner: TComponent;
   ADataSet: TDataSet): T;
 begin
   Result := T.Create(Owner);
