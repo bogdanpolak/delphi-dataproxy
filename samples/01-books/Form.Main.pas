@@ -43,24 +43,37 @@ implementation
 uses
   Data.DataProxy, Data.DataProxy.Factory;
 
+function CreateSQLDataSet_Book(AOwner: TComponent; AConnection: TFDConnection)
+  : TDataSet;
+var
+  fdq: TFDQuery;
+begin
+  fdq := TFDQuery.Create(AOwner);
+  with fdq do
+  begin
+    Connection := AConnection;
+    SQL.Text := 'SELECT ISBN, Title, Authors, Status, ReleseDate,' +
+      ' Pages, Price, Currency, Imported, Description FROM Books';
+    Open;
+  end;
+  Result := fdq;
+end;
+
 procedure TForm1.FormCreate(Sender: TObject);
 var
-  ds: TDataSet;
+  ds: TDataset;
+  AOwner: TComponent;
 begin
   InitializeMoreExpensiveButtons(nil);
   // ----------------------------------
   InsideUnitTests := True;
   // ----------------------------------
+  AOwner := Self;
   if InsideUnitTests then
-  begin
-    ds := CreateMockTableBook(Self);
-    BookProxy := TDataProxyFactoryNew.CreateProxy<TBookProxy> (Self, ds);
-  end
+    ds := CreateMockTableBook(AOwner)
   else
-  BookProxy := TDataProxyFactory.CreateAndOpenProxy(TBookProxy, Self,
-    FDConnection1, 'SELECT ISBN, Title, Authors, Status, ' +
-    'ReleseDate, Pages, Price, Currency, Imported, Description FROM Books')
-    as TBookProxy;
+    ds := CreateSQLDataSet_Book(AOwner, FDConnection1);
+  BookProxy := TDataProxyFactoryNew.CreateProxy<TBookProxy>(AOwner, ds);
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
