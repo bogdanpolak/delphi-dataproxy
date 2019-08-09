@@ -21,6 +21,12 @@ type
       Owner: TComponent; Connection: TFDConnection; const ASqlStatement: string;  const AParams: array of Variant): TDatasetProxy; overload;
   end;
 
+type
+  TDataProxyFactoryNew = class
+    class function CreateProxy<T: TDataSetProxy> (Owner: TComponent;
+      ADataSet: TDataSet): T;
+  end;
+
 implementation
 
 class function TDataProxyFactory.CreateAndOpenProxy(AClass: TDatasetProxyClass;
@@ -39,6 +45,16 @@ begin
   Connection.ExecSQL('SELECT ISBN, Title, Authors, Status, ' +
     'ReleseDate, Pages, Price, Currency, Imported, Description FROM Books', ds);
   Result.ConnectWithDataSet(ds);
+  Result.Open;
+end;
+
+{ TDataProxyFactoryNew }
+
+class function TDataProxyFactoryNew.CreateProxy<T>(Owner: TComponent;
+  ADataSet: TDataSet): T;
+begin
+  Result := T.Create(Owner);
+  Result.ConnectWithDataSet(ADataSet);
   Result.Open;
 end;
 
