@@ -53,13 +53,8 @@ begin
   // ----------------------------------
   if InsideUnitTests then
   begin
-    BookProxy := TBookProxy.Create(Self);
-    ds := CreateMockTableBook(BookProxy);
-    with BookProxy do
-    begin
-      ConnectWithDataSet(ds);
-      Open;
-    end;
+    ds := CreateMockTableBook(Self);
+    BookProxy := TDataProxyFactoryNew.CreateProxy<TBookProxy> (Self, ds);
   end
   else
   BookProxy := TDataProxyFactory.CreateAndOpenProxy(TBookProxy, Self,
