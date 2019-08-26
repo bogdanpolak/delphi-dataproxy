@@ -114,5 +114,5 @@ end;
 ## Documentation
 
 1. [Proxy Generator User Guide](doc/generator-guide.md)
-1. [Using TProxyDataSet in the project](doc/using-proxydataset.md) (in progress - tbd)
+1. [Using TProxyDataSet in the project](doc/using-proxydataset.md) *(in progress)*
 1. [Why using TDataSetProxy](./doc/compare-dataset-vs-proxy.md)
