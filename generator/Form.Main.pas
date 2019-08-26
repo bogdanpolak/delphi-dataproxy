@@ -9,7 +9,7 @@ uses
   Data.DB,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Grids,
   Vcl.DBGrids, Vcl.ComCtrls, Vcl.ActnList, Vcl.StdCtrls, Vcl.Menus,
-  Comp.Proxy.CodeGenerator;
+  Comp.Proxy.CodeGenerator, Comp.Generator.DataSetCode;
 
 type
   TFormMain = class(TForm)
@@ -58,6 +58,7 @@ type
   private
     CurrentConnDefName: string;
     ProxyGenerator: TProxyCodeGenerator;
+    DataSetGenerator: TGenerateDataSetCode;
     FMainDataSet: TDataSet;
     ConnectionMruList: string;
     procedure InitializeControls;
@@ -65,7 +66,7 @@ type
     procedure StoreConnectionDefinitionInMRUList(const ConnDefName: string);
     function GetConnectionDefinitionMRUList: TStringDynArray;
     procedure FillConnectionMRUPopupMenu;
-    procedure PopupMenuRecentConnectionsItemClick (Sender: TObject);
+    procedure PopupMenuRecentConnectionsItemClick(Sender: TObject);
     function UpdateMRUList(const ConnDefName: string): boolean;
     procedure SetCurrentConnectionDefinition(ConnDefName: string);
   public
@@ -89,12 +90,13 @@ const
   AUTOOPEN_Application = False;
   AppRegistryKey = 'Software\DelphiPower\DataSetProxyGenerator';
 
-// --------------------------------------------------------------------------
-// Connection Definition MRU List
-// * Storage level
-// * Domain level
-// --------------------------------------------------------------------------
-// TODO: Extract because of SOLID #1: SRP (Single Responsibility)
+
+  // --------------------------------------------------------------------------
+  // Connection Definition MRU List
+  // * Storage level
+  // * Domain level
+  // --------------------------------------------------------------------------
+  // TODO: Extract because of SOLID #1: SRP (Single Responsibility)
 
 function TFormMain.UpdateMRUList(const ConnDefName: string): boolean;
 var
@@ -134,7 +136,7 @@ end;
 
 procedure TFormMain.SetCurrentConnectionDefinition(ConnDefName: string);
 var
-  IsSelectedDef: Boolean;
+  IsSelectedDef: boolean;
 begin
   if (CurrentConnDefName = '') or (ConnDefName <> '') then
   begin
@@ -210,7 +212,8 @@ begin
   for i := 0 to High(list) do
   begin
     item := TMenuItem.Create(pmnRecentConnections);
-    with item do begin
+    with item do
+    begin
       Caption := list[i];
       Tag := i;
       OnClick := PopupMenuRecentConnectionsItemClick;
@@ -223,11 +226,12 @@ procedure TFormMain.PopupMenuRecentConnectionsItemClick(Sender: TObject);
 var
   ConnDefName: string;
 begin
-  if Sender is TMenuItem then begin
-    ConnDefName := Vcl.Menus.StripHotkey( (Sender as TMenuItem).Caption );
+  if Sender is TMenuItem then
+  begin
+    ConnDefName := Vcl.Menus.StripHotkey((Sender as TMenuItem).Caption);
     if DataModule1.IsConnected then
       actConnect.Execute;
-    SetCurrentConnectionDefinition ( ConnDefName );
+    SetCurrentConnectionDefinition(ConnDefName);
   end;
 end;
 
@@ -249,6 +253,7 @@ end;
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
   ProxyGenerator := TProxyCodeGenerator.Create(Self);
+  DataSetGenerator := TGenerateDataSetCode.Create(Self);
   FMainDataSet := DataModule1.GetMainDataQuery;
   DataSource1.DataSet := FMainDataSet;
   InitializeControls;
@@ -300,7 +305,7 @@ begin
   begin
     if DataModule1.IsConnected then
       actConnect.Execute;
-    SetCurrentConnectionDefinition( TDialogSelectDefinition.ConnectionDef );
+    SetCurrentConnectionDefinition(TDialogSelectDefinition.ConnectionDef);
   end;
 end;
 
@@ -334,11 +339,34 @@ begin
 end;
 
 procedure TFormMain.actGenerateProxyExecute(Sender: TObject);
+var
+  ds: TDataSet;
 begin
   PageControl1.ActivePage := tshProxyCode;
-  ProxyGenerator.DataSet := DataSource1.DataSet;
+  ds := DataSource1.DataSet;
+  ProxyGenerator.DataSet := ds;
   ProxyGenerator.Generate;
-  mmProxyCode.Text := ProxyGenerator.Code;
+  // -----------
+  DataSetGenerator.dataSet := ds;
+  with DataSetGenerator.Header do begin
+    Clear;
+    Add('// -----------------------------------------------------------');
+    Add('');
+    Add('function CreateMockTable{ObjectName} (AOwner: TComponent): TFDMemTable;');
+    Add('var');
+    Add('  ds: TFDMemTable;');
+    Add('begin');
+  end;
+  with DataSetGenerator.Footer do begin
+    Clear;
+    Add('  Result := ds;');
+    Add('end;');
+  end;
+  DataSetGenerator.IndentationText := '  ';
+  DataSetGenerator.Execute;
+  // -----------
+  mmProxyCode.Lines.Text := ProxyGenerator.Code + sLineBreak +
+      DataSetGenerator.Code.Text;
 end;
 
 procedure TFormMain.actQueryBuilderExecute(Sender: TObject);

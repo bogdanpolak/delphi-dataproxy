@@ -44,6 +44,8 @@ uses
   System.SysUtils;
 
 procedure TBookProxy.ConnectFields;
+const
+  ExpectedFieldCount = 10;
 begin
   FISBN := FDataSet.FieldByName('ISBN') as TWideStringField;
   FTitle := FDataSet.FieldByName('Title') as TWideStringField;
@@ -55,6 +57,7 @@ begin
   FCurrency := FDataSet.FieldByName('Currency') as TWideStringField;
   FImported := FDataSet.FieldByName('Imported') as TDateTimeField;
   FDescription := FDataSet.FieldByName('Description') as TWideStringField;
+  Assert(FDataSet.Fields.Count = ExpectedFieldCount);
 end;
 
 function TBookProxy.CountMoreExpensiveBooks: integer;
