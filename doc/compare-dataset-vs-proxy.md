@@ -30,4 +30,25 @@ Working with RDBMS (SQL servers) in Delphi looks to be very productive and simpl
 
 ## Why using proxy?
 
-TBD ...
+Classic approach (`TDataSet-s` placed on the `TDataModule`) almost prevents proper (object oriented) organization of the project: which is bundling the data with the behavior that uses it. A Data Proxy object organizes domain logic with one class per TDataSet query (eg. SELECT command).
+
+This is a pragmatic approach that is fairly easy to implement and quick to deploy. Migration process can be partially automated.
+
+- **Pros**:
+   - Better project organization
+   - Easier to find code to be fixed or developed
+   - Allows to implement unit tests with a memory datasets and with mocks
+   - Allows to modernize the project architecture (SOLID principles, GoF patterns)
+   - Encourages you to write clean code
+   - Path towards the domain model (use ORM framework)
+   - Opening to the Test-Driven Development (TDD)
+   - Facilitates verification of new code through peer reviews
+   - Reduces the number of dependencies and the level of project complexity
+   - Allows you to pay off technical debt
+   - Limits the time wasted on reading and debugging code
+
+- **Cons**:
+   - Requires time to learn and verify in action
+   - Requires more time and more code to The implement the new functionality
+   - More difficult to understand for developers who are familiar with the VCL components
+   - Requires convincing decision makers and proving superiority to a faster classic approach
