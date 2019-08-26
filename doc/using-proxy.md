@@ -66,7 +66,8 @@ You can immediately replace the classic `TDataSet` with the generated object, bu
 ```pas
 function TBookProxy.ToString: String;
 begin
-  Result := Format('%s (%.2f %s)',[Title.Value,Price.Value,Currency.Value]);
+  Result := Format('%s %s (%.2f %s)',[ISBN.Value,Title.Value,
+    Price.Value,Currency.Value]);
 end;
 
 function TBookProxy.LocateISBN(const ISBN: string): boolean;
@@ -136,32 +137,24 @@ end;
 
 ```pas
 procedure TForm1.Button1Click(Sender: TObject);
-var
- ABook: TBookProxy;
 begin
   ListBox1.ItemIndex := -1;
-  InitializeMoreExpensiveButtons(nil);
   ListBox1.Clear;
-  ABook := DataModule1.BookProxy;
-  ABook.ForEach(
+   DataModule1.BookProxy.ForEach(
     procedure
     begin
-      ListBox1.Items.Add(ABook.ISBN.Value + ' ' +ABook.ToString);
+      ListBox1.Items.Add(DataModule1.BookProxy.ToString);
     end);
 end;
 ```
 
 ```pas
 procedure TForm1.ListBox1Click(Sender: TObject);
-var
-  s: string;
-  ISBN: string;
 begin
   if (ListBox1.ItemIndex >= 0) then
   begin
-    s := ListBox1.Items[ListBox1.ItemIndex];
-    ISBN := s.Substring(0, 14);  // TODO: refactor this ugly code
-    DataModule1.BookProxy.LocateISBN(ISBN);
+    DataModule1.BookProxy.LocateISBN(
+      GetBookISBN_From_ListBoxCurrentItem(ListBox1) );
     Self.Caption := DataModule1.BookProxy.Title.Value;
   end;
 end;
