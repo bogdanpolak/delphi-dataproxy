@@ -5,6 +5,7 @@ The modernization process includes 4 steps:
 2. Moving the behavior to the proxy (optional)
 3. Create the proxy
 4. Replace `TDataSet` with the proxy
+5. Replace static DataSet with dynamic
 
 ## 1. The proxy generation 
 
@@ -101,34 +102,14 @@ uses
 type
   TDataModule1 = class(TDataModule)
     procedure TDataModule1.DataModuleCreate(Sender: TObject);
-  private
-    function CreateSQLDataSet_Book(AOwner: TComponent; 
-      AConnection: TFDConnection): TDataSet;
   public
     BookProxy: TBookProxy;
   end;
 
-function TDataModule1.CreateSQLDataSet_Book(AOwner: TComponent; 
-  AConnection: TFDConnection): TDataSet;
-var
-  fdq: TFDQuery;
-begin
-  fdq := TFDQuery.Create(AOwner);
-  with fdq do
-  begin
-    Connection := AConnection;
-    SQL.Text := 'SELECT ISBN, Title, Authors, Status, ReleseDate,' +
-      ' Pages, Price, Currency, Imported, Description FROM Books';
-    Open;
-  end;
-  Result := fdq;
-end;
-
 procedure TDataModule1.DataModuleCreate(Sender: TObject);
 var
 begin
-  BookProxy := TDataProxyFactory.CreateProxy<TBookProxy>(Self,
-    CreateSQLDataSet_Book(Self, FDConnection1));
+  BookProxy := TDataProxyFactory.CreateProxy<TBookProxy>(Self,FDQueryBooks);
 end;
 ```
 
@@ -165,5 +146,33 @@ procedure TForm1.Button2Click(Sender: TObject);
 begin
   Button2.Caption := Format('More expensive books = %d',
     [DataModule1.BookProxy.CountMoreExpensiveBooks]);
+end;
+```
+
+## 5. Replace static DataSet with dynamic
+
+```pas
+// private method
+function TDataModule1.CreateSQLDataSet_Book(AOwner: TComponent; 
+  AConnection: TFDConnection): TDataSet;
+var
+  fdq: TFDQuery;
+begin
+  fdq := TFDQuery.Create(AOwner);
+  with fdq do
+  begin
+    Connection := AConnection;
+    SQL.Text := 'SELECT ISBN, Title, Authors, Status, ReleseDate,' +
+      ' Pages, Price, Currency, Imported, Description FROM Books';
+    Open;
+  end;
+  Result := fdq;
+end;
+
+procedure TDataModule1.DataModuleCreate(Sender: TObject);
+var
+begin
+  BookProxy := TDataProxyFactory.CreateProxy<TBookProxy>(Self,
+    CreateSQLDataSet_Book(Self, FDConnection1));
 end;
 ```
