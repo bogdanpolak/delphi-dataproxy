@@ -45,3 +45,10 @@ This is a pragmatic approach that is fairly easy to implement and quick to deplo
    - Facilitates verification of new code through peer reviews
    - Reduces the number of dependencies and the level of project complexity
    - Allows you to pay off technical debt
+   - Limits the time wasted on reading and debugging code
+
+- **Cons**:
+   - Requires time to learn and verify in action
+   - Requires more time and more code to The implement the new functionality
+   - More difficult to understand for developers who are familiar with the VCL components
+   - Requires convincing decision makers and proving superiority to a faster classic approach
