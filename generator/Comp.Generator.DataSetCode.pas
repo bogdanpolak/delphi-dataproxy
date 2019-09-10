@@ -22,8 +22,8 @@ type
   const
     // * --------------------------------------------------------------------
     // * Signature
-    ReleaseDate = '2019.08.08';
-    ReleaseVersion = '1.0';
+    ReleaseDate = '2019.09.10';
+    ReleaseVersion = '1.1';
     // * --------------------------------------------------------------------
     MaxLiteralLenght = 70;
   private
@@ -281,6 +281,7 @@ begin
   begin
     with Code do
     begin
+      Add('{$REGION ''Append data to MemTable''}');
       Add(IndentationText + 'with ds do');
       Add(IndentationText + 'begin');
       Add(IndentationText + '  Append;');
@@ -295,6 +296,7 @@ begin
     end;
     dataSet.Next;
   end;
+  Code.Add('{$ENDREGION}');
   dataSet.EnableControls;
 end;
 
