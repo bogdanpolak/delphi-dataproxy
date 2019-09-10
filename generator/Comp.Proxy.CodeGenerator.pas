@@ -90,12 +90,11 @@ begin
   Code.Add('implementation');
   Code.Add('');
   Code.Add('uses');
-  Code.Add('  System.SysUtils,');
-  Code.Add('  Database.Connector;');
+  Code.Add('  System.SysUtils;');
   Code.Add('');
   Code.Add('procedure T{ObjectName}Proxy.ConnectFields;');
   Code.Add('const');
-  Code.Add('  ExpectedFieldCount = '+ Fields.Count.ToString +';');
+  Code.Add('  ExpectedFieldCount = ' + Fields.Count.ToString + ';');
   Code.Add('begin');
   for fld in Fields do
     Code.Add('  F' + fld.FieldName + ' := FDataSet.FieldByName(' +
