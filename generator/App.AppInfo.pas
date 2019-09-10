@@ -8,9 +8,9 @@ type
   const
     AppName = 'Proxy Generator for FireDAC';
   const
-    Version = '0.6';
+    Version = '0.7';
   const
-    ReleaseISODate = '2019-08-26';
+    ReleaseISODate = '2019-09-10';
   end;
 
 // -----------------------------------------------------
