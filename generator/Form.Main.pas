@@ -352,7 +352,7 @@ begin
     Clear;
     Add('// -----------------------------------------------------------');
     Add('');
-    Add('function CreateMockTable{ObjectName} (AOwner: TComponent): TFDMemTable;');
+    Add('class function T{ObjectName}Proxy.CreateMockTable (AOwner: TComponent): TFDMemTable;');
     Add('var');
     Add('  ds: TFDMemTable;');
     Add('begin');
