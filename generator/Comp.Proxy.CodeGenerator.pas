@@ -70,7 +70,10 @@ begin
     FormatDateTime('yyyy-mm-dd hh:nn', Now));
   Code.Add('uses');
   Code.Add('  Data.DB,');
-  Code.Add('  Data.DataProxy;');
+  Code.Add('  Data.DataProxy,');
+  Code.Add('  System.SysUtils,');
+  Code.Add('  System.Classes,');
+  Code.Add('  FireDAC.Comp.Client;');
   Code.Add('');
   Code.Add('type');
   Code.Add('  T{ObjectName}Proxy = class(TDatasetProxy)');
@@ -80,6 +83,7 @@ begin
   Code.Add('  protected');
   Code.Add('    procedure ConnectFields; override;');
   Code.Add('  public');
+  Code.Add('    class function CreateMockTable (AOwner: TComponent): TFDMemTable;');
   for fld in Fields do
     Code.Add('    property ' + fld.FieldName + ' :' + fld.ToClass.ClassName +
       ' read F' + fld.FieldName + ';');
@@ -89,13 +93,9 @@ begin
   Code.Add('');
   Code.Add('implementation');
   Code.Add('');
-  Code.Add('uses');
-  Code.Add('  System.SysUtils,');
-  Code.Add('  Database.Connector;');
-  Code.Add('');
   Code.Add('procedure T{ObjectName}Proxy.ConnectFields;');
   Code.Add('const');
-  Code.Add('  ExpectedFieldCount = '+ Fields.Count.ToString +';');
+  Code.Add('  ExpectedFieldCount = ' + Fields.Count.ToString + ';');
   Code.Add('begin');
   for fld in Fields do
     Code.Add('  F' + fld.FieldName + ' := FDataSet.FieldByName(' +
