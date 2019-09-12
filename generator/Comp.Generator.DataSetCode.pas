@@ -22,7 +22,7 @@ type
   const
     // * --------------------------------------------------------------------
     // * Signature
-    ReleaseDate = '2019.09.10';
+    ReleaseDate = '2019.09.12';
     ReleaseVersion = '1.1';
     // * --------------------------------------------------------------------
     MaxLiteralLenght = 70;
@@ -64,6 +64,7 @@ begin
   FCode := TStringList.Create;
   FHeader := TStringList.Create;
   FFooter := TStringList.Create;
+  FIndentationText := '  ';
 end;
 
 destructor TGenerateDataSetCode.Destroy;
@@ -181,7 +182,7 @@ begin
       end
       else
       begin
-        s2 := s2 + IndentationText + '    ' +
+        s2 := s2 + IndentationText + IndentationText + IndentationText +
           s1.Substring(0, MaxLiteralLenght - 1) + '''+' + sLineBreak;
         s1 := '''' + s1.Substring(MaxLiteralLenght - 1);
       end;
@@ -263,8 +264,8 @@ begin
     Add(IndentationText + 'with ds do');
     Add(IndentationText + 'begin');
     for fld in dataSet.Fields do
-      Add(IndentationText + '  ' + GenCodeLineFieldDefAdd(fld));
-    Add(IndentationText + '  CreateDataSet;');
+      Add(IndentationText + IndentationText + GenCodeLineFieldDefAdd(fld));
+    Add(IndentationText + IndentationText + 'CreateDataSet;');
     Add(IndentationText + 'end;');
   end;
 end;
@@ -274,6 +275,7 @@ var
   fld: TField;
   s1: string;
 begin
+  Code.Add('{$REGION ''Append data to MemTable''}');
   dataSet.DisableControls;
   dataSet.Open;
   dataSet.First;
@@ -281,23 +283,22 @@ begin
   begin
     with Code do
     begin
-      Add('{$REGION ''Append data to MemTable''}');
       Add(IndentationText + 'with ds do');
       Add(IndentationText + 'begin');
-      Add(IndentationText + '  Append;');
+      Add(IndentationText + IndentationText+ 'Append;');
       for fld in dataSet.Fields do
       begin
         s1 := GenCodeLineSetFieldValue(fld);
         if s1 <> '' then
-          Add(IndentationText + '  ' + s1);
+          Add(IndentationText + IndentationText + s1);
       end;
-      Add(IndentationText + '  Post;');
+      Add(IndentationText + IndentationText + 'Post;');
       Add(IndentationText + 'end;');
     end;
     dataSet.Next;
   end;
-  Code.Add('{$ENDREGION}');
   dataSet.EnableControls;
+  Code.Add('{$ENDREGION}');
 end;
 
 procedure TGenerateDataSetCode.Execute;
