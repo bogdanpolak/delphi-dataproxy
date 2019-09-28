@@ -36,30 +36,30 @@ type
     // -------------
     procedure ConnectWithDataSet(aDataSet: TDataSet);
     // -------------
-    procedure Append; inline;
-    procedure Cancel; inline;
-    procedure Close; inline;
+    procedure Append;
+    procedure Cancel;
+    procedure Close;
     function ControlsDisabled: Boolean;
     function CreateBlobStream(Field: TField; Mode: TBlobStreamMode): TStream;
-    procedure Delete; inline;
+    procedure Delete;
     procedure DisableControls;
-    procedure Edit; inline;
+    procedure Edit;
     procedure EnableControls;
-    procedure First; inline;
-    procedure Insert; inline;
+    procedure First;
+    procedure Insert;
     procedure InsertRecord(const Values: array of const);
-    function IsEmpty: Boolean; inline;
-    procedure Last; inline;
+    function IsEmpty: Boolean;
+    procedure Last;
     function Eof: boolean;
     function Locate(const KeyFields: string; const KeyValues: Variant;
       Options: TLocateOptions): Boolean;
     function Lookup(const KeyFields: string; const KeyValues: Variant;
       const ResultFields: string): Variant;
-    procedure Next; inline;
+    procedure Next;
     procedure Open;
-    procedure Post; inline;
-    procedure Prior; inline;
-    procedure Refresh; inline;
+    procedure Post;
+    procedure Prior;
+    procedure Refresh;
     function UpdateStatus: TUpdateStatus;
   end;
 
