@@ -9,8 +9,6 @@ uses
   System.SysUtils;
 
 type
-  EProxyGenError = class(Exception);
-
   TProxyCodeGenerator = class(TComponent)
   private
     Fields: TList<TField>;
@@ -23,6 +21,7 @@ type
   public
     constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
+  published
     property Code: TStringList read FCode;
     property DataSet: TDataSet read FDataSet write FDataSet;
     procedure Execute;
@@ -33,10 +32,6 @@ implementation
 uses
   Helper.TField,
   App.AppInfo;
-
-resourcestring
-  ErrDataSetIsRequired = 'DataSet is required to generate new proxy';
-  ErrDataSetNotActive = 'DataSet have to be active!';
 
 constructor TProxyCodeGenerator.Create(Owner: TComponent);
 begin
@@ -63,10 +58,8 @@ end;
 
 procedure TProxyCodeGenerator.Guard;
 begin
-  if DataSet = nil then
-    raise EProxyGenError.Create(ErrDataSetIsRequired);
-  if not DataSet.Active then
-    raise EProxyGenError.Create(ErrDataSetNotActive);
+  Assert( DataSet <> nil );
+  Assert( DataSet.Active );
 end;
 
 procedure TProxyCodeGenerator.DoGenerate;
