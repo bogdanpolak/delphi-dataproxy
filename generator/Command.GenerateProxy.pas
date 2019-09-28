@@ -41,7 +41,7 @@ end;
 function TProxyGeneratorCommand.Execute(dataset: TDataSet): String;
 begin
   ProxyGenerator.DataSet := dataset;
-  ProxyGenerator.Generate;
+  ProxyGenerator.Execute;
   // -----------
   DataSetGenerator.dataSet := dataset;
   DataSetGenerator.IndentationText := '  ';
@@ -49,7 +49,7 @@ begin
   // -----------
   GeneratedCode.Clear;
   with GeneratedCode do begin
-    Add( ProxyGenerator.Code );
+    AddStrings( ProxyGenerator.Code );
     Add('');
     Add('// -----------------------------------------------------------');
     Add('');
