@@ -1,6 +1,13 @@
 ﻿{ * ------------------------------------------------------------------------
-  * ♥  Delphi DataProxy Project © 2019  ♥
-  * https://github.com/bogdanpolak/delphi-dataproxy
+  * ♥
+  * ♥  Delphi DataSetProxy component - wrapper for Delphi TDataSet
+  * ♥
+  * Home: https://github.com/bogdanpolak/delphi-dataproxy
+  *
+  * Classes:
+  *   1. TGenericDataSetProxy - base class for the wrapper
+  *   2. TDatasetProxy - inherited from TGenericDataSetProxy adding ForEach
+  *   3. TDataProxyFactory - TDasetProxy and derived clasess factory
   *  ----------------------------------------------------------------------- * }
 unit Data.DataProxy;
 
@@ -13,6 +20,12 @@ uses
 
 type
   TGenericDataSetProxy = class(TComponent)
+  const
+    // * --------------------------------------------------------------------
+    // * Component Signature
+    ReleaseDate = '2019.09.28';
+    ReleaseVersion = '1.0';
+    // * --------------------------------------------------------------------
   private
   protected
     FDataSet: TDataSet;
@@ -54,9 +67,16 @@ type
     procedure ForEach(OnElem: TProc);
   end;
 
+  TDataProxyFactory = class
+    class function CreateProxy<T: TDataSetProxy> (Owner: TComponent;
+      ADataSet: TDataSet): T;
+  end;
+
 implementation
 
-{ TGenericDataObject }
+// * --------------------------------------------------------------------
+// * TGenericDataSetProxy
+// * --------------------------------------------------------------------
 
 procedure TGenericDataSetProxy.Append;
 begin
@@ -194,7 +214,10 @@ begin
   Result := FDataSet.UpdateStatus;
 end;
 
-{ TItarableDataObject }
+
+// * --------------------------------------------------------------------
+// * TDatasetProxy
+// * --------------------------------------------------------------------
 
 procedure TDatasetProxy.ForEach(OnElem: TProc);
 var
@@ -218,6 +241,19 @@ begin
   finally
     FDataSet.EnableControls;
   end;
+end;
+
+
+// * --------------------------------------------------------------------
+// * TDataProxyFactory
+// * --------------------------------------------------------------------
+
+class function TDataProxyFactory.CreateProxy<T>(Owner: TComponent;
+  ADataSet: TDataSet): T;
+begin
+  Result := T.Create(Owner);
+  Result.ConnectWithDataSet(ADataSet);
+  Result.Open;
 end;
 
 end.
