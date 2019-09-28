@@ -18,6 +18,7 @@ type
     FCode: TStringList;
     procedure FillFieldsFromDataSet(ds: TDataSet);
     procedure DoGenerate;
+    procedure Guard;
   protected
   public
     constructor Create(Owner: TComponent); override;
@@ -58,6 +59,14 @@ begin
   Fields.Clear;
   for i := 0 to ds.Fields.Count - 1 do
     Fields.Add(ds.Fields[i]);
+end;
+
+procedure TProxyCodeGenerator.Guard;
+begin
+  if DataSet = nil then
+    raise EProxyGenError.Create(ErrDataSetIsRequired);
+  if not DataSet.Active then
+    raise EProxyGenError.Create(ErrDataSetNotActive);
 end;
 
 procedure TProxyCodeGenerator.DoGenerate;
@@ -105,10 +114,7 @@ end;
 
 procedure TProxyCodeGenerator.Execute;
 begin
-  if DataSet = nil then
-    raise EProxyGenError.Create(ErrDataSetIsRequired);
-  if not DataSet.Active then
-    raise EProxyGenError.Create(ErrDataSetNotActive);
+  Guard;
   DoGenerate;
 end;
 
