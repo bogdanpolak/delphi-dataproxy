@@ -22,12 +22,13 @@ type
   const
     // * --------------------------------------------------------------------
     // * Signature
-    ReleaseDate = '2019.09.12';
-    ReleaseVersion = '1.1';
+    ReleaseDate = '2019.09.24';
+    ReleaseVersion = '1.2';
     // * --------------------------------------------------------------------
     MaxLiteralLenght = 70;
   private
-    FCode: TStrings;
+    FCodeWithStructue: TStrings;
+    FCodeWithAppendData: TStrings;
     FDataSet: TDataSet;
     FHeader: TStrings;
     FFooter: TStrings;
@@ -44,11 +45,10 @@ type
     destructor Destroy; override;
     procedure Execute;
     property dataSet: TDataSet read FDataSet write FDataSet;
-    property Code: TStrings read FCode;
+    property CodeWithStructure: TStrings read FCodeWithStructue;
+    property CodeWithAppendData: TStrings read FCodeWithAppendData;
     class function GenerateAsString(ds: TDataSet): string;
     class function GenerateAsArray(ds: TDataSet): TStringDynArray;
-    property Header: TStrings read FHeader write FHeader;
-    property Footer: TStrings read FFooter write FFooter;
     property IndentationText: String read FIndentationText
       write FIndentationText;
   end;
@@ -61,7 +61,8 @@ uses
 constructor TGenerateDataSetCode.Create(AOwner: TComponent);
 begin
   inherited;
-  FCode := TStringList.Create;
+  FCodeWithStructue := TStringList.Create;
+  FCodeWithAppendData := TStringList.Create;
   FHeader := TStringList.Create;
   FFooter := TStringList.Create;
   FIndentationText := '  ';
@@ -69,7 +70,8 @@ end;
 
 destructor TGenerateDataSetCode.Destroy;
 begin
-  FCode.Free;
+  FCodeWithStructue.Free;
+  FCodeWithAppendData.Free;
   FHeader.Free;
   FFooter.Free;
   inherited;
@@ -227,7 +229,8 @@ begin
   try
     gen.dataSet := ds;
     gen.Execute;
-    Result := gen.Code.text;
+    Result := gen.CodeWithStructure.Text + sLineBreak + sLineBreak +
+      gen.CodeWithAppendData.Text;
   finally
     gen.Free;
   end;
@@ -242,7 +245,8 @@ begin
   try
     gen.dataSet := ds;
     gen.Execute;
-    Result := gen.Code.ToStringDynArray;
+    Result := gen.CodeWithStructure.ToStringDynArray + [sLineBreak, sLineBreak]
+      + gen.CodeWithStructure.ToStringDynArray;
   finally
     gen.Free;
   end;
@@ -258,7 +262,7 @@ procedure TGenerateDataSetCode.GenCodeCreateMockTableWithStructure
 var
   fld: TField;
 begin
-  with Code do
+  with CodeWithStructure do
   begin
     Add(IndentationText + 'ds := TFDMemTable.Create(AOwner);');
     Add(IndentationText + 'with ds do');
@@ -275,17 +279,17 @@ var
   fld: TField;
   s1: string;
 begin
-  Code.Add('{$REGION ''Append data to MemTable''}');
+  CodeWithAppendData.Add('{$REGION ''Append data to MemTable''}');
   dataSet.DisableControls;
   dataSet.Open;
   dataSet.First;
   while not dataSet.Eof do
   begin
-    with Code do
+    with CodeWithAppendData do
     begin
       Add(IndentationText + 'with ds do');
       Add(IndentationText + 'begin');
-      Add(IndentationText + IndentationText+ 'Append;');
+      Add(IndentationText + IndentationText + 'Append;');
       for fld in dataSet.Fields do
       begin
         s1 := GenCodeLineSetFieldValue(fld);
@@ -298,17 +302,16 @@ begin
     dataSet.Next;
   end;
   dataSet.EnableControls;
-  Code.Add('{$ENDREGION}');
+  CodeWithAppendData.Add('{$ENDREGION}');
 end;
 
 procedure TGenerateDataSetCode.Execute;
 begin
   Guard;
-  Code.Clear;
-  Code.AddStrings(Header);
+  CodeWithStructure.Clear;
+  CodeWithAppendData.Clear;
   GenCodeCreateMockTableWithStructure(dataSet);
   GenCodeAppendDataToMockTable(dataSet);
-  Code.AddStrings(Footer);
 end;
 
 end.
