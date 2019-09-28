@@ -9,7 +9,7 @@ uses
   Data.DB,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Grids,
   Vcl.DBGrids, Vcl.ComCtrls, Vcl.ActnList, Vcl.StdCtrls, Vcl.Menus,
-  Comp.Proxy.CodeGenerator, Comp.Generator.DataSetCode;
+  Command.GenerateProxy;
 
 type
   TFormMain = class(TForm)
@@ -56,9 +56,8 @@ type
     procedure actQueryBuilderExecute(Sender: TObject);
     // --------------------------------------------------------------------
   private
+    cmdProxyGenerator: TProxyGeneratorCommand;
     CurrentConnDefName: string;
-    ProxyGenerator: TProxyCodeGenerator;
-    DataSetGenerator: TGenerateDataSetCode;
     FMainDataSet: TDataSet;
     ConnectionMruList: string;
     procedure InitializeControls;
@@ -252,8 +251,7 @@ end;
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-  ProxyGenerator := TProxyCodeGenerator.Create(Self);
-  DataSetGenerator := TGenerateDataSetCode.Create(Self);
+  cmdProxyGenerator := TProxyGeneratorCommand.Create(Self);
   FMainDataSet := DataModule1.GetMainDataQuery;
   DataSource1.DataSet := FMainDataSet;
   InitializeControls;
@@ -339,34 +337,9 @@ begin
 end;
 
 procedure TFormMain.actGenerateProxyExecute(Sender: TObject);
-var
-  ds: TDataSet;
 begin
   PageControl1.ActivePage := tshProxyCode;
-  ds := DataSource1.DataSet;
-  ProxyGenerator.DataSet := ds;
-  ProxyGenerator.Generate;
-  // -----------
-  DataSetGenerator.dataSet := ds;
-  with DataSetGenerator.Header do begin
-    Clear;
-    Add('// -----------------------------------------------------------');
-    Add('');
-    Add('class function T{ObjectName}Proxy.CreateMockTable (AOwner: TComponent): TFDMemTable;');
-    Add('var');
-    Add('  ds: TFDMemTable;');
-    Add('begin');
-  end;
-  with DataSetGenerator.Footer do begin
-    Clear;
-    Add('  Result := ds;');
-    Add('end;');
-  end;
-  DataSetGenerator.IndentationText := '  ';
-  DataSetGenerator.Execute;
-  // -----------
-  mmProxyCode.Lines.Text := ProxyGenerator.Code + sLineBreak +
-      DataSetGenerator.Code.Text;
+  mmProxyCode.Lines.Text := cmdProxyGenerator.Execute(DataSource1.DataSet);
 end;
 
 procedure TFormMain.actQueryBuilderExecute(Sender: TObject);

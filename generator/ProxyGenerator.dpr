@@ -12,7 +12,8 @@ uses
   Dialog.QueryBuilder in 'Dialog.QueryBuilder.pas' {DialogQueryBuilder},
   Helper.TField in 'Helper.TField.pas',
   Comp.Generator.DataSetCode in 'Comp.Generator.DataSetCode.pas',
-  Helper.TStrings in 'Helper.TStrings.pas';
+  Helper.TStrings in 'Helper.TStrings.pas',
+  Command.GenerateProxy in 'Command.GenerateProxy.pas';
 
 {$R *.res}
 
