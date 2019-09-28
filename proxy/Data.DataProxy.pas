@@ -37,7 +37,10 @@ type
     procedure ConnectWithDataSet(aDataSet: TDataSet);
     // -------------
     procedure Append;
+    procedure AppendRecord(const Values: array of const);
+    procedure BindToDataSource(DataSource: TDataSource);
     procedure Cancel;
+    function ConstructDataSource(AOwner: TComponent): TDataSource;
     procedure Close;
     function ControlsDisabled: Boolean;
     function CreateBlobStream(Field: TField; Mode: TBlobStreamMode): TStream;
@@ -50,7 +53,7 @@ type
     procedure InsertRecord(const Values: array of const);
     function IsEmpty: Boolean;
     procedure Last;
-    function Eof: boolean;
+    function Eof: Boolean;
     function Locate(const KeyFields: string; const KeyValues: Variant;
       Options: TLocateOptions): Boolean;
     function Lookup(const KeyFields: string; const KeyValues: Variant;
@@ -68,8 +71,8 @@ type
   end;
 
   TDataProxyFactory = class
-    class function CreateProxy<T: TDataSetProxy> (Owner: TComponent;
-      ADataSet: TDataSet): T;
+    class function CreateProxy<T: TDatasetProxy>(Owner: TComponent;
+      aDataSet: TDataSet): T;
   end;
 
 implementation
@@ -81,6 +84,16 @@ implementation
 procedure TGenericDataSetProxy.Append;
 begin
   FDataSet.Append;
+end;
+
+procedure TGenericDataSetProxy.AppendRecord(const Values: array of const);
+begin
+  FDataSet.AppendRecord(Values);
+end;
+
+procedure TGenericDataSetProxy.BindToDataSource(DataSource: TDataSource);
+begin
+  DataSource.DataSet := FDataSet;
 end;
 
 procedure TGenericDataSetProxy.Cancel;
@@ -96,6 +109,13 @@ end;
 procedure TGenericDataSetProxy.ConnectWithDataSet(aDataSet: TDataSet);
 begin
   FDataSet := aDataSet;
+end;
+
+function TGenericDataSetProxy.ConstructDataSource(AOwner: TComponent)
+  : TDataSource;
+begin
+  Result := TDataSource.Create(AOwner);
+  Result.DataSet := FDataSet;
 end;
 
 function TGenericDataSetProxy.ControlsDisabled: Boolean;
@@ -141,7 +161,7 @@ begin
   FDataSet.EnableControls;
 end;
 
-function TGenericDataSetProxy.Eof: boolean;
+function TGenericDataSetProxy.Eof: Boolean;
 begin
   Result := FDataSet.Eof;
 end;
@@ -249,10 +269,10 @@ end;
 // * --------------------------------------------------------------------
 
 class function TDataProxyFactory.CreateProxy<T>(Owner: TComponent;
-  ADataSet: TDataSet): T;
+  aDataSet: TDataSet): T;
 begin
   Result := T.Create(Owner);
-  Result.ConnectWithDataSet(ADataSet);
+  Result.ConnectWithDataSet(aDataSet);
   Result.Open;
 end;
 
