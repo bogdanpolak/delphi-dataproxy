@@ -20,7 +20,7 @@ type
     procedure SetDataSet(const aDataSet: TDataSet);
     procedure SetCode(const aCode: String);
   protected
-    procedure DoGenerateProxy(ds: TDataSet; const Code: TStrings);
+    procedure DoGenerate(ds: TDataSet; const Code: TStrings);
   public
     constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
@@ -60,7 +60,7 @@ begin
     Fields.Add(ds.Fields[i]);
 end;
 
-procedure TProxyCodeGenerator.DoGenerateProxy(ds: TDataSet;
+procedure TProxyCodeGenerator.DoGenerate(ds: TDataSet;
   const Code: TStrings);
 var
   fld: TField;
@@ -114,7 +114,7 @@ begin
     raise EProxyGenError.Create(ErrDataSetNotActive);
   CodeList := TStringList.Create;
   try
-    DoGenerateProxy(DataSet, CodeList);
+    DoGenerate(DataSet, CodeList);
     Code := CodeList.Text;
   finally
     CodeList.Free;
