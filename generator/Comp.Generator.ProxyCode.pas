@@ -14,19 +14,22 @@ type
     Fields: TList<TField>;
     FDataSet: TDataSet;
     FCode: TStringList;
+    FGenCommentsWithPublicDataSet: boolean;
     procedure FillFieldsFromDataSet(ds: TDataSet);
     procedure Guard;
+  protected
     procedure DoGenerate_UnitHeader;
     procedure DoGenerate_UsesSection;
     procedure DoGenerate_ClassDeclaration;
     procedure DoGenerate_MethodConnectFields;
-  protected
   public
     constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
   published
     property Code: TStringList read FCode;
     property DataSet: TDataSet read FDataSet write FDataSet;
+    property GenCommentsWithPublicDataSet: boolean
+      read FGenCommentsWithPublicDataSet write FGenCommentsWithPublicDataSet;
     procedure Execute;
   end;
 
@@ -41,6 +44,7 @@ begin
   inherited;
   Fields := TList<TField>.Create();
   FCode := TStringList.Create;
+  GenCommentsWithPublicDataSet := true;
 end;
 
 destructor TProxyCodeGenerator.Destroy;
@@ -96,8 +100,10 @@ begin
   for fld in Fields do
     Code.Add('    property ' + fld.FieldName + ' :' + fld.ToClass.ClassName +
       ' read F' + fld.FieldName + ';');
-  Code.Add('    // this property should be hidden, but during migration can be usefull');
-  Code.Add('    // property DataSet: TDataSet read FDataSet;');
+  if GenCommentsWithPublicDataSet then begin
+    Code.Add('    // this property should be hidden, but during migration can be usefull');
+    Code.Add('    // property DataSet: TDataSet read FDataSet;');
+  end;
   Code.Add('  end;');
 end;
 
