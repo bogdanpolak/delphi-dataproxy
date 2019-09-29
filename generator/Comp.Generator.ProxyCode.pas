@@ -61,8 +61,8 @@ end;
 
 procedure TProxyCodeGenerator.Guard;
 begin
-  Assert( DataSet <> nil );
-  Assert( DataSet.Active );
+  Assert(DataSet <> nil);
+  Assert(DataSet.Active);
 end;
 
 procedure TProxyCodeGenerator.DoGenerate_UnitHeader;
@@ -116,6 +116,7 @@ begin
   Code.Add('  Assert(FDataSet.Fields.Count = ExpectedFieldCount);');
   Code.Add('end;');
 end;
+
 procedure TProxyCodeGenerator.Execute;
 begin
   Guard;

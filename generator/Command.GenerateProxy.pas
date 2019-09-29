@@ -29,8 +29,8 @@ constructor TProxyGeneratorCommand.Create(AOwner: TComponent);
 begin
   inherited;
   GeneratedCode := TStringList.Create;
-  ProxyGenerator := TProxyCodeGenerator.Create (Self);
-  DataSetGenerator := TGenerateDataSetCode.Create (Self);
+  ProxyGenerator := TProxyCodeGenerator.Create(Self);
+  DataSetGenerator := TGenerateDataSetCode.Create(Self);
 end;
 
 destructor TProxyGeneratorCommand.Destory;
@@ -40,10 +40,10 @@ end;
 
 function TProxyGeneratorCommand.Execute(dataset: TDataSet): String;
 begin
-  ProxyGenerator.DataSet := dataset;
+  ProxyGenerator.dataset := dataset;
   ProxyGenerator.Execute;
   // -----------
-  DataSetGenerator.dataSet := dataset;
+  DataSetGenerator.dataset := dataset;
   DataSetGenerator.IndentationText := '  ';
   DataSetGenerator.Execute;
   // -----------
@@ -62,7 +62,7 @@ begin
     Add('  Result := ds;');
     Add('end;');
   end;
-  Result :=  GeneratedCode.Text;
+  Result := GeneratedCode.Text;
 end;
 
 end.
