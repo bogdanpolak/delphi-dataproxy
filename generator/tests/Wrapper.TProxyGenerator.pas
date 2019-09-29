@@ -6,7 +6,7 @@ uses
   Comp.Generator.ProxyCode;
 
 type
-  TProxyCodeGeneratorCUT = class (TProxyCodeGenerator)
+  TProxyCodeGenerator_AUT = class(TProxyCodeGenerator)
   public
     procedure Generate_UnitHeader;
     procedure Generate_UsesSection;
@@ -18,23 +18,23 @@ implementation
 
 { TProxyCodeGeneratorCUT }
 
-procedure TProxyCodeGeneratorCUT.Generate_UnitHeader;
+procedure TProxyCodeGenerator_AUT.Generate_UnitHeader;
 begin
   DoGenerate_UnitHeader;
 end;
 
-procedure TProxyCodeGeneratorCUT.Generate_UsesSection;
+procedure TProxyCodeGenerator_AUT.Generate_UsesSection;
 begin
   DoGenerate_UsesSection;
 
 end;
 
-procedure TProxyCodeGeneratorCUT.Generate_ClassDeclaration;
+procedure TProxyCodeGenerator_AUT.Generate_ClassDeclaration;
 begin
   DoGenerate_ClassDeclaration;
 end;
 
-procedure TProxyCodeGeneratorCUT.Generate_MethodConnectFields;
+procedure TProxyCodeGenerator_AUT.Generate_MethodConnectFields;
 begin
   DoGenerate_MethodConnectFields;
 end;
