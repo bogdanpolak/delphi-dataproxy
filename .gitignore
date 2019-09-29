@@ -102,3 +102,6 @@ __recovery/
 # (*.pch) C++ Precompiled Header File
 # (*.o) C++ object file or compiled translation unit.
 # (*.pch) C++ precompiled header file.
+
+
+TestInsightSettings.ini
