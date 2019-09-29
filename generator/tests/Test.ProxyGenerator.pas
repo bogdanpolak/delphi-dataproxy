@@ -17,6 +17,7 @@ type
   private
     OwnerComponent: TComponent;
     ProxyCodeGenerator: TProxyCodeGenerator_AUT;
+    function ReplaceArrowsAndDiamonds(const s: String): string;
   public
     [Setup]
     procedure Setup;
@@ -54,16 +55,27 @@ end;
 // -----------------------------------------------------------------------
 
 const
+  SingeCodeIndentation = '  ';
   Section_Uses =
-  (* *) 'uses' + sLineBreak +
-  (* *) '  Data.DB,' + sLineBreak +
-  (* *) '  Data.DataProxy,' + sLineBreak +
-  (* *) '  System.SysUtils,' + sLineBreak +
-  (* *) '  System.Classes,' + sLineBreak +
-  (* *) '  FireDAC.Comp.Client;' + sLineBreak;
+  (* *) 'uses→' +
+  (* *) '◇Data.DB,→' +
+  (* *) '◇Data.DataProxy,→' +
+  (* *) '◇System.SysUtils,→' +
+  (* *) '◇System.Classes,→' +
+  (* *) '◇FireDAC.Comp.Client;→';
 
 procedure Temp_procedure_required_because_of_formatter_error;
 begin
+end;
+
+// -----------------------------------------------------------------------
+// Utils
+// -----------------------------------------------------------------------
+
+function ProxyGenerator.ReplaceArrowsAndDiamonds(const s: String): string;
+begin
+  Result := StringReplace(s, '→', #13#10, [rfReplaceAll]);
+  Result := StringReplace(Result, '◇', SingeCodeIndentation, [rfReplaceAll])
 end;
 
 // -----------------------------------------------------------------------
@@ -80,7 +92,8 @@ end;
 procedure ProxyGenerator.Test_UsesSection;
 begin
   ProxyCodeGenerator.Generate_UsesSection;
-  Assert.AreEqual(Section_Uses, ProxyCodeGenerator.Code.Text);
+  Assert.AreEqual(ReplaceArrowsAndDiamonds(Section_Uses),
+    ProxyCodeGenerator.Code.Text);
 end;
 
 {$ENDREGION}
