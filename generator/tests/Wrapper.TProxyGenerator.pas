@@ -11,6 +11,9 @@ type
     procedure Generate_UnitHeader;
     procedure Generate_UsesSection;
     procedure Generate_ClassDeclaration;
+    procedure Generate_PrivateFieldList;
+    procedure Generate_PublicPropertyList;
+    procedure Generate_FieldAssigments;
     procedure Generate_MethodConnectFields;
   end;
 
@@ -32,6 +35,21 @@ end;
 procedure TProxyCodeGenerator_AUT.Generate_ClassDeclaration;
 begin
   DoGenerate_ClassDeclaration;
+end;
+
+procedure TProxyCodeGenerator_AUT.Generate_PrivateFieldList;
+begin
+  DoGenerate_PrivateFieldList;
+end;
+
+procedure TProxyCodeGenerator_AUT.Generate_PublicPropertyList;
+begin
+  DoGenerate_PublicPropertyList;
+end;
+
+procedure TProxyCodeGenerator_AUT.Generate_FieldAssigments;
+begin
+  DoGenerate_FieldAssigments;
 end;
 
 procedure TProxyCodeGenerator_AUT.Generate_MethodConnectFields;

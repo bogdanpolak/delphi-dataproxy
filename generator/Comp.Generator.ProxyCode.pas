@@ -15,13 +15,16 @@ type
     FDataSet: TDataSet;
     FCode: TStringList;
     FGenCommentsWithPublicDataSet: boolean;
-    procedure FillFieldsFromDataSet(ds: TDataSet);
+    procedure Fill_FieldList;
     procedure Guard;
     class function GetFieldClassName(fld: TField): string;
   protected
     procedure DoGenerate_UnitHeader;
     procedure DoGenerate_UsesSection;
     procedure DoGenerate_ClassDeclaration;
+    procedure DoGenerate_PrivateFieldList;
+    procedure DoGenerate_PublicPropertyList;
+    procedure DoGenerate_FieldAssigments;
     procedure DoGenerate_MethodConnectFields;
   public
     constructor Create(Owner: TComponent); override;
@@ -41,6 +44,7 @@ begin
   inherited;
   Fields := TList<TField>.Create();
   FCode := TStringList.Create;
+  FDataSet := nil;
   GenCommentsWithPublicDataSet := true;
 end;
 
@@ -51,13 +55,35 @@ begin
   inherited;
 end;
 
-procedure TProxyCodeGenerator.FillFieldsFromDataSet(ds: TDataSet);
+procedure TProxyCodeGenerator.Fill_FieldList;
 var
   i: integer;
+  IsEqual: boolean;
+  fld: TField;
 begin
+  // ------------------------------------
+  // Checks if Field List is equal to DataSet's Fields
+  //
+  IsEqual := (DataSet <> nil) and (DataSet.Fields.Count = Fields.Count);
+  if not IsEqual then
+  begin
+    for i := 0 to Fields.Count - 1 do
+      if Fields[i] <> DataSet.Fields[i] then
+      begin
+        IsEqual := false;
+        Break;
+      end;
+  end;
+  // ------------------------------------
+  // if not equal then fill Fields list
+  //
+  if IsEqual then
+    exit;
   Fields.Clear;
-  for i := 0 to ds.Fields.Count - 1 do
-    Fields.Add(ds.Fields[i]);
+  if DataSet <> nil then
+    for fld in DataSet.Fields do
+      Fields.Add(fld);
+  // ------------------------------------
 end;
 
 procedure TProxyCodeGenerator.Guard;
@@ -85,21 +111,45 @@ begin
   Result := Data.DB.DefaultFieldClasses[fld.DataType].ClassName;
 end;
 
-procedure TProxyCodeGenerator.DoGenerate_ClassDeclaration;
+procedure TProxyCodeGenerator.DoGenerate_PrivateFieldList;
 var
   fld: TField;
+begin
+  Fill_FieldList;
+  for fld in Fields do
+    Code.Add('    F' + fld.FieldName + ' :' + GetFieldClassName(fld) + ';');
+end;
+
+procedure TProxyCodeGenerator.DoGenerate_PublicPropertyList;
+var
+  fld: TField;
+begin
+  Fill_FieldList;
+  for fld in Fields do
+    Code.Add('    property ' + fld.FieldName + ' :' + GetFieldClassName(fld) +
+      ' read F' + fld.FieldName + ';');
+end;
+
+procedure TProxyCodeGenerator.DoGenerate_FieldAssigments;
+var
+  fld: TField;
+begin
+  Fill_FieldList;
+  for fld in Fields do
+    Code.Add('  F' + fld.FieldName + ' := FDataSet.FieldByName(' +
+      QuotedStr(fld.FieldName) + ') as ' + GetFieldClassName(fld) + ';');
+end;
+
+procedure TProxyCodeGenerator.DoGenerate_ClassDeclaration;
 begin
   Code.Add('type');
   Code.Add('  T{ObjectName}Proxy = class(TDatasetProxy)');
   Code.Add('  private');
-  for fld in Fields do
-    Code.Add('    F' + fld.FieldName + ' :' + GetFieldClassName(fld) + ';');
+  DoGenerate_PrivateFieldList;
   Code.Add('  protected');
   Code.Add('    procedure ConnectFields; override;');
   Code.Add('  public');
-  for fld in Fields do
-    Code.Add('    property ' + fld.FieldName + ' :' + GetFieldClassName(fld) +
-      ' read F' + fld.FieldName + ';');
+  DoGenerate_PublicPropertyList;
   if GenCommentsWithPublicDataSet then
   begin
     Code.Add('    // this property should be hidden, but during migration can be usefull');
@@ -109,16 +159,13 @@ begin
 end;
 
 procedure TProxyCodeGenerator.DoGenerate_MethodConnectFields;
-var
-  fld: TField;
 begin
+  Fill_FieldList;
   Code.Add('procedure T{ObjectName}Proxy.ConnectFields;');
   Code.Add('const');
   Code.Add('  ExpectedFieldCount = ' + Fields.Count.ToString + ';');
   Code.Add('begin');
-  for fld in Fields do
-    Code.Add('  F' + fld.FieldName + ' := FDataSet.FieldByName(' +
-      QuotedStr(fld.FieldName) + ') as ' + GetFieldClassName(fld) + ';');
+  DoGenerate_FieldAssigments;
   Code.Add('  Assert(FDataSet.Fields.Count = ExpectedFieldCount);');
   Code.Add('end;');
 end;
@@ -126,7 +173,6 @@ end;
 procedure TProxyCodeGenerator.Execute;
 begin
   Guard;
-  FillFieldsFromDataSet(DataSet);
   DoGenerate_UnitHeader;
   DoGenerate_UsesSection;
   Code.Add('');
