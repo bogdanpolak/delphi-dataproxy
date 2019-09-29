@@ -23,6 +23,18 @@ type
 
 implementation
 
+type
+  TStringListHelper = class helper for TStringList
+    procedure LineReplace(const LineToReplace, NewLine: string);
+  end;
+
+  { TStringListHelper }
+
+procedure TStringListHelper.LineReplace(const LineToReplace, NewLine: string);
+begin
+  Self.Text := StringReplace(Self.Text, LineToReplace, NewLine, [rfReplaceAll]);
+end;
+
 { TProxyGeneratorCommand }
 
 constructor TProxyGeneratorCommand.Create(AOwner: TComponent);
@@ -42,14 +54,16 @@ function TProxyGeneratorCommand.Execute(dataset: TDataSet): String;
 begin
   ProxyGenerator.dataset := dataset;
   ProxyGenerator.Execute;
+  GeneratedCode := ProxyGenerator.Code;
   // -----------
   DataSetGenerator.dataset := dataset;
   DataSetGenerator.IndentationText := '  ';
   DataSetGenerator.Execute;
   // -----------
-  GeneratedCode.Clear;
-  with GeneratedCode do begin
-    AddStrings( ProxyGenerator.Code );
+  with GeneratedCode do
+  begin
+    LineReplace('  public', '  public' + sLineBreak +
+      '    class function CreateMockTable (AOwner: TComponent): TFDMemTable;');
     Add('');
     Add('// -----------------------------------------------------------');
     Add('');

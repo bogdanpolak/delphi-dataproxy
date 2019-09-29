@@ -93,7 +93,6 @@ begin
   Code.Add('  protected');
   Code.Add('    procedure ConnectFields; override;');
   Code.Add('  public');
-  Code.Add('    class function CreateMockTable (AOwner: TComponent): TFDMemTable;');
   for fld in Fields do
     Code.Add('    property ' + fld.FieldName + ' :' + fld.ToClass.ClassName +
       ' read F' + fld.FieldName + ';');
