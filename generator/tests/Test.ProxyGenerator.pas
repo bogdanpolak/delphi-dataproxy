@@ -17,7 +17,6 @@ type
   private
     OwnerComponent: TComponent;
     ProxyCodeGenerator: TProxyCodeGenerator_AUT;
-    function ReplaceArrowsAndDiamonds(const s: String): string;
   public
     [Setup]
     procedure Setup;
@@ -54,28 +53,35 @@ end;
 // Templates
 // -----------------------------------------------------------------------
 
-const
-  SingeCodeIndentation = '  ';
-  Section_Uses =
-  (* *) 'uses→' +
-  (* *) '◇Data.DB,→' +
-  (* *) '◇Data.DataProxy,→' +
-  (* *) '◇System.SysUtils,→' +
-  (* *) '◇System.Classes,→' +
-  (* *) '◇FireDAC.Comp.Client;→';
+type
+  TProxyTemplates = class
+  const
+    SingeCodeIndentation = '  ';
+    Section_Uses =
+    (* *) 'uses→' +
+    (* *) '◇Data.DB,→' +
+    (* *) '◇Data.DataProxy,→' +
+    (* *) '◇System.SysUtils,→' +
+    (* *) '◇System.Classes,→' +
+    (* *) '◇FireDAC.Comp.Client;→';
+  strict private
+    class var Expected: string;
+    class function ReplaceArrowsAndDiamonds(const s: String): string; static;
+  public
+    class procedure Asset_UsesSection(Code: TStrings);
+  end;
 
-procedure Temp_procedure_required_because_of_formatter_error;
-begin
-end;
-
-// -----------------------------------------------------------------------
-// Utils
-// -----------------------------------------------------------------------
-
-function ProxyGenerator.ReplaceArrowsAndDiamonds(const s: String): string;
+class function TProxyTemplates.ReplaceArrowsAndDiamonds
+  (const s: String): string;
 begin
   Result := StringReplace(s, '→', #13#10, [rfReplaceAll]);
   Result := StringReplace(Result, '◇', SingeCodeIndentation, [rfReplaceAll])
+end;
+
+class procedure TProxyTemplates.Asset_UsesSection(Code: TStrings);
+begin
+  Expected := ReplaceArrowsAndDiamonds(Section_Uses);
+  Assert.AreEqual(Expected, Code.Text);
 end;
 
 // -----------------------------------------------------------------------
@@ -92,8 +98,7 @@ end;
 procedure ProxyGenerator.Test_UsesSection;
 begin
   ProxyCodeGenerator.Generate_UsesSection;
-  Assert.AreEqual(ReplaceArrowsAndDiamonds(Section_Uses),
-    ProxyCodeGenerator.Code.Text);
+  TProxyTemplates.Asset_UsesSection(ProxyCodeGenerator.Code);
 end;
 
 {$ENDREGION}
