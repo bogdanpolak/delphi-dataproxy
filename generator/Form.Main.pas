@@ -43,6 +43,9 @@ type
     Button3: TButton;
     Label3: TLabel;
     Button4: TButton;
+    GroupBox1: TGroupBox;
+    Edit1: TEdit;
+    Label4: TLabel;
     // --------------------------------------------------------------------
     // Startup
     procedure FormCreate(Sender: TObject);
