@@ -287,7 +287,6 @@ object FormMain: TFormMain
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
-        ExplicitTop = 3
       end
       object GroupBox1: TGroupBox
         AlignWithMargins = True
@@ -309,8 +308,7 @@ object FormMain: TFormMain
           Margins.Bottom = 6
           Align = alLeft
           Caption = 'Ctrl+Enter to apply changes'
-          ExplicitLeft = 327
-          ExplicitTop = 23
+          ExplicitHeight = 13
         end
         object Edit1: TEdit
           AlignWithMargins = True
@@ -324,6 +322,7 @@ object FormMain: TFormMain
           Anchors = [akLeft, akTop, akRight, akBottom]
           TabOrder = 0
           Text = 'Edit1'
+          ExplicitHeight = 21
         end
       end
     end
