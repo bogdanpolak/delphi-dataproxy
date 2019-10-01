@@ -2,6 +2,8 @@ unit DataModule.Main;
 
 interface
 
+{--$Define FULL_FIREDAC_ACCESS}
+
 uses
   System.SysUtils, System.Classes, System.Types,
   Data.DB,
@@ -19,9 +21,12 @@ uses
   FireDAC.Phys.FBDef, FireDAC.Phys.FB,
   FireDAC.Phys.PGDef, FireDAC.Phys.PG,
   FireDAC.Phys.SQLiteDef, FireDAC.Phys.SQLite,
+  {$IFDEF FULL_FIREDAC_ACCESS}
   FireDAC.Phys.OracleDef, FireDAC.Phys.Oracle,
   FireDAC.Phys.DB2Def, FireDAC.Phys.DB2,
-  FireDAC.Phys.MSSQLDef, FireDAC.Phys.MSSQL, FireDAC.Phys.ODBCBase;
+  FireDAC.Phys.MSSQLDef, FireDAC.Phys.MSSQL,
+  {$ENDIF}
+  FireDAC.Phys.ODBCBase;
 
 type
   TDataModule1 = class(TDataModule)
@@ -32,9 +37,6 @@ type
     FDPhysPgDriverLink1: TFDPhysPgDriverLink;
     FDPhysIBDriverLink1: TFDPhysIBDriverLink;
     FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink;
-    FDPhysOracleDriverLink1: TFDPhysOracleDriverLink;
-    FDPhysDB2DriverLink1: TFDPhysDB2DriverLink;
-    FDPhysMSSQLDriverLink1: TFDPhysMSSQLDriverLink;
   private
   public
     function GetConnectionDefList: TStringDynArray;
