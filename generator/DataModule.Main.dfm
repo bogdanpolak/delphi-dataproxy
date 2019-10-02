@@ -38,16 +38,4 @@ object DataModule1: TDataModule1
     Left = 232
     Top = 296
   end
-  object FDPhysOracleDriverLink1: TFDPhysOracleDriverLink
-    Left = 232
-    Top = 216
-  end
-  object FDPhysDB2DriverLink1: TFDPhysDB2DriverLink
-    Left = 232
-    Top = 16
-  end
-  object FDPhysMSSQLDriverLink1: TFDPhysMSSQLDriverLink
-    Left = 232
-    Top = 176
-  end
 end
