@@ -1,6 +1,13 @@
 ﻿{ * ------------------------------------------------------------------------
-  * ♥  Delphi DataProxy Project © 2019  ♥
-  * https://github.com/bogdanpolak/delphi-dataproxy
+  * ♥
+  * ♥  Delphi DataSetProxy component - wrapper for Delphi TDataSet
+  * ♥
+  * Home: https://github.com/bogdanpolak/delphi-dataproxy
+  *
+  * Classes:
+  *   1. TGenericDataSetProxy - base class for the wrapper
+  *   2. TDatasetProxy - inherited from TGenericDataSetProxy adding ForEach
+  *   3. TDataProxyFactory - TDasetProxy and derived clasess factory
   *  ----------------------------------------------------------------------- * }
 unit Data.DataProxy;
 
@@ -13,6 +20,12 @@ uses
 
 type
   TGenericDataSetProxy = class(TComponent)
+  const
+    // * --------------------------------------------------------------------
+    // * Component Signature
+    ReleaseDate = '2019.09.28';
+    ReleaseVersion = '1.0';
+    // * --------------------------------------------------------------------
   private
   protected
     FDataSet: TDataSet;
@@ -23,30 +36,33 @@ type
     // -------------
     procedure ConnectWithDataSet(aDataSet: TDataSet);
     // -------------
-    procedure Append; inline;
-    procedure Cancel; inline;
-    procedure Close; inline;
+    procedure Append;
+    procedure AppendRecord(const Values: array of const);
+    procedure BindToDataSource(DataSource: TDataSource);
+    procedure Cancel;
+    function ConstructDataSource(AOwner: TComponent): TDataSource;
+    procedure Close;
     function ControlsDisabled: Boolean;
     function CreateBlobStream(Field: TField; Mode: TBlobStreamMode): TStream;
-    procedure Delete; inline;
+    procedure Delete;
     procedure DisableControls;
-    procedure Edit; inline;
+    procedure Edit;
     procedure EnableControls;
-    procedure First; inline;
-    procedure Insert; inline;
+    procedure First;
+    procedure Insert;
     procedure InsertRecord(const Values: array of const);
-    function IsEmpty: Boolean; inline;
-    procedure Last; inline;
-    function Eof: boolean;
+    function IsEmpty: Boolean;
+    procedure Last;
+    function Eof: Boolean;
     function Locate(const KeyFields: string; const KeyValues: Variant;
       Options: TLocateOptions): Boolean;
     function Lookup(const KeyFields: string; const KeyValues: Variant;
       const ResultFields: string): Variant;
-    procedure Next; inline;
+    procedure Next;
     procedure Open;
-    procedure Post; inline;
-    procedure Prior; inline;
-    procedure Refresh; inline;
+    procedure Post;
+    procedure Prior;
+    procedure Refresh;
     function UpdateStatus: TUpdateStatus;
   end;
 
@@ -54,13 +70,30 @@ type
     procedure ForEach(OnElem: TProc);
   end;
 
+  TDataProxyFactory = class
+    class function CreateProxy<T: TDatasetProxy>(Owner: TComponent;
+      aDataSet: TDataSet): T;
+  end;
+
 implementation
 
-{ TGenericDataObject }
+// * --------------------------------------------------------------------
+// * TGenericDataSetProxy
+// * --------------------------------------------------------------------
 
 procedure TGenericDataSetProxy.Append;
 begin
   FDataSet.Append;
+end;
+
+procedure TGenericDataSetProxy.AppendRecord(const Values: array of const);
+begin
+  FDataSet.AppendRecord(Values);
+end;
+
+procedure TGenericDataSetProxy.BindToDataSource(DataSource: TDataSource);
+begin
+  DataSource.DataSet := FDataSet;
 end;
 
 procedure TGenericDataSetProxy.Cancel;
@@ -76,6 +109,13 @@ end;
 procedure TGenericDataSetProxy.ConnectWithDataSet(aDataSet: TDataSet);
 begin
   FDataSet := aDataSet;
+end;
+
+function TGenericDataSetProxy.ConstructDataSource(AOwner: TComponent)
+  : TDataSource;
+begin
+  Result := TDataSource.Create(AOwner);
+  Result.DataSet := FDataSet;
 end;
 
 function TGenericDataSetProxy.ControlsDisabled: Boolean;
@@ -121,7 +161,7 @@ begin
   FDataSet.EnableControls;
 end;
 
-function TGenericDataSetProxy.Eof: boolean;
+function TGenericDataSetProxy.Eof: Boolean;
 begin
   Result := FDataSet.Eof;
 end;
@@ -194,7 +234,10 @@ begin
   Result := FDataSet.UpdateStatus;
 end;
 
-{ TItarableDataObject }
+
+// * --------------------------------------------------------------------
+// * TDatasetProxy
+// * --------------------------------------------------------------------
 
 procedure TDatasetProxy.ForEach(OnElem: TProc);
 var
@@ -218,6 +261,19 @@ begin
   finally
     FDataSet.EnableControls;
   end;
+end;
+
+
+// * --------------------------------------------------------------------
+// * TDataProxyFactory
+// * --------------------------------------------------------------------
+
+class function TDataProxyFactory.CreateProxy<T>(Owner: TComponent;
+  aDataSet: TDataSet): T;
+begin
+  Result := T.Create(Owner);
+  Result.ConnectWithDataSet(aDataSet);
+  Result.Open;
 end;
 
 end.

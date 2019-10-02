@@ -41,7 +41,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Data.DataProxy, Data.DataProxy.Factory;
+  Data.DataProxy;
 
 function CreateSQLDataSet_Book(AOwner: TComponent; AConnection: TFDConnection)
   : TDataSet;

@@ -57,10 +57,6 @@ object FormMain: TFormMain
     TabOrder = 1
     object tshDataSet: TTabSheet
       Caption = 'SQL Statement'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Splitter1: TSplitter
         Left = 0
         Top = 225
@@ -118,8 +114,8 @@ object FormMain: TFormMain
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 111
-          Height = 13
+          Width = 165
+          Height = 26
           Align = alClient
           Alignment = taCenter
           Caption = 'Ctrl+Enter to generate'
@@ -130,6 +126,8 @@ object FormMain: TFormMain
           Font.Style = [fsItalic]
           ParentFont = False
           WordWrap = True
+          ExplicitWidth = 111
+          ExplicitHeight = 13
         end
       end
       object DBGrid1: TDBGrid
@@ -240,7 +238,7 @@ object FormMain: TFormMain
             AlignWithMargins = True
             Left = 181
             Top = 3
-            Width = 143
+            Width = 151
             Height = 26
             Margins.Left = 10
             Margins.Right = 10
@@ -254,6 +252,7 @@ object FormMain: TFormMain
             Font.Style = [fsItalic]
             ParentFont = False
             WordWrap = True
+            ExplicitWidth = 143
           end
           object Button4: TButton
             AlignWithMargins = True
@@ -274,7 +273,7 @@ object FormMain: TFormMain
       object mmProxyCode: TMemo
         AlignWithMargins = True
         Left = 3
-        Top = 3
+        Top = 55
         Width = 508
         Height = 158
         Align = alTop
@@ -288,6 +287,44 @@ object FormMain: TFormMain
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
+      end
+      object GroupBox1: TGroupBox
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 508
+        Height = 46
+        Align = alTop
+        Caption = 'Proxy Name:'
+        TabOrder = 1
+        object Label4: TLabel
+          AlignWithMargins = True
+          Left = 343
+          Top = 21
+          Width = 136
+          Height = 17
+          Margins.Top = 6
+          Margins.Right = 30
+          Margins.Bottom = 6
+          Align = alLeft
+          Caption = 'Ctrl+Enter to apply changes'
+          ExplicitHeight = 13
+        end
+        object edtProxyName: TEdit
+          AlignWithMargins = True
+          Left = 32
+          Top = 18
+          Width = 305
+          Height = 20
+          Margins.Left = 30
+          Margins.Bottom = 6
+          Align = alLeft
+          Anchors = [akLeft, akTop, akRight, akBottom]
+          TabOrder = 0
+          Text = 'edtProxyName'
+          OnKeyUp = edtProxyNameKeyUp
+          ExplicitHeight = 21
+        end
       end
     end
   end
@@ -320,6 +357,10 @@ object FormMain: TFormMain
     object actQueryBuilder: TAction
       Caption = 'Build SELECT'
       OnExecute = actQueryBuilderExecute
+    end
+    object actChangeProxyName: TAction
+      Caption = 'Change Proxy Name'
+      OnExecute = actChangeProxyNameExecute
     end
   end
   object DataSource1: TDataSource

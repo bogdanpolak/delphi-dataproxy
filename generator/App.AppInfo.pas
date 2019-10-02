@@ -8,9 +8,9 @@ type
   const
     AppName = 'Proxy Generator for FireDAC';
   const
-    Version = '0.7';
+    Version = '0.8';
   const
-    ReleaseISODate = '2019-09-10';
+    ReleaseISODate = '2019-10-02';
   end;
 
 // -----------------------------------------------------
@@ -18,6 +18,8 @@ type
 // -----------------------------------------------------
 (*
 [
+  {"releaseDate": "2019-10-02", "version": "0.8"},
+  {"releaseDate": "2019-09-12", "version": "0.7"},
   {"releaseDate": "2019-08-26", "version": "0.6"},
   {"releaseDate": "2019-08-06", "version": "0.5.1"},
   {"releaseDate": "2019-08-05", "version": "0.5"},
