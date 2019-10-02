@@ -17,7 +17,7 @@ type
     DataSetGenerator: TGenerateDataSetCode;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor Destory;
+    destructor Destroy; override;
     function Execute(dataset: TDataSet): String;
   end;
 
@@ -48,9 +48,10 @@ begin
   DataSetGenerator := TGenerateDataSetCode.Create(Self);
 end;
 
-destructor TProxyGeneratorCommand.Destory;
+destructor TProxyGeneratorCommand.Destroy;
 begin
   GeneratedCode.Free;
+  inherited;
 end;
 
 function TProxyGeneratorCommand.Execute(dataset: TDataSet): String;
