@@ -60,7 +60,8 @@ type
     procedure actQueryBuilderExecute(Sender: TObject);
     procedure actChangeProxyNameExecute(Sender: TObject);
     // --------------------------------------------------------------------
-    procedure edtProxyNameKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edtProxyNameKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     cmdProxyGenerator: TProxyGeneratorCommand;
     CurrentConnDefName: string;
