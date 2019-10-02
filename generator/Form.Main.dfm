@@ -310,7 +310,7 @@ object FormMain: TFormMain
           Caption = 'Ctrl+Enter to apply changes'
           ExplicitHeight = 13
         end
-        object Edit1: TEdit
+        object edtProxyName: TEdit
           AlignWithMargins = True
           Left = 32
           Top = 18
@@ -321,8 +321,8 @@ object FormMain: TFormMain
           Align = alLeft
           Anchors = [akLeft, akTop, akRight, akBottom]
           TabOrder = 0
-          Text = 'Edit1'
-          OnKeyUp = Edit1KeyUp
+          Text = 'edtProxyName'
+          OnKeyUp = edtProxyNameKeyUp
           ExplicitHeight = 21
         end
       end

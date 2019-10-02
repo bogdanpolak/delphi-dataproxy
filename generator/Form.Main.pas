@@ -45,7 +45,7 @@ type
     Label3: TLabel;
     Button4: TButton;
     GroupBox1: TGroupBox;
-    Edit1: TEdit;
+    edtProxyName: TEdit;
     Label4: TLabel;
     // --------------------------------------------------------------------
     // Startup
@@ -60,7 +60,7 @@ type
     procedure actQueryBuilderExecute(Sender: TObject);
     procedure actChangeProxyNameExecute(Sender: TObject);
     // --------------------------------------------------------------------
-    procedure Edit1KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edtProxyNameKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     cmdProxyGenerator: TProxyGeneratorCommand;
     CurrentConnDefName: string;
@@ -261,7 +261,7 @@ procedure TFormMain.FormCreate(Sender: TObject);
 begin
   // -------------------------------------------------------
   FCurrentProxyName := TProxyGeneratorCommand.BaseProxyName;
-  Edit1.Text := FCurrentProxyName;
+  edtProxyName.Text := FCurrentProxyName;
   FGeneratedCode := '';
   // -------------------------------------------------------
   cmdProxyGenerator := TProxyGeneratorCommand.Create(Self);
@@ -320,7 +320,7 @@ begin
   end;
 end;
 
-procedure TFormMain.Edit1KeyUp(Sender: TObject; var Key: Word;
+procedure TFormMain.edtProxyNameKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   if (Shift = [ssCtrl]) and (Key = VK_RETURN) then
@@ -362,7 +362,7 @@ begin
   FGeneratedCode := cmdProxyGenerator.Execute(DataSource1.DataSet);
   mmProxyCode.Lines.Text := FGeneratedCode;
   FCurrentProxyName := TProxyGeneratorCommand.BaseProxyName;
-  Edit1.Text := FCurrentProxyName;
+  edtProxyName.Text := FCurrentProxyName;
 end;
 
 procedure TFormMain.actQueryBuilderExecute(Sender: TObject);
@@ -376,13 +376,13 @@ end;
 
 procedure TFormMain.actChangeProxyNameExecute(Sender: TObject);
 begin
-  if Edit1.Text = '' then
-    Edit1.Text := TProxyGeneratorCommand.BaseProxyName;
-  if (FGeneratedCode <> '') and (Edit1.Text <> FCurrentProxyName) then
+  if edtProxyName.Text = '' then
+    edtProxyName.Text := TProxyGeneratorCommand.BaseProxyName;
+  if (FGeneratedCode <> '') and (edtProxyName.Text <> FCurrentProxyName) then
   begin
     mmProxyCode.Lines.Text := StringReplace(FGeneratedCode,
-      TProxyGeneratorCommand.BaseProxyName, Edit1.Text, [rfReplaceAll]);
-    FCurrentProxyName := Edit1.Text;
+      TProxyGeneratorCommand.BaseProxyName, edtProxyName.Text, [rfReplaceAll]);
+    FCurrentProxyName := edtProxyName.Text;
   end;
 end;
 
