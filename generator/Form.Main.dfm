@@ -322,6 +322,7 @@ object FormMain: TFormMain
           Anchors = [akLeft, akTop, akRight, akBottom]
           TabOrder = 0
           Text = 'Edit1'
+          OnKeyUp = Edit1KeyUp
           ExplicitHeight = 21
         end
       end
@@ -356,6 +357,10 @@ object FormMain: TFormMain
     object actQueryBuilder: TAction
       Caption = 'Build SELECT'
       OnExecute = actQueryBuilderExecute
+    end
+    object actChangeProxyName: TAction
+      Caption = 'Change Proxy Name'
+      OnExecute = actChangeProxyNameExecute
     end
   end
   object DataSource1: TDataSource

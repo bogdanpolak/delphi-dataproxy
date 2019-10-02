@@ -34,6 +34,7 @@ type
     actSelectConnectionDef: TAction;
     actExecSQL: TAction;
     actQueryBuilder: TAction;
+    actChangeProxyName: TAction;
     // --------------------------------------------------------------------
     Panel1: TPanel;
     Label2: TLabel;
@@ -57,7 +58,9 @@ type
     procedure actExecSQLExecute(Sender: TObject);
     procedure actGenerateProxyExecute(Sender: TObject);
     procedure actQueryBuilderExecute(Sender: TObject);
+    procedure actChangeProxyNameExecute(Sender: TObject);
     // --------------------------------------------------------------------
+    procedure Edit1KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     cmdProxyGenerator: TProxyGeneratorCommand;
     CurrentConnDefName: string;
@@ -310,6 +313,13 @@ begin
   end;
 end;
 
+procedure TFormMain.Edit1KeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if (Shift = [ssCtrl]) and (Key=VK_RETURN) then
+    actChangeProxyName.Execute;
+end;
+
 procedure TFormMain.actConnectExecute(Sender: TObject);
 begin
   if not DataModule1.IsConnected then
@@ -352,6 +362,11 @@ begin
   sql := TDialogQueryBuilder.Execute;
   if sql <> '' then
     mmSqlStatement.Text := sql;
+end;
+
+procedure TFormMain.actChangeProxyNameExecute(Sender: TObject);
+begin
+  // TODO:
 end;
 
 // --------------------------------------------------------------------------
