@@ -316,7 +316,7 @@ end;
 procedure TFormMain.Edit1KeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if (Shift = [ssCtrl]) and (Key=VK_RETURN) then
+  if (Shift = [ssCtrl]) and (Key = VK_RETURN) then
     actChangeProxyName.Execute;
 end;
 
