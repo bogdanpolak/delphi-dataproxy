@@ -66,6 +66,8 @@ type
     CurrentConnDefName: string;
     FMainDataSet: TDataSet;
     ConnectionMruList: string;
+    FCurrentProxyName: string;
+    FGeneratedCode: string;
     procedure InitializeControls;
     procedure UpdateActionEnable;
     procedure StoreConnectionDefinitionInMRUList(const ConnDefName: string);
@@ -257,6 +259,11 @@ end;
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
+  // -------------------------------------------------------
+  FCurrentProxyName := TProxyGeneratorCommand.BaseProxyName;
+  Edit1.Text := FCurrentProxyName;
+  FGeneratedCode := '';
+  // -------------------------------------------------------
   cmdProxyGenerator := TProxyGeneratorCommand.Create(Self);
   FMainDataSet := DataModule1.GetMainDataQuery;
   DataSource1.DataSet := FMainDataSet;
@@ -352,7 +359,10 @@ end;
 procedure TFormMain.actGenerateProxyExecute(Sender: TObject);
 begin
   PageControl1.ActivePage := tshProxyCode;
-  mmProxyCode.Lines.Text := cmdProxyGenerator.Execute(DataSource1.DataSet);
+  FGeneratedCode := cmdProxyGenerator.Execute(DataSource1.DataSet);
+  mmProxyCode.Lines.Text := FGeneratedCode;
+  FCurrentProxyName := TProxyGeneratorCommand.BaseProxyName;
+  Edit1.Text := FCurrentProxyName;
 end;
 
 procedure TFormMain.actQueryBuilderExecute(Sender: TObject);
@@ -366,7 +376,14 @@ end;
 
 procedure TFormMain.actChangeProxyNameExecute(Sender: TObject);
 begin
-  // TODO:
+  if Edit1.Text = '' then
+    Edit1.Text := TProxyGeneratorCommand.BaseProxyName;
+  if (FGeneratedCode <> '') and (Edit1.Text <> FCurrentProxyName) then
+  begin
+    mmProxyCode.Lines.Text := StringReplace(FGeneratedCode,
+      TProxyGeneratorCommand.BaseProxyName, Edit1.Text, [rfReplaceAll]);
+    FCurrentProxyName := Edit1.Text;
+  end;
 end;
 
 // --------------------------------------------------------------------------

@@ -11,6 +11,8 @@ uses
 
 type
   TProxyGeneratorCommand = class(TComponent)
+  const
+    BaseProxyName = '{ObjectName}';
   private
     GeneratedCode: TStringList;
     ProxyGenerator: TProxyCodeGenerator;
