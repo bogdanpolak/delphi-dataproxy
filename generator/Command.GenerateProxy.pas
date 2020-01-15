@@ -20,7 +20,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function Execute(dataset: TDataSet): String;
+    function Execute(aDataset: TDataSet): String;
   end;
 
 implementation
@@ -56,9 +56,9 @@ begin
   inherited;
 end;
 
-function TProxyGeneratorCommand.Execute(dataset: TDataSet): String;
+function TProxyGeneratorCommand.Execute(aDataset: TDataSet): String;
 begin
-  fProxyGenerator.dataset := dataset;
+  fProxyGenerator.dataset := aDataset;
   fProxyGenerator.Execute;
   fCode.Clear;
   with fCode do
@@ -74,7 +74,7 @@ begin
     GeneratorMode := genAll;
     AppendMode := amMultilineAppends;
     DataSetType := dstFDMemTable;
-    dataset := dataset;
+    dataset := aDataset;
     IndentationText := '  ';
   end;
   fDataSetGenerator.Execute;
