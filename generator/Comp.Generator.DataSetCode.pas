@@ -1,12 +1,10 @@
-﻿{ * ------------------------------------------------------------------------
-  * ♥
-  * ♥ DataSet to Delphi Code (create TFDMemTable with the data)
-  * ♥
-  * Component: TGenerateDataSetCode
-  * Project: https://github.com/bogdanpolak/datasetToDelphiCode
-  * ReleaseDate: ↓ see below in the component const section ↓
-  * ReleaseVersion: ↓ see below in the component const section ↓
-  * ------------------------------------------------------------------------ }
+﻿{* ------------------------------------------------------------------------
+ * ♥
+ * ♥ DataSet to Delphi Code (create TFDMemTable with the data)
+ * ♥
+ * Component: TDSGenerator
+ * Project: https://github.com/bogdanpolak/datasetToDelphiCode
+ * ------------------------------------------------------------------------ }
 
 unit Comp.Generator.DataSetCode;
 
@@ -18,62 +16,90 @@ uses
   FireDAC.Comp.Client;
 
 type
-  TGenerateDataSetCode = class(TComponent)
+  TGeneratorMode = (genAll, genStructure, genAppend, genUnit, genFunction);
+  TDataSetType = (dstFDMemTable, dstClientDataSet);
+  TAppendMode = (amMultilineAppends, amSinglelineAppends);
+
+  TDSGenerator = class(TComponent)
   const
     // * --------------------------------------------------------------------
     // * Signature
-    ReleaseDate = '2019.09.24';
-    ReleaseVersion = '1.2';
+    ReleaseVersion = '1.3';
     // * --------------------------------------------------------------------
     MaxLiteralLenght = 70;
   private
-    FCodeWithStructue: TStrings;
-    FCodeWithAppendData: TStrings;
+    FCode: TStrings;
+    FStructureCode: TStringList;
+    FAppendCode: TStringList;
+    FTempCode: TStringList;
     FDataSet: TDataSet;
-    FHeader: TStrings;
-    FFooter: TStrings;
     FIndentationText: String;
+    FGeneratorMode: TGeneratorMode;
+    FDataSetType: TDataSetType;
+    FAppendMode: TAppendMode;
     procedure Guard;
-    function GenCodeLineFieldDefAdd(fld: TField): string;
-    function GenCodeLineSetFieldValue(fld: TField): string;
-    procedure GenCodeCreateMockTableWithStructure(dataSet: TDataSet);
-    procedure GenCodeAppendDataToMockTable(dataSet: TDataSet);
     function GetDataFieldPrecision(fld: TField): integer;
+    procedure GenerateOneAppend_Multiline(aFields: TFields);
+    procedure GenerateOneAppend_Singleline(aFields: TFields);
+  protected
+    function GenerateLine_FieldDefAdd(fld: TField): string;
+    function GenerateLine_SetFieldValue(fld: TField): string;
+    procedure GenerateStructure(dataSet: TDataSet);
+    procedure GenerateOneAppend(aFields: TFields);
+    procedure GenerateAppendsBlock(dataSet: TDataSet);
     function FormatLongStringLiterals(const Literal: string): string;
+    function GenerateUnitHeader(const aUnitName: string): string;
+    function GenerateUnitFooter(): string;
+    function GenerateFunction: string;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Execute;
-    property dataSet: TDataSet read FDataSet write FDataSet;
-    property CodeWithStructure: TStrings read FCodeWithStructue;
-    property CodeWithAppendData: TStrings read FCodeWithAppendData;
     class function GenerateAsString(ds: TDataSet): string;
     class function GenerateAsArray(ds: TDataSet): TStringDynArray;
+    class procedure GenerateAndSaveToStream(ds: TDataSet; aStream: TStream);
+    class procedure GenerateAndSaveToFile(ds: TDataSet;
+      const aFileName: string);
+    class procedure GenerateAndSaveClipboard(ds: TDataSet);
+  published
+    property dataSet: TDataSet read FDataSet write FDataSet;
+    property Code: TStrings read FCode;
     property IndentationText: String read FIndentationText
       write FIndentationText;
+    property GeneratorMode: TGeneratorMode read FGeneratorMode
+      write FGeneratorMode;
+    property DataSetType: TDataSetType read FDataSetType write FDataSetType;
+    property AppendMode: TAppendMode read FAppendMode write FAppendMode;
   end;
 
 implementation
 
 uses
-  System.Rtti, Helper.TStrings;
+  System.Rtti,
+  Vcl.Clipbrd;
 
-constructor TGenerateDataSetCode.Create(AOwner: TComponent);
+constructor TDSGenerator.Create(AOwner: TComponent);
 begin
   inherited;
-  FCodeWithStructue := TStringList.Create;
-  FCodeWithAppendData := TStringList.Create;
-  FHeader := TStringList.Create;
-  FFooter := TStringList.Create;
+  // --------------------------------
+  // Default options
+  FGeneratorMode := genAll;
+  FDataSetType := dstFDMemTable;
+  FAppendMode := amMultilineAppends;
   FIndentationText := '  ';
+  // --------------------------------
+  FCode := TStringList.Create;
+  FStructureCode := TStringList.Create;
+  FAppendCode := TStringList.Create;
+  FTempCode := TStringList.Create;
 end;
 
-destructor TGenerateDataSetCode.Destroy;
+destructor TDSGenerator.Destroy;
 begin
-  FCodeWithStructue.Free;
-  FCodeWithAppendData.Free;
-  FHeader.Free;
-  FFooter.Free;
+  FCode.Free;
+  FStructureCode.Free;
+  FAppendCode.Free;
+  FTempCode.Free;
   inherited;
 end;
 
@@ -82,7 +108,7 @@ begin
   Result := System.Rtti.TRttiEnumerationType.GetName(ft);
 end;
 
-function TGenerateDataSetCode.GetDataFieldPrecision(fld: TField): integer;
+function TDSGenerator.GetDataFieldPrecision(fld: TField): integer;
 begin
   System.Assert((fld is TBCDField) or (fld is TFMTBCDField) or
     (fld is TFloatField));
@@ -94,22 +120,20 @@ begin
     Result := (fld as TFloatField).Precision
 end;
 
-function TGenerateDataSetCode.GenCodeLineFieldDefAdd(fld: TField): string;
+function TDSGenerator.GenerateLine_FieldDefAdd(fld: TField): string;
 begin
-  (*
-    ---------------------------------------------------------------------------
+  (* -----------------------------------------------------------------------
     [Doc]
-    TFieldType = (ftUnknown, ftString, ftSmallint, ftInteger, ftWord, // 0..4
-    ftBoolean, ftFloat, ftCurrency, ftBCD, ftDate, ftTime, ftDateTime, // 5..11
-    ftBytes, ftVarBytes, ftAutoInc, ftBlob, ftMemo, ftGraphic, ftFmtMemo, // 12..18
-    ftParadoxOle, ftDBaseOle, ftTypedBinary, ftCursor, ftFixedChar, ftWideString, // 19..24
-    ftLargeint, ftADT, ftArray, ftReference, ftDataSet, ftOraBlob, ftOraClob, // 25..31
-    ftVariant, ftInterface, ftIDispatch, ftGuid, ftTimeStamp, ftFMTBcd, // 32..37
-    ftFixedWideChar, ftWideMemo, ftOraTimeStamp, ftOraInterval, // 38..41
-    ftLongWord, ftShortint, ftByte, ftExtended, ftConnection, ftParams, ftStream, //42..48
-    ftTimeStampOffset, ftObject, ftSingle); //49..51
-    ---------------------------------------------------------------------------
-  *)
+   TFieldType = ( ftUnknown, ftString, ftSmallint, ftInteger, ftWord,
+   ftBoolean, ftFloat, ftCurrency, ftBCD, ftDate, ftTime, ftDateTime,
+   ftBytes, ftVarBytes, ftAutoInc, ftBlob, ftMemo, ftGraphic, ftFmtMemo,
+   ftParadoxOle, ftDBaseOle, ftTypedBinary, ftCursor, ftFixedChar, ftWideString,
+   ftLargeint, ftADT, ftArray, ftReference, ftDataSet, ftOraBlob, ftOraClob,
+   ftVariant, ftInterface, ftIDispatch, ftGuid, ftTimeStamp, ftFMTBcd,
+   ftFixedWideChar, ftWideMemo, ftOraTimeStamp, ftOraInterval,
+   ftLongWord, ftShortint, ftByte, ftExtended, ftConnection, ftParams, ftStream,
+   ftTimeStampOffset, ftObject, ftSingle);
+   ------------------------------------------------------------------------- *)
   if fld.DataType in [ftAutoInc, ftInteger, ftWord, ftSmallint, ftLargeint,
     ftBoolean, ftFloat, ftCurrency, ftDate, ftTime, ftDateTime] then
     Result := 'FieldDefs.Add(' + QuotedStr(fld.FieldName) + ', ' +
@@ -161,8 +185,7 @@ begin
     Result := Result + '+' + TimeToCode(dt);
 end;
 
-function TGenerateDataSetCode.FormatLongStringLiterals(const Literal
-  : string): string;
+function TDSGenerator.FormatLongStringLiterals(const Literal: string): string;
 var
   s1: string;
   s2: string;
@@ -193,7 +216,7 @@ begin
   end;
 end;
 
-function TGenerateDataSetCode.GenCodeLineSetFieldValue(fld: TField): string;
+function TDSGenerator.GenerateLine_SetFieldValue(fld: TField): string;
 var
   sByNameValue: string;
 begin
@@ -221,97 +244,298 @@ begin
   end;
 end;
 
-class function TGenerateDataSetCode.GenerateAsString(ds: TDataSet): string;
-var
-  gen: TGenerateDataSetCode;
-begin
-  gen := TGenerateDataSetCode.Create(nil);
-  try
-    gen.dataSet := ds;
-    gen.Execute;
-    Result := gen.CodeWithStructure.Text + sLineBreak + sLineBreak +
-      gen.CodeWithAppendData.Text;
-  finally
-    gen.Free;
-  end;
-end;
-
-class function TGenerateDataSetCode.GenerateAsArray(ds: TDataSet)
-  : TStringDynArray;
-var
-  gen: TGenerateDataSetCode;
-begin
-  gen := TGenerateDataSetCode.Create(nil);
-  try
-    gen.dataSet := ds;
-    gen.Execute;
-    Result := gen.CodeWithStructure.ToStringDynArray + [sLineBreak, sLineBreak]
-      + gen.CodeWithStructure.ToStringDynArray;
-  finally
-    gen.Free;
-  end;
-end;
-
-procedure TGenerateDataSetCode.Guard;
+procedure TDSGenerator.Guard;
 begin
   Assert(dataSet <> nil, 'Property DataSet not assigned!');
 end;
 
-procedure TGenerateDataSetCode.GenCodeCreateMockTableWithStructure
-  (dataSet: TDataSet);
+procedure TDSGenerator.GenerateStructure(dataSet: TDataSet);
 var
   fld: TField;
+  sDataSetCreate: string;
 begin
-  with CodeWithStructure do
+  case FDataSetType of
+    dstFDMemTable:
+      sDataSetCreate := 'TFDMemTable.Create(AOwner)';
+    dstClientDataSet:
+      sDataSetCreate := 'TClientDataSet.Create(AOwner)';
+  end;
+  with FStructureCode do
   begin
-    Add(IndentationText + 'ds := TFDMemTable.Create(AOwner);');
+    Add(IndentationText + 'ds := ' + sDataSetCreate + ';');
     Add(IndentationText + 'with ds do');
     Add(IndentationText + 'begin');
     for fld in dataSet.Fields do
-      Add(IndentationText + IndentationText + GenCodeLineFieldDefAdd(fld));
+      Add(IndentationText + IndentationText + GenerateLine_FieldDefAdd(fld));
     Add(IndentationText + IndentationText + 'CreateDataSet;');
     Add(IndentationText + 'end;');
   end;
 end;
 
-procedure TGenerateDataSetCode.GenCodeAppendDataToMockTable(dataSet: TDataSet);
+procedure TDSGenerator.GenerateOneAppend_Multiline(aFields: TFields);
 var
   fld: TField;
   s1: string;
 begin
-  CodeWithAppendData.Add('{$REGION ''Append data to MemTable''}');
+  with FAppendCode do
+  begin
+    Add(IndentationText + 'with ds do');
+    Add(IndentationText + 'begin');
+    Add(IndentationText + IndentationText + 'Append;');
+    for fld in aFields do
+    begin
+      s1 := GenerateLine_SetFieldValue(fld);
+      if s1 <> '' then
+        Add(IndentationText + IndentationText + s1);
+    end;
+    Add(IndentationText + IndentationText + 'Post;');
+    Add(IndentationText + 'end;');
+  end;
+end;
+
+procedure TDSGenerator.GenerateOneAppend_Singleline(aFields: TFields);
+var
+  sFieldsValues: string;
+  fld: TField;
+  s1: string;
+begin
+  sFieldsValues := '';
+  for fld in aFields do
+  begin
+    if fld.IsNull then
+      s1 := 'Null'
+    else
+      case fld.DataType of
+        ftAutoInc, ftInteger, ftWord, ftSmallint, ftLargeint:
+          s1 := fld.AsString;
+        ftBoolean:
+          s1 := BoolToStr(fld.AsBoolean, true);
+        ftFloat, ftCurrency, ftBCD, ftFMTBcd:
+          s1 := FloatToCode(fld.AsExtended);
+        ftDate:
+          s1 := DateToCode(fld.AsDateTime);
+        ftTime:
+          s1 := TimeToCode(fld.AsDateTime);
+        ftDateTime:
+          s1 := DateTimeToCode(fld.AsDateTime);
+        ftString, ftWideString:
+          s1 := FormatLongStringLiterals(QuotedStr(fld.Value));
+      end;
+    if sFieldsValues = '' then
+      sFieldsValues := s1
+    else
+      sFieldsValues := sFieldsValues + ', ' + s1;
+  end;
+  FAppendCode.Add(IndentationText + 'ds.AppendRecord([' + sFieldsValues
+    + ']);');
+end;
+
+procedure TDSGenerator.GenerateOneAppend(aFields: TFields);
+begin
+  case FAppendMode of
+    amMultilineAppends:
+      GenerateOneAppend_Multiline(aFields);
+    amSinglelineAppends:
+      GenerateOneAppend_Singleline(aFields);
+  end;
+end;
+
+procedure TDSGenerator.GenerateAppendsBlock(dataSet: TDataSet);
+begin
+  FAppendCode.Add('{$REGION ''Append data''}');
   dataSet.DisableControls;
   dataSet.Open;
   dataSet.First;
   while not dataSet.Eof do
   begin
-    with CodeWithAppendData do
-    begin
-      Add(IndentationText + 'with ds do');
-      Add(IndentationText + 'begin');
-      Add(IndentationText + IndentationText + 'Append;');
-      for fld in dataSet.Fields do
-      begin
-        s1 := GenCodeLineSetFieldValue(fld);
-        if s1 <> '' then
-          Add(IndentationText + IndentationText + s1);
-      end;
-      Add(IndentationText + IndentationText + 'Post;');
-      Add(IndentationText + 'end;');
-    end;
+    GenerateOneAppend(dataSet.Fields);
     dataSet.Next;
   end;
   dataSet.EnableControls;
-  CodeWithAppendData.Add('{$ENDREGION}');
+  FAppendCode.Add(IndentationText + 'ds.First;');
+  FAppendCode.Add('{$ENDREGION}');
 end;
 
-procedure TGenerateDataSetCode.Execute;
+function TDSGenerator.GenerateUnitHeader(const aUnitName: string): string;
+var
+  sDataSetUnits: string;
+begin
+  case FDataSetType of
+    dstFDMemTable:
+      sDataSetUnits := IndentationText + 'FireDAC.Comp.Client;';
+    dstClientDataSet:
+      sDataSetUnits :=
+      (* *) IndentationText + 'Datasnap.DBClient;'#13#10 +
+      (* *) IndentationText + 'MidasLib;';
+  end;
+  FTempCode.Clear;
+  with FTempCode do
+  begin
+    Add('unit ' + aUnitName + ';');
+    Add('');
+    Add('interface');
+    Add('');
+    Add('uses');
+    Add(IndentationText + 'System.Classes,');
+    Add(IndentationText + 'System.SysUtils,');
+    Add(IndentationText + 'System.Variants,');
+    Add(IndentationText + 'Data.DB,');
+    Add(sDataSetUnits);
+    Add('');
+    Add('function CreateDataSet (aOwner: TComponent): TDataSet;');
+    Add('');
+    Add('implementation');
+    Add('');
+  end;
+  Result := FTempCode.Text;
+end;
+
+function TDSGenerator.GenerateFunction(): string;
+begin
+  FTempCode.Clear;
+  with FTempCode do
+  begin
+    Add('function CreateDataSet (aOwner: TComponent): TDataSet;');
+    Add('var');
+    Add('  ds: TFDMemTable;');
+    Add('begin');
+    AddStrings(FStructureCode);
+    AddStrings(FAppendCode);
+    Add('  Result := ds;');
+    Add('end;');
+  end;
+  Result := FTempCode.Text;
+end;
+
+function TDSGenerator.GenerateUnitFooter(): string;
+begin
+  FTempCode.Clear;
+  with FTempCode do
+  begin
+    Add('');
+    Add('end.');
+  end;
+  Result := FTempCode.Text;
+end;
+
+procedure TDSGenerator.Execute;
 begin
   Guard;
-  CodeWithStructure.Clear;
-  CodeWithAppendData.Clear;
-  GenCodeCreateMockTableWithStructure(dataSet);
-  GenCodeAppendDataToMockTable(dataSet);
+  FStructureCode.Clear;
+  FAppendCode.Clear;
+  GenerateStructure(dataSet);
+  GenerateAppendsBlock(dataSet);
+  case FGeneratorMode of
+    genAll:
+      FCode.Text := FStructureCode.Text + FAppendCode.Text;
+    genStructure:
+      FCode.Text := FStructureCode.Text;
+    genAppend:
+      FCode.Text := FAppendCode.Text;
+    genUnit:
+      FCode.Text := GenerateUnitHeader('uSampleDataSet') + GenerateFunction +
+        GenerateUnitFooter;
+    genFunction:
+      FCode.Text := GenerateFunction;
+  end;
+end;
+
+class function TDSGenerator.GenerateAsString(ds: TDataSet): string;
+var
+  gen: TDSGenerator;
+begin
+  gen := TDSGenerator.Create(nil);
+  try
+    gen.dataSet := ds;
+    gen.Execute;
+    Result := gen.Code.Text;
+  finally
+    gen.Free;
+  end;
+end;
+
+(* This function replace (fix) standard  Delphi RTL TStrings.ToStringArray
+  .    method, because ot the following issue (in Delphi XE8 and older ones):
+ Delphi 10.3 Rio:
+ .   - TStringDynArray = TArray<string>;
+ .   - function TStrings.ToStringArray: TArray<string>;
+ .   - can assign: TArray<string> --> TStringDynArray
+ Delphi XE8:
+ .   - TStringDynArray = array of string;
+ .   - function TStrings.ToStringArray: array of string;
+ .   - not able to assign: array of string --> TStringDynArray
+*)
+function TStringsToStringDynArray(sl: TStrings): TStringDynArray;
+var
+  i: integer;
+begin
+  SetLength(Result, sl.Count);
+  for i := 0 to sl.Count - 1 do
+    Result[i] := sl[i];
+end;
+
+class function TDSGenerator.GenerateAsArray(ds: TDataSet): TStringDynArray;
+var
+  gen: TDSGenerator;
+begin
+  gen := TDSGenerator.Create(nil);
+  try
+    gen.dataSet := ds;
+    gen.Execute;
+    Result := TStringsToStringDynArray(gen.Code);
+  finally
+    gen.Free;
+  end;
+end;
+
+class procedure TDSGenerator.GenerateAndSaveToStream(ds: TDataSet;
+  aStream: TStream);
+var
+  gen: TDSGenerator;
+  sCode: Utf8String;
+begin
+  gen := TDSGenerator.Create(nil);
+  try
+    gen.dataSet := ds;
+    gen.GeneratorMode := genUnit;
+    gen.Execute;
+    sCode := Utf8String(gen.Code.Text);
+    {
+     aFilePreamble := TEncoding.UTF8.GetPreamble;
+     aStream.Write(aFilePreamble[0], Length(aFilePreamble));
+    }
+    aStream.Write(sCode[1], Length(sCode));
+  finally
+    gen.Free;
+  end;
+end;
+
+class procedure TDSGenerator.GenerateAndSaveToFile(ds: TDataSet;
+  const aFileName: string);
+var
+  fs: TFileStream;
+begin
+  fs := TFileStream.Create(aFileName, fmCreate);
+  try
+    GenerateAndSaveToStream(ds, fs);
+  finally
+    fs.Free;
+  end;
+end;
+
+class procedure TDSGenerator.GenerateAndSaveClipboard(ds: TDataSet);
+var
+  gen: TDSGenerator;
+begin
+  gen := TDSGenerator.Create(nil);
+  try
+    gen.dataSet := ds;
+    gen.GeneratorMode := genFunction;
+    gen.Execute;
+    Clipboard.AsText := gen.Code.Text;
+  finally
+    gen.Free;
+  end;
 end;
 
 end.
