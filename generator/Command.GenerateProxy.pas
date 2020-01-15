@@ -16,7 +16,7 @@ type
   private
     GeneratedCode: TStringList;
     ProxyGenerator: TProxyCodeGenerator;
-    DataSetGenerator: TGenerateDataSetCode;
+    fDataSetGenerator: TDSGenerator;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -47,7 +47,7 @@ begin
   inherited;
   GeneratedCode := TStringList.Create;
   ProxyGenerator := TProxyCodeGenerator.Create(Self);
-  DataSetGenerator := TGenerateDataSetCode.Create(Self);
+  fDataSetGenerator := TDSGenerator.Create(Self);
 end;
 
 destructor TProxyGeneratorCommand.Destroy;
@@ -69,11 +69,15 @@ begin
     Add('');
     AddStrings(ProxyGenerator.Code);
   end;
-  // -----------
-  DataSetGenerator.dataset := dataset;
-  DataSetGenerator.IndentationText := '  ';
-  DataSetGenerator.Execute;
-  // -----------
+  with fDataSetGenerator do
+  begin
+    GeneratorMode := genAll;
+    AppendMode := amMultilineAppends;
+    DataSetType := dstFDMemTable;
+    dataset := dataset;
+    IndentationText := '  ';
+  end;
+  fDataSetGenerator.Execute;
   with GeneratedCode do
   begin
     LineReplace('  public', '  public' + sLineBreak +
@@ -85,8 +89,7 @@ begin
     Add('var');
     Add('  ds: TFDMemTable;');
     Add('begin');
-    AddStrings(DataSetGenerator.CodeWithStructure);
-    AddStrings(DataSetGenerator.CodeWithAppendData);
+    AddStrings(fDataSetGenerator.Code);
     Add('  Result := ds;');
     Add('end;');
     Add('');
