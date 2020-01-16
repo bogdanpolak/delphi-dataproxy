@@ -6,7 +6,7 @@ uses
   Comp.Generator.DataProxy;
 
 type
-  TProxyCodeGenerator_AUT = class(TDataProxyGenerator)
+  TTestProxyDataGenerator = class(TDataProxyGenerator)
   public
     procedure Generate_UnitHeader;
     procedure Generate_UsesSection;
@@ -21,38 +21,38 @@ implementation
 
 { TProxyCodeGeneratorCUT }
 
-procedure TProxyCodeGenerator_AUT.Generate_UnitHeader;
+procedure TTestProxyDataGenerator.Generate_UnitHeader;
 begin
   DoGenerate_UnitHeader;
 end;
 
-procedure TProxyCodeGenerator_AUT.Generate_UsesSection;
+procedure TTestProxyDataGenerator.Generate_UsesSection;
 begin
   DoGenerate_UsesSection;
 
 end;
 
-procedure TProxyCodeGenerator_AUT.Generate_ClassDeclaration;
+procedure TTestProxyDataGenerator.Generate_ClassDeclaration;
 begin
   DoGenerate_ClassDeclaration;
 end;
 
-procedure TProxyCodeGenerator_AUT.Generate_PrivateFieldList;
+procedure TTestProxyDataGenerator.Generate_PrivateFieldList;
 begin
   DoGenerate_PrivateFieldList;
 end;
 
-procedure TProxyCodeGenerator_AUT.Generate_PublicPropertyList;
+procedure TTestProxyDataGenerator.Generate_PublicPropertyList;
 begin
   DoGenerate_PublicPropertyList;
 end;
 
-procedure TProxyCodeGenerator_AUT.Generate_FieldAssigments;
+procedure TTestProxyDataGenerator.Generate_FieldAssigments;
 begin
   DoGenerate_FieldAssigments;
 end;
 
-procedure TProxyCodeGenerator_AUT.Generate_MethodConnectFields;
+procedure TTestProxyDataGenerator.Generate_MethodConnectFields;
 begin
   DoGenerate_MethodConnectFields;
 end;

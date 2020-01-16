@@ -17,7 +17,7 @@ type
   ProxyGenerator = class(TObject)
   private
     OwnerComponent: TComponent;
-    ProxyCodeGenerator: TProxyCodeGenerator_AUT;
+    ProxyCodeGenerator: TTestProxyDataGenerator;
     MemDataSet: TFDMemTable;
   public
     [Setup]
@@ -47,7 +47,7 @@ implementation
 procedure ProxyGenerator.Setup;
 begin
   OwnerComponent := TComponent.Create(nil);
-  ProxyCodeGenerator := TProxyCodeGenerator_AUT.Create(OwnerComponent);
+  ProxyCodeGenerator := TTestProxyDataGenerator.Create(OwnerComponent);
   with ProxyCodeGenerator do
   begin
     GenCommentsWithPublicDataSet := false;
