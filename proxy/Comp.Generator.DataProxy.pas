@@ -9,7 +9,7 @@ uses
   System.SysUtils;
 
 type
-  TProxyCodeGenerator = class(TComponent)
+  TDataProxyGenerator = class(TComponent)
   private
     Fields: TList<TField>;
     FDataSet: TDataSet;
@@ -39,7 +39,7 @@ type
 
 implementation
 
-constructor TProxyCodeGenerator.Create(Owner: TComponent);
+constructor TDataProxyGenerator.Create(Owner: TComponent);
 begin
   inherited;
   Fields := TList<TField>.Create();
@@ -48,14 +48,14 @@ begin
   GenCommentsWithPublicDataSet := true;
 end;
 
-destructor TProxyCodeGenerator.Destroy;
+destructor TDataProxyGenerator.Destroy;
 begin
   Fields.Free;
   FCode.Free;
   inherited;
 end;
 
-procedure TProxyCodeGenerator.Fill_FieldList;
+procedure TDataProxyGenerator.Fill_FieldList;
 var
   i: integer;
   IsEqual: boolean;
@@ -86,17 +86,17 @@ begin
   // ------------------------------------
 end;
 
-procedure TProxyCodeGenerator.Guard;
+procedure TDataProxyGenerator.Guard;
 begin
   Assert(DataSet <> nil);
   Assert(DataSet.Active);
 end;
 
-procedure TProxyCodeGenerator.DoGenerate_UnitHeader;
+procedure TDataProxyGenerator.DoGenerate_UnitHeader;
 begin
 end;
 
-procedure TProxyCodeGenerator.DoGenerate_UsesSection;
+procedure TDataProxyGenerator.DoGenerate_UsesSection;
 begin
   Code.Add('uses');
   Code.Add('  Data.DB,');
@@ -106,12 +106,12 @@ begin
   Code.Add('  FireDAC.Comp.Client;');
 end;
 
-class function TProxyCodeGenerator.GetFieldClassName(fld: TField): string;
+class function TDataProxyGenerator.GetFieldClassName(fld: TField): string;
 begin
   Result := Data.DB.DefaultFieldClasses[fld.DataType].ClassName;
 end;
 
-procedure TProxyCodeGenerator.DoGenerate_PrivateFieldList;
+procedure TDataProxyGenerator.DoGenerate_PrivateFieldList;
 var
   fld: TField;
 begin
@@ -120,7 +120,7 @@ begin
     Code.Add('    F' + fld.FieldName + ' :' + GetFieldClassName(fld) + ';');
 end;
 
-procedure TProxyCodeGenerator.DoGenerate_PublicPropertyList;
+procedure TDataProxyGenerator.DoGenerate_PublicPropertyList;
 var
   fld: TField;
 begin
@@ -130,7 +130,7 @@ begin
       ' read F' + fld.FieldName + ';');
 end;
 
-procedure TProxyCodeGenerator.DoGenerate_FieldAssigments;
+procedure TDataProxyGenerator.DoGenerate_FieldAssigments;
 var
   fld: TField;
 begin
@@ -140,7 +140,7 @@ begin
       QuotedStr(fld.FieldName) + ') as ' + GetFieldClassName(fld) + ';');
 end;
 
-procedure TProxyCodeGenerator.DoGenerate_ClassDeclaration;
+procedure TDataProxyGenerator.DoGenerate_ClassDeclaration;
 begin
   Code.Add('type');
   Code.Add('  T{ObjectName}Proxy = class(TDatasetProxy)');
@@ -158,7 +158,7 @@ begin
   Code.Add('  end;');
 end;
 
-procedure TProxyCodeGenerator.DoGenerate_MethodConnectFields;
+procedure TDataProxyGenerator.DoGenerate_MethodConnectFields;
 begin
   Fill_FieldList;
   Code.Add('procedure T{ObjectName}Proxy.ConnectFields;');
@@ -170,7 +170,7 @@ begin
   Code.Add('end;');
 end;
 
-procedure TProxyCodeGenerator.Execute;
+procedure TDataProxyGenerator.Execute;
 begin
   Guard;
   DoGenerate_UnitHeader;

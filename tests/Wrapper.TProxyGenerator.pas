@@ -6,7 +6,7 @@ uses
   Comp.Generator.DataProxy;
 
 type
-  TProxyCodeGenerator_AUT = class(TProxyCodeGenerator)
+  TProxyCodeGenerator_AUT = class(TDataProxyGenerator)
   public
     procedure Generate_UnitHeader;
     procedure Generate_UsesSection;
