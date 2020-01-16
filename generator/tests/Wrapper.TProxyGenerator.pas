@@ -3,7 +3,7 @@ unit Wrapper.TProxyGenerator;
 interface
 
 uses
-  Comp.Generator.ProxyCode;
+  Comp.Generator.DataProxy;
 
 type
   TProxyCodeGenerator_AUT = class(TProxyCodeGenerator)

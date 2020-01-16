@@ -7,7 +7,7 @@ uses
   Data.DB,
   FireDAC.Comp.Client,
   Comp.Generator.DataSetCode,
-  Comp.Generator.ProxyCode;
+  Comp.Generator.DataProxy;
 
 type
   TProxyGeneratorCommand = class(TComponent)

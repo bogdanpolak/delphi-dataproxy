@@ -12,8 +12,8 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   DUnitX.TestFramework,
   Test.ProxyGenerator in 'Test.ProxyGenerator.pas',
-  Comp.Generator.ProxyCode in '..\Comp.Generator.ProxyCode.pas',
-  Wrapper.TProxyGenerator in 'Wrapper.TProxyGenerator.pas';
+  Wrapper.TProxyGenerator in 'Wrapper.TProxyGenerator.pas',
+  Comp.Generator.DataProxy in '..\..\proxy\Comp.Generator.DataProxy.pas';
 
 var
   runner : ITestRunner;
