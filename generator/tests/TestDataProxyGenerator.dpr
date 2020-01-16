@@ -1,4 +1,4 @@
-program DUnitxProxyGeneratorComponent;
+program TestDataProxyGenerator;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
