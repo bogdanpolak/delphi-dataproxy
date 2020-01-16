@@ -272,11 +272,11 @@ object FormMain: TFormMain
       ImageIndex = 1
       object mmProxyCode: TMemo
         AlignWithMargins = True
-        Left = 3
-        Top = 55
-        Width = 508
-        Height = 158
-        Align = alTop
+        Left = 150
+        Top = 3
+        Width = 361
+        Height = 342
+        Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -12
@@ -287,42 +287,51 @@ object FormMain: TFormMain
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
+        ExplicitLeft = 3
+        ExplicitTop = 55
+        ExplicitWidth = 508
+        ExplicitHeight = 158
       end
       object GroupBox1: TGroupBox
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 508
-        Height = 46
-        Align = alTop
-        Caption = 'Proxy Name:'
+        Width = 141
+        Height = 342
+        Align = alLeft
+        Caption = 'Proxy parameters'
         TabOrder = 1
         object Label4: TLabel
           AlignWithMargins = True
-          Left = 343
+          Left = 7
           Top = 21
-          Width = 136
-          Height = 17
+          Width = 127
+          Height = 13
+          Margins.Left = 5
           Margins.Top = 6
-          Margins.Right = 30
-          Margins.Bottom = 6
-          Align = alLeft
-          Caption = 'Ctrl+Enter to apply changes'
-          ExplicitHeight = 13
+          Margins.Right = 5
+          Align = alTop
+          Caption = 'Proxy name:'
+          ExplicitLeft = 5
+          ExplicitTop = 18
+          ExplicitWidth = 61
         end
         object edtProxyName: TEdit
           AlignWithMargins = True
-          Left = 32
-          Top = 18
-          Width = 305
+          Left = 7
+          Top = 40
+          Width = 127
           Height = 20
-          Margins.Left = 30
-          Margins.Bottom = 6
-          Align = alLeft
-          Anchors = [akLeft, akTop, akRight, akBottom]
+          Margins.Left = 5
+          Margins.Right = 5
+          Margins.Bottom = 8
+          Align = alTop
           TabOrder = 0
           Text = 'edtProxyName'
-          OnKeyUp = edtProxyNameKeyUp
+          OnChange = edtProxyNameChange
+          ExplicitLeft = 32
+          ExplicitTop = 18
+          ExplicitWidth = 305
           ExplicitHeight = 21
         end
       end
