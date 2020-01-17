@@ -4,7 +4,9 @@ interface
 
 uses
   DUnitX.TestFramework,
-  System.Classes, System.SysUtils, System.Variants,
+  System.Classes,
+  System.SysUtils,
+  System.Variants,
   Data.DB,
   FireDAC.Comp.Client,
   Wrapper.TProxyGenerator;
@@ -165,7 +167,6 @@ end;
 // Tests: Unit Header / Uses Section
 // -----------------------------------------------------------------------
 
-
 procedure TestGenerator.Test_UnitHeader_IsEmpty;
 begin
   fGenerator.Generate_UnitHeader;
@@ -183,7 +184,6 @@ end;
 // Tests: Class Declaration
 // -----------------------------------------------------------------------
 
-
 procedure TestGenerator.Test_ClassDeclaration_DataSetNil;
 begin
   fGenerator.Generate_ClassDeclaration;
@@ -199,15 +199,13 @@ begin
   end;
   fGenerator.DataSet := MemDataSet;
   fGenerator.Generate_ClassDeclaration;
-  TProxyTemplates.Assert_ClassDeclaration_WithIntegerField
-    (fGenerator.Code);
+  TProxyTemplates.Assert_ClassDeclaration_WithIntegerField(fGenerator.Code);
 end;
 
 
 // -----------------------------------------------------------------------
 // Tests: Method ConnectFields
 // -----------------------------------------------------------------------
-
 
 procedure TestGenerator.Test_MethodConnectFields_DataSetNil;
 begin
@@ -224,10 +222,8 @@ begin
   end;
   fGenerator.DataSet := MemDataSet;
   fGenerator.Generate_MethodConnectFields;
-  TProxyTemplates.Assert_MethodConnectFields_WithIntegerField
-    (fGenerator.Code);
+  TProxyTemplates.Assert_MethodConnectFields_WithIntegerField(fGenerator.Code);
 end;
-
 
 initialization
 
