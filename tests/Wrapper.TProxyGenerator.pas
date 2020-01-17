@@ -21,43 +21,36 @@ implementation
 
 procedure TTestProxyDataGenerator.Generate_UnitHeader;
 begin
-  Fill_FieldList;
   Code.Text := Gen_UnitHeader;
 end;
 
 procedure TTestProxyDataGenerator.Generate_UsesSection;
 begin
-  Fill_FieldList;
   Code.Text := Gen_UsesSection;
 end;
 
 procedure TTestProxyDataGenerator.Generate_ClassDeclaration;
 begin
-  Fill_FieldList;
   Code.Text := Gen_ClassDeclaration;
 end;
 
 procedure TTestProxyDataGenerator.Generate_PrivateFieldList;
 begin
-  Fill_FieldList;
   Code.Text := Gen_PrivateFieldList;
 end;
 
 procedure TTestProxyDataGenerator.Generate_PublicPropertyList;
 begin
-  Fill_FieldList;
   Code.Text := Gen_PublicPropertyList;
 end;
 
 procedure TTestProxyDataGenerator.Generate_FieldAssigments;
 begin
-  Fill_FieldList;
   Code.Text := Gen_FieldAssigments;
 end;
 
 procedure TTestProxyDataGenerator.Generate_MethodConnectFields;
 begin
-  Fill_FieldList;
   Code.Text := Gen_MethodConnectFields;
 end;
 
