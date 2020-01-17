@@ -39,6 +39,7 @@ type
     procedure GenerateClass_TwoFields_LowerCase;
     procedure Test_MethodConnectFields_DataSetNil;
     procedure Test_MethodConnectFields_DataSetOneField;
+    procedure Gen_MethodConnectFields_TwoFields_LowerCase;
   end;
 
 implementation
@@ -265,6 +266,28 @@ begin
   fGenerator.DataSet := MemDataSet;
   fGenerator.Generate_MethodConnectFields;
   TProxyTemplates.Assert_MethodConnectFields_WithIntegerField(fGenerator.Code);
+end;
+
+procedure TestGenerator.Gen_MethodConnectFields_TwoFields_LowerCase;
+var
+  actualCode: string;
+begin
+  fGenerator.DataSet := GivenDataset([['CustomerID', ftInteger],
+    ['CompanyName', ftString]]);
+
+  fGenerator.FieldNamingStyle := fnsLowerCaseF;
+  fGenerator.Generate_MethodConnectFields;
+  actualCode := fGenerator.Code.Text;
+
+  Assert.AreEqual(
+    (* *) 'procedure T{ObjectName}Proxy.ConnectFields;'#13#10
+    (* *) + 'const'#13#10
+    (* *) + '  ExpectedFieldCount = 2;'#13#10
+    (* *) + 'begin'#13#10
+    (* *) + '  fCustomerID := FDataSet.FieldByName(''CustomerID'') as TIntegerField;'#13#10
+    (* *) + '  fCompanyName := FDataSet.FieldByName(''CompanyName'') as TStringField;'#13#10
+    (* *) + '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13#10
+    (* *) + 'end;'#13#10, actualCode, false);
 end;
 
 initialization
