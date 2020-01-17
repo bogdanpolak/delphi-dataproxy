@@ -4,21 +4,27 @@ interface
 
 uses
   DUnitX.TestFramework,
-  System.Classes, System.SysUtils, System.Variants,
+  System.Classes,
+  System.SysUtils,
+  System.Variants,
   Data.DB,
   FireDAC.Comp.Client,
+
+  Comp.Generator.DataProxy,
   Wrapper.TProxyGenerator;
 
 {$M+}
 
 type
+  TMatrixOfVariants = TArray<TArray<Variant>>;
 
   [TestFixture]
-  ProxyGenerator = class(TObject)
+  TestGenerator = class(TObject)
   private
     fOwner: TComponent;
     fGenerator: TTestProxyDataGenerator;
     MemDataSet: TFDMemTable;
+    function GivenDataset(aFieldsDef: TMatrixOfVariants): TDataSet;
   public
     [Setup]
     procedure Setup;
@@ -30,8 +36,10 @@ type
     procedure Test_UsesSection;
     procedure Test_ClassDeclaration_DataSetNil;
     procedure Test_ClassDeclaration_DataSetOneField;
+    procedure GenerateClass_TwoFields_LowerCase;
     procedure Test_MethodConnectFields_DataSetNil;
     procedure Test_MethodConnectFields_DataSetOneField;
+    procedure Gen_MethodConnectFields_TwoFields_LowerCase;
   end;
 
 implementation
@@ -40,11 +48,23 @@ implementation
 // Utils section
 // -----------------------------------------------------------------------
 
+function TestGenerator.GivenDataset(aFieldsDef: TMatrixOfVariants): TDataSet;
+var
+  aTable: TFDMemTable;
+  i: Integer;
+begin
+  aTable := TFDMemTable.Create(fOwner);
+  for i := 0 to High(aFieldsDef) do
+    aTable.FieldDefs.Add(aFieldsDef[i][0], aFieldsDef[i][1]);
+  aTable.CreateDataSet;
+  Result := aTable;
+end;
+
 // -----------------------------------------------------------------------
 // Setup and TearDown section
 // -----------------------------------------------------------------------
 
-procedure ProxyGenerator.Setup;
+procedure TestGenerator.Setup;
 begin
   fOwner := TComponent.Create(nil);
   fGenerator := TTestProxyDataGenerator.Create(fOwner);
@@ -55,7 +75,7 @@ begin
   MemDataSet := TFDMemTable.Create(fOwner);
 end;
 
-procedure ProxyGenerator.TearDown;
+procedure TestGenerator.TearDown;
 begin
   fOwner.Free;
 end;
@@ -162,36 +182,33 @@ end;
 
 
 // -----------------------------------------------------------------------
-// Test Unit Header and Uses Section
+// Tests: Unit Header / Uses Section
 // -----------------------------------------------------------------------
-{$REGION 'Test Unit Header and Uses Section'}
 
-procedure ProxyGenerator.Test_UnitHeader_IsEmpty;
+procedure TestGenerator.Test_UnitHeader_IsEmpty;
 begin
   fGenerator.Generate_UnitHeader;
   Assert.AreEqual('', fGenerator.Code.Text);
 end;
 
-procedure ProxyGenerator.Test_UsesSection;
+procedure TestGenerator.Test_UsesSection;
 begin
   fGenerator.Generate_UsesSection;
   TProxyTemplates.Asset_UsesSection(fGenerator.Code);
 end;
-{$ENDREGION}
 
 
 // -----------------------------------------------------------------------
-// Test Class Declaration Section
+// Tests: Class Declaration
 // -----------------------------------------------------------------------
-{$REGION 'Test Class Declaration Section'}
 
-procedure ProxyGenerator.Test_ClassDeclaration_DataSetNil;
+procedure TestGenerator.Test_ClassDeclaration_DataSetNil;
 begin
   fGenerator.Generate_ClassDeclaration;
   TProxyTemplates.Assert_ClassDeclaration(fGenerator.Code);
 end;
 
-procedure ProxyGenerator.Test_ClassDeclaration_DataSetOneField;
+procedure TestGenerator.Test_ClassDeclaration_DataSetOneField;
 begin
   with MemDataSet do
   begin
@@ -200,24 +217,46 @@ begin
   end;
   fGenerator.DataSet := MemDataSet;
   fGenerator.Generate_ClassDeclaration;
-  TProxyTemplates.Assert_ClassDeclaration_WithIntegerField
-    (fGenerator.Code);
+  TProxyTemplates.Assert_ClassDeclaration_WithIntegerField(fGenerator.Code);
 end;
-{$ENDREGION}
+
+procedure TestGenerator.GenerateClass_TwoFields_LowerCase;
+var
+  actualCode: string;
+begin
+  fGenerator.DataSet := GivenDataset([['CustomerID', ftInteger],
+    ['CompanyName', ftString]]);
+
+  fGenerator.FieldNamingStyle := fnsLowerCaseF;
+  fGenerator.Generate_ClassDeclaration;
+  actualCode := fGenerator.Code.Text;
+
+  Assert.AreEqual(
+    (* *) 'type'#13#10 +
+    (* *) '  T{ObjectName}Proxy = class(TDatasetProxy)'#13#10 +
+    (* *) '  private'#13#10 +
+    (* *) '    fCustomerID :TIntegerField;'#13#10 +
+    (* *) '    fCompanyName :TStringField;'#13#10 +
+    (* *) '  protected'#13#10 +
+    (* *) '    procedure ConnectFields; override;'#13#10 +
+    (* *) '  public'#13#10 +
+    (* *) '    property CustomerID :TIntegerField read fCustomerID;'#13#10 +
+    (* *) '    property CompanyName :TStringField read fCompanyName;'#13#10 +
+    (* *) '  end;'#13#10, actualCode, false);
+end;
 
 
 // -----------------------------------------------------------------------
-// Test Method ConnectFields Section
+// Tests: Method ConnectFields
 // -----------------------------------------------------------------------
-{$REGION 'Test Method ConnectFields Section'}
 
-procedure ProxyGenerator.Test_MethodConnectFields_DataSetNil;
+procedure TestGenerator.Test_MethodConnectFields_DataSetNil;
 begin
   fGenerator.Generate_MethodConnectFields;
   TProxyTemplates.Assert_MethodConnectFields(fGenerator.Code);
 end;
 
-procedure ProxyGenerator.Test_MethodConnectFields_DataSetOneField;
+procedure TestGenerator.Test_MethodConnectFields_DataSetOneField;
 begin
   with MemDataSet do
   begin
@@ -226,14 +265,33 @@ begin
   end;
   fGenerator.DataSet := MemDataSet;
   fGenerator.Generate_MethodConnectFields;
-  TProxyTemplates.Assert_MethodConnectFields_WithIntegerField
-    (fGenerator.Code);
+  TProxyTemplates.Assert_MethodConnectFields_WithIntegerField(fGenerator.Code);
 end;
-{$ENDREGION}
 
+procedure TestGenerator.Gen_MethodConnectFields_TwoFields_LowerCase;
+var
+  actualCode: string;
+begin
+  fGenerator.DataSet := GivenDataset([['CustomerID', ftInteger],
+    ['CompanyName', ftString]]);
+
+  fGenerator.FieldNamingStyle := fnsLowerCaseF;
+  fGenerator.Generate_MethodConnectFields;
+  actualCode := fGenerator.Code.Text;
+
+  Assert.AreEqual(
+    (* *) 'procedure T{ObjectName}Proxy.ConnectFields;'#13#10
+    (* *) + 'const'#13#10
+    (* *) + '  ExpectedFieldCount = 2;'#13#10
+    (* *) + 'begin'#13#10
+    (* *) + '  fCustomerID := FDataSet.FieldByName(''CustomerID'') as TIntegerField;'#13#10
+    (* *) + '  fCompanyName := FDataSet.FieldByName(''CompanyName'') as TStringField;'#13#10
+    (* *) + '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13#10
+    (* *) + 'end;'#13#10, actualCode, false);
+end;
 
 initialization
 
-TDUnitX.RegisterTestFixture(ProxyGenerator);
+TDUnitX.RegisterTestFixture(TestGenerator);
 
 end.

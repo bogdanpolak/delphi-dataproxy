@@ -10,13 +10,17 @@ uses
   System.Generics.Collections;
 
 type
+  TFieldNamingStyle = (fnsUpperCaseF, fnsLowerCaseF);
+
   TDataProxyGenerator = class(TComponent)
   private
     Fields: TList<TField>;
     FDataSet: TDataSet;
     fCode: TStringList;
     FGenCommentsWithPublicDataSet: boolean;
+    fFieldNamingStyle: TFieldNamingStyle;
     procedure Guard;
+    function GetFieldPrefix: string;
   protected
     procedure Fill_FieldList;
     function Gen_UnitHeader: string;
@@ -29,12 +33,14 @@ type
   public
     constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
+    procedure Execute;
   published
     property Code: TStringList read fCode;
     property DataSet: TDataSet read FDataSet write FDataSet;
     property GenCommentsWithPublicDataSet: boolean
       read FGenCommentsWithPublicDataSet write FGenCommentsWithPublicDataSet;
-    procedure Execute;
+    property FieldNamingStyle: TFieldNamingStyle read fFieldNamingStyle
+      write fFieldNamingStyle;
   end;
 
 implementation
@@ -110,14 +116,24 @@ begin
   Result := Data.DB.DefaultFieldClasses[fld.DataType].ClassName;
 end;
 
+function TDataProxyGenerator.GetFieldPrefix: string;
+begin
+  case fFieldNamingStyle of
+    fnsUpperCaseF:
+      Result := 'F';
+    fnsLowerCaseF:
+      Result := 'f';
+  end;
+end;
+
 function TDataProxyGenerator.Gen_PrivateFieldList: string;
 var
   fld: TField;
 begin
   Result := '';
   for fld in Fields do
-    Result := Result + Format('    F%s :%s;'#13,
-      [fld.FieldName, GetFieldClassName(fld)]);
+    Result := Result + Format('    %s :%s;'#13, [GetFieldPrefix + fld.FieldName,
+      GetFieldClassName(fld)]);
 end;
 
 function TDataProxyGenerator.Gen_PublicPropertyList: string;
@@ -126,8 +142,8 @@ var
 begin
   Result := '';
   for fld in Fields do
-    Result := Result + Format('    property %s :%s read F%s;'#13,
-      [fld.FieldName, GetFieldClassName(fld), fld.FieldName]);
+    Result := Result + Format('    property %s :%s read %s;'#13,
+      [fld.FieldName, GetFieldClassName(fld), GetFieldPrefix + fld.FieldName]);
 end;
 
 function TDataProxyGenerator.Gen_FieldAssigments: string;
@@ -136,8 +152,8 @@ var
 begin
   Result := '';
   for fld in Fields do
-    Result := Result + Format('  F%s := FDataSet.FieldByName(''%s'') as %s;'#13,
-      [fld.FieldName, fld.FieldName, GetFieldClassName(fld)]);
+    Result := Result + Format('  %s := FDataSet.FieldByName(''%s'') as %s;'#13,
+      [GetFieldPrefix + fld.FieldName, fld.FieldName, GetFieldClassName(fld)]);
 end;
 
 function TDataProxyGenerator.Gen_ClassDeclaration: string;
@@ -177,10 +193,10 @@ begin
   Guard;
   Fill_FieldList;
   fCode.Text :=
-  (* *) Gen_UnitHeader+
+  (* *) Gen_UnitHeader +
   (* *) Gen_UsesSection +
   (* *) #13 +
-  (* *) Gen_ClassDeclaration+
+  (* *) Gen_ClassDeclaration +
   (* *) #13 +
   (* *) 'implementation'#13 +
   (* *) #13 +
