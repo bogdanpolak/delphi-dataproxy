@@ -20,6 +20,7 @@ type
     FGenCommentsWithPublicDataSet: boolean;
     fFieldNamingStyle: TFieldNamingStyle;
     procedure Guard;
+    function GetFieldPrefix: string;
   protected
     procedure Fill_FieldList;
     function Gen_UnitHeader: string;
@@ -115,14 +116,24 @@ begin
   Result := Data.DB.DefaultFieldClasses[fld.DataType].ClassName;
 end;
 
+function TDataProxyGenerator.GetFieldPrefix: string;
+begin
+  case fFieldNamingStyle of
+    fnsUpperCaseF:
+      Result := 'F';
+    fnsLowerCaseF:
+      Result := 'f';
+  end;
+end;
+
 function TDataProxyGenerator.Gen_PrivateFieldList: string;
 var
   fld: TField;
 begin
   Result := '';
   for fld in Fields do
-    Result := Result + Format('    F%s :%s;'#13,
-      [fld.FieldName, GetFieldClassName(fld)]);
+    Result := Result + Format('    %s :%s;'#13,
+      [GetFieldPrefix+fld.FieldName, GetFieldClassName(fld)]);
 end;
 
 function TDataProxyGenerator.Gen_PublicPropertyList: string;
@@ -131,8 +142,8 @@ var
 begin
   Result := '';
   for fld in Fields do
-    Result := Result + Format('    property %s :%s read F%s;'#13,
-      [fld.FieldName, GetFieldClassName(fld), fld.FieldName]);
+    Result := Result + Format('    property %s :%s read %s;'#13,
+      [fld.FieldName, GetFieldClassName(fld), GetFieldPrefix+fld.FieldName]);
 end;
 
 function TDataProxyGenerator.Gen_FieldAssigments: string;
