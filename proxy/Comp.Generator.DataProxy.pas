@@ -132,8 +132,8 @@ var
 begin
   Result := '';
   for fld in Fields do
-    Result := Result + Format('    %s :%s;'#13,
-      [GetFieldPrefix+fld.FieldName, GetFieldClassName(fld)]);
+    Result := Result + Format('    %s :%s;'#13, [GetFieldPrefix + fld.FieldName,
+      GetFieldClassName(fld)]);
 end;
 
 function TDataProxyGenerator.Gen_PublicPropertyList: string;
@@ -143,7 +143,7 @@ begin
   Result := '';
   for fld in Fields do
     Result := Result + Format('    property %s :%s read %s;'#13,
-      [fld.FieldName, GetFieldClassName(fld), GetFieldPrefix+fld.FieldName]);
+      [fld.FieldName, GetFieldClassName(fld), GetFieldPrefix + fld.FieldName]);
 end;
 
 function TDataProxyGenerator.Gen_FieldAssigments: string;
@@ -153,7 +153,7 @@ begin
   Result := '';
   for fld in Fields do
     Result := Result + Format('  %s := FDataSet.FieldByName(''%s'') as %s;'#13,
-      [GetFieldPrefix+fld.FieldName, fld.FieldName, GetFieldClassName(fld)]);
+      [GetFieldPrefix + fld.FieldName, fld.FieldName, GetFieldClassName(fld)]);
 end;
 
 function TDataProxyGenerator.Gen_ClassDeclaration: string;
