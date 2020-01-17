@@ -136,8 +136,8 @@ var
 begin
   Result := '';
   for fld in Fields do
-    Result := Result + Format('  F%s := FDataSet.FieldByName(%s) as %s;'#13,
-      [fld.FieldName, GetFieldClassName(fld), fld.FieldName]);
+    Result := Result + Format('  F%s := FDataSet.FieldByName(''%s'') as %s;'#13,
+      [fld.FieldName, fld.FieldName, GetFieldClassName(fld)]);
 end;
 
 function TDataProxyGenerator.Gen_ClassDeclaration: string;
