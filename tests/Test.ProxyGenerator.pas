@@ -16,8 +16,8 @@ type
   [TestFixture]
   ProxyGenerator = class(TObject)
   private
-    OwnerComponent: TComponent;
-    ProxyCodeGenerator: TProxyCodeGenerator_AUT;
+    fOwner: TComponent;
+    fGenerator: TTestProxyDataGenerator;
     MemDataSet: TFDMemTable;
   public
     [Setup]
@@ -46,18 +46,18 @@ implementation
 
 procedure ProxyGenerator.Setup;
 begin
-  OwnerComponent := TComponent.Create(nil);
-  ProxyCodeGenerator := TProxyCodeGenerator_AUT.Create(OwnerComponent);
-  with ProxyCodeGenerator do
+  fOwner := TComponent.Create(nil);
+  fGenerator := TTestProxyDataGenerator.Create(fOwner);
+  with fGenerator do
   begin
     GenCommentsWithPublicDataSet := false;
   end;
-  MemDataSet := TFDMemTable.Create(OwnerComponent);
+  MemDataSet := TFDMemTable.Create(fOwner);
 end;
 
 procedure ProxyGenerator.TearDown;
 begin
-  OwnerComponent.Free;
+  fOwner.Free;
 end;
 
 // -----------------------------------------------------------------------
@@ -168,14 +168,14 @@ end;
 
 procedure ProxyGenerator.Test_UnitHeader_IsEmpty;
 begin
-  ProxyCodeGenerator.Generate_UnitHeader;
-  Assert.AreEqual('', ProxyCodeGenerator.Code.Text);
+  fGenerator.Generate_UnitHeader;
+  Assert.AreEqual('', fGenerator.Code.Text);
 end;
 
 procedure ProxyGenerator.Test_UsesSection;
 begin
-  ProxyCodeGenerator.Generate_UsesSection;
-  TProxyTemplates.Asset_UsesSection(ProxyCodeGenerator.Code);
+  fGenerator.Generate_UsesSection;
+  TProxyTemplates.Asset_UsesSection(fGenerator.Code);
 end;
 {$ENDREGION}
 
@@ -187,8 +187,8 @@ end;
 
 procedure ProxyGenerator.Test_ClassDeclaration_DataSetNil;
 begin
-  ProxyCodeGenerator.Generate_ClassDeclaration;
-  TProxyTemplates.Assert_ClassDeclaration(ProxyCodeGenerator.Code);
+  fGenerator.Generate_ClassDeclaration;
+  TProxyTemplates.Assert_ClassDeclaration(fGenerator.Code);
 end;
 
 procedure ProxyGenerator.Test_ClassDeclaration_DataSetOneField;
@@ -198,10 +198,10 @@ begin
     FieldDefs.Add('FieldInteger', ftInteger);
     CreateDataSet;
   end;
-  ProxyCodeGenerator.DataSet := MemDataSet;
-  ProxyCodeGenerator.Generate_ClassDeclaration;
+  fGenerator.DataSet := MemDataSet;
+  fGenerator.Generate_ClassDeclaration;
   TProxyTemplates.Assert_ClassDeclaration_WithIntegerField
-    (ProxyCodeGenerator.Code);
+    (fGenerator.Code);
 end;
 {$ENDREGION}
 
@@ -213,8 +213,8 @@ end;
 
 procedure ProxyGenerator.Test_MethodConnectFields_DataSetNil;
 begin
-  ProxyCodeGenerator.Generate_MethodConnectFields;
-  TProxyTemplates.Assert_MethodConnectFields(ProxyCodeGenerator.Code);
+  fGenerator.Generate_MethodConnectFields;
+  TProxyTemplates.Assert_MethodConnectFields(fGenerator.Code);
 end;
 
 procedure ProxyGenerator.Test_MethodConnectFields_DataSetOneField;
@@ -224,10 +224,10 @@ begin
     FieldDefs.Add('FieldInteger', ftInteger);
     CreateDataSet;
   end;
-  ProxyCodeGenerator.DataSet := MemDataSet;
-  ProxyCodeGenerator.Generate_MethodConnectFields;
+  fGenerator.DataSet := MemDataSet;
+  fGenerator.Generate_MethodConnectFields;
   TProxyTemplates.Assert_MethodConnectFields_WithIntegerField
-    (ProxyCodeGenerator.Code);
+    (fGenerator.Code);
 end;
 {$ENDREGION}
 

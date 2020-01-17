@@ -7,7 +7,7 @@ uses
   Data.DB,
   FireDAC.Comp.Client,
   Comp.Generator.DataSetCode,
-  Comp.Generator.ProxyCode;
+  Comp.Generator.DataProxy;
 
 type
   TProxyGeneratorCommand = class(TComponent)
@@ -15,7 +15,7 @@ type
     BaseProxyName = '{ObjectName}';
   private
     fCode: TStringList;
-    fProxyGenerator: TProxyCodeGenerator;
+    fProxyGenerator: TDataProxyGenerator;
     fDataSetGenerator: TDSGenerator;
   public
     constructor Create(AOwner: TComponent); override;
@@ -46,7 +46,7 @@ constructor TProxyGeneratorCommand.Create(AOwner: TComponent);
 begin
   inherited;
   fCode := TStringList.Create;
-  fProxyGenerator := TProxyCodeGenerator.Create(Self);
+  fProxyGenerator := TDataProxyGenerator.Create(Self);
   fDataSetGenerator := TDSGenerator.Create(Self);
 end;
 
