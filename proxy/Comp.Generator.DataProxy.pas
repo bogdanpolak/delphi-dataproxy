@@ -29,12 +29,12 @@ type
   public
     constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
+    procedure Execute;
   published
     property Code: TStringList read fCode;
     property DataSet: TDataSet read FDataSet write FDataSet;
     property GenCommentsWithPublicDataSet: boolean
       read FGenCommentsWithPublicDataSet write FGenCommentsWithPublicDataSet;
-    procedure Execute;
   end;
 
 implementation
@@ -177,10 +177,10 @@ begin
   Guard;
   Fill_FieldList;
   fCode.Text :=
-  (* *) Gen_UnitHeader+
+  (* *) Gen_UnitHeader +
   (* *) Gen_UsesSection +
   (* *) #13 +
-  (* *) Gen_ClassDeclaration+
+  (* *) Gen_ClassDeclaration +
   (* *) #13 +
   (* *) 'implementation'#13 +
   (* *) #13 +
