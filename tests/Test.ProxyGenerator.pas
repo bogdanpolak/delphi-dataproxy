@@ -9,11 +9,14 @@ uses
   System.Variants,
   Data.DB,
   FireDAC.Comp.Client,
+
+  Comp.Generator.DataProxy,
   Wrapper.TProxyGenerator;
 
 {$M+}
 
 type
+  TMatrixOfVariants = TArray<TArray<Variant>>;
 
   [TestFixture]
   TestGenerator = class(TObject)
@@ -21,6 +24,7 @@ type
     fOwner: TComponent;
     fGenerator: TTestProxyDataGenerator;
     MemDataSet: TFDMemTable;
+    function GivenDataset(aFieldsDef: TMatrixOfVariants): TDataSet;
   public
     [Setup]
     procedure Setup;
@@ -32,6 +36,7 @@ type
     procedure Test_UsesSection;
     procedure Test_ClassDeclaration_DataSetNil;
     procedure Test_ClassDeclaration_DataSetOneField;
+    procedure GenerateClass_TwoFields_LowerCase;
     procedure Test_MethodConnectFields_DataSetNil;
     procedure Test_MethodConnectFields_DataSetOneField;
   end;
@@ -41,6 +46,18 @@ implementation
 // -----------------------------------------------------------------------
 // Utils section
 // -----------------------------------------------------------------------
+
+function TestGenerator.GivenDataset(aFieldsDef: TMatrixOfVariants): TDataSet;
+var
+  aTable: TFDMemTable;
+  i: Integer;
+begin
+  aTable := TFDMemTable.Create(fOwner);
+  for i := 0 to High(aFieldsDef) do
+    aTable.FieldDefs.Add(aFieldsDef[i][0], aFieldsDef[i][1]);
+  aTable.CreateDataSet;
+  Result := aTable;
+end;
 
 // -----------------------------------------------------------------------
 // Setup and TearDown section
@@ -200,6 +217,31 @@ begin
   fGenerator.DataSet := MemDataSet;
   fGenerator.Generate_ClassDeclaration;
   TProxyTemplates.Assert_ClassDeclaration_WithIntegerField(fGenerator.Code);
+end;
+
+procedure TestGenerator.GenerateClass_TwoFields_LowerCase;
+var
+  actualCode: string;
+begin
+  fGenerator.DataSet := GivenDataset([['CustomerID', ftInteger],
+    ['CompanyName', ftString]]);
+
+  fGenerator.FieldNamingStyle := fnsLowerCaseF;
+  fGenerator.Generate_ClassDeclaration;
+  actualCode := fGenerator.Code.Text;
+
+  Assert.AreEqual(
+    (* *) 'type'#13#10 +
+    (* *) '  T{ObjectName}Proxy = class(TDatasetProxy)'#13#10 +
+    (* *) '  private'#13#10 +
+    (* *) '    fCustomerID :TIntegerField;'#13#10 +
+    (* *) '    fCompanyName :TStringField;'#13#10 +
+    (* *) '  protected'#13#10 +
+    (* *) '    procedure ConnectFields; override;'#13#10 +
+    (* *) '  public'#13#10 +
+    (* *) '    property CustomerID :TIntegerField read fCustomerID;'#13#10 +
+    (* *) '    property CompanyName :TStringField read fCompanyName;'#13#10 +
+    (* *) '  end;'#13#10, actualCode, false);
 end;
 
 

@@ -10,12 +10,15 @@ uses
   System.Generics.Collections;
 
 type
+  TFieldNamingStyle = (fnsUpperCaseF, fnsLowerCaseF);
+
   TDataProxyGenerator = class(TComponent)
   private
     Fields: TList<TField>;
     FDataSet: TDataSet;
     fCode: TStringList;
     FGenCommentsWithPublicDataSet: boolean;
+    fFieldNamingStyle: TFieldNamingStyle;
     procedure Guard;
   protected
     procedure Fill_FieldList;
@@ -35,6 +38,8 @@ type
     property DataSet: TDataSet read FDataSet write FDataSet;
     property GenCommentsWithPublicDataSet: boolean
       read FGenCommentsWithPublicDataSet write FGenCommentsWithPublicDataSet;
+    property FieldNamingStyle: TFieldNamingStyle read fFieldNamingStyle
+      write fFieldNamingStyle;
   end;
 
 implementation
