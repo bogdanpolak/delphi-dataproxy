@@ -166,10 +166,10 @@ begin
       aDatasePropertyCode := '';
     dsaGenComment:
       aDatasePropertyCode :=
-      (* *) '    // this property should be hidden, but during migration can be usefull'#13
-      (* *) + '    // property DataSet: TDataSet read FDataSet;'#13;
+        '    // the following property should be hidden (uncomment if required)'#13
+        + '    // property DataSet: TDataSet read FDataSet;'#13;
     dsaFullAccess:
-      aDatasePropertyCode := '';
+      aDatasePropertyCode := '    property DataSet: TDataSet read FDataSet;'#13;
   end;
   Result :=
   (* *) 'type'#13 +
