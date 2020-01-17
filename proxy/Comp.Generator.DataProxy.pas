@@ -102,8 +102,9 @@ begin
   Result := '';
   if fDataSet <> nil then
     for fld in fDataSet.Fields do
-      Result := Result + Format('    %s :%s;' + sLineBreak,
-        [GetFieldPrefix + fld.FieldName, GetFieldClassName(fld)]);
+      Result := Result + Format(
+        (* *) '    %s :%s;' + sLineBreak,
+        (* *) [GetFieldPrefix + fld.FieldName, GetFieldClassName(fld)]);
 end;
 
 function TDataProxyGenerator.Gen_PublicPropertyList: string;
@@ -113,8 +114,9 @@ begin
   Result := '';
   if fDataSet <> nil then
     for fld in fDataSet.Fields do
-      Result := Result + Format('    property %s :%s read %s;' + sLineBreak,
-        [fld.FieldName, GetFieldClassName(fld),
+      Result := Result + Format(
+        (* *) '    property %s :%s read %s;' + sLineBreak,
+        (* *) [fld.FieldName, GetFieldClassName(fld),
         GetFieldPrefix + fld.FieldName]);
 end;
 
@@ -127,7 +129,7 @@ begin
     for fld in fDataSet.Fields do
       Result := Result + Format(
         (* *) '  %s := FDataSet.FieldByName(''%s'') as %s;' + sLineBreak,
-        [GetFieldPrefix + fld.FieldName, fld.FieldName,
+        (* *) [GetFieldPrefix + fld.FieldName, fld.FieldName,
         GetFieldClassName(fld)]);
 end;
 
@@ -144,8 +146,8 @@ begin
         + sLineBreak +
       (* *) '    // property DataSet: TDataSet read FDataSet;' + sLineBreak;
     dsaFullAccess:
-      aDatasePropertyCode := '    property DataSet: TDataSet read FDataSet;' +
-        sLineBreak;
+      aDatasePropertyCode :=
+      (* *) '    property DataSet: TDataSet read FDataSet;' + sLineBreak;
   end;
   Result :=
   (* *) 'type' + sLineBreak +
