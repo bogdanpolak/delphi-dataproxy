@@ -31,12 +31,16 @@ type
     [TearDown]
     procedure TearDown;
   published
-    // -------------
+    // ---
     procedure Test_UnitHeader_IsEmpty;
     procedure Test_UsesSection;
+    // ---
     procedure Test_ClassDeclaration_DataSetNil;
     procedure Test_ClassDeclaration_DataSetOneField;
     procedure GenerateClass_TwoFields_LowerCase;
+    procedure Gen_ProxyClass_DataSetAccessAsComment;
+    procedure Gen_ProxyClass_FullDataSetAccess;
+    // ---
     procedure Test_MethodConnectFields_DataSetNil;
     procedure Test_MethodConnectFields_DataSetOneField;
     procedure Gen_MethodConnectFields_TwoFields_LowerCase;
@@ -68,10 +72,6 @@ procedure TestGenerator.Setup;
 begin
   fOwner := TComponent.Create(nil);
   fGenerator := TTestProxyDataGenerator.Create(fOwner);
-  with fGenerator do
-  begin
-    GenCommentsWithPublicDataSet := false;
-  end;
   MemDataSet := TFDMemTable.Create(fOwner);
 end;
 
@@ -245,6 +245,52 @@ begin
     (* *) '  end;'#13#10, actualCode, false);
 end;
 
+procedure TestGenerator.Gen_ProxyClass_DataSetAccessAsComment;
+var
+  actualCode: string;
+begin
+  fGenerator.DataSet := GivenDataset([['FullName', ftString]]);
+
+  fGenerator.DataSetAccess := dsaGenComment;
+  fGenerator.Generate_ClassDeclaration;
+  actualCode := fGenerator.Code.Text;
+
+  Assert.AreEqual(
+    (* *) 'type'#13#10
+    (* *) + '  T{ObjectName}Proxy = class(TDatasetProxy)'#13#10
+    (* *) + '  private'#13#10
+    (* *) + '    FFullName :TStringField;'#13#10
+    (* *) + '  protected'#13#10
+    (* *) + '    procedure ConnectFields; override;'#13#10
+    (* *) + '  public'#13#10
+    (* *) + '    property FullName :TStringField read FFullName;'#13#10
+    (* *) + '    // the following property should be hidden (uncomment if required)'#13#10
+    (* *) + '    // property DataSet: TDataSet read FDataSet;'#13#10
+    (* *) + '  end;'#13#10, actualCode, false);
+end;
+
+procedure TestGenerator.Gen_ProxyClass_FullDataSetAccess;
+var
+  actualCode: string;
+begin
+  fGenerator.DataSet := GivenDataset([['FullName', ftString]]);
+
+  fGenerator.DataSetAccess := dsaFullAccess;
+  fGenerator.Generate_ClassDeclaration;
+  actualCode := fGenerator.Code.Text;
+
+  Assert.AreEqual(
+    (* *) 'type'#13#10
+    (* *) + '  T{ObjectName}Proxy = class(TDatasetProxy)'#13#10
+    (* *) + '  private'#13#10
+    (* *) + '    FFullName :TStringField;'#13#10
+    (* *) + '  protected'#13#10
+    (* *) + '    procedure ConnectFields; override;'#13#10
+    (* *) + '  public'#13#10
+    (* *) + '    property FullName :TStringField read FFullName;'#13#10
+    (* *) + '    property DataSet: TDataSet read FDataSet;'#13#10
+    (* *) + '  end;'#13#10, actualCode, false);
+end;
 
 // -----------------------------------------------------------------------
 // Tests: Method ConnectFields
