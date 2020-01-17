@@ -14,7 +14,7 @@ uses
 type
 
   [TestFixture]
-  ProxyGenerator = class(TObject)
+  TestGenerator = class(TObject)
   private
     fOwner: TComponent;
     fGenerator: TTestProxyDataGenerator;
@@ -44,7 +44,7 @@ implementation
 // Setup and TearDown section
 // -----------------------------------------------------------------------
 
-procedure ProxyGenerator.Setup;
+procedure TestGenerator.Setup;
 begin
   fOwner := TComponent.Create(nil);
   fGenerator := TTestProxyDataGenerator.Create(fOwner);
@@ -55,7 +55,7 @@ begin
   MemDataSet := TFDMemTable.Create(fOwner);
 end;
 
-procedure ProxyGenerator.TearDown;
+procedure TestGenerator.TearDown;
 begin
   fOwner.Free;
 end;
@@ -166,13 +166,13 @@ end;
 // -----------------------------------------------------------------------
 
 
-procedure ProxyGenerator.Test_UnitHeader_IsEmpty;
+procedure TestGenerator.Test_UnitHeader_IsEmpty;
 begin
   fGenerator.Generate_UnitHeader;
   Assert.AreEqual('', fGenerator.Code.Text);
 end;
 
-procedure ProxyGenerator.Test_UsesSection;
+procedure TestGenerator.Test_UsesSection;
 begin
   fGenerator.Generate_UsesSection;
   TProxyTemplates.Asset_UsesSection(fGenerator.Code);
@@ -184,13 +184,13 @@ end;
 // -----------------------------------------------------------------------
 
 
-procedure ProxyGenerator.Test_ClassDeclaration_DataSetNil;
+procedure TestGenerator.Test_ClassDeclaration_DataSetNil;
 begin
   fGenerator.Generate_ClassDeclaration;
   TProxyTemplates.Assert_ClassDeclaration(fGenerator.Code);
 end;
 
-procedure ProxyGenerator.Test_ClassDeclaration_DataSetOneField;
+procedure TestGenerator.Test_ClassDeclaration_DataSetOneField;
 begin
   with MemDataSet do
   begin
@@ -209,13 +209,13 @@ end;
 // -----------------------------------------------------------------------
 
 
-procedure ProxyGenerator.Test_MethodConnectFields_DataSetNil;
+procedure TestGenerator.Test_MethodConnectFields_DataSetNil;
 begin
   fGenerator.Generate_MethodConnectFields;
   TProxyTemplates.Assert_MethodConnectFields(fGenerator.Code);
 end;
 
-procedure ProxyGenerator.Test_MethodConnectFields_DataSetOneField;
+procedure TestGenerator.Test_MethodConnectFields_DataSetOneField;
 begin
   with MemDataSet do
   begin
@@ -231,6 +231,6 @@ end;
 
 initialization
 
-TDUnitX.RegisterTestFixture(ProxyGenerator);
+TDUnitX.RegisterTestFixture(TestGenerator);
 
 end.
