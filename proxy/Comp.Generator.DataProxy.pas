@@ -3,34 +3,34 @@ unit Comp.Generator.DataProxy;
 interface
 
 uses
-  Data.DB,
+  System.SysUtils,
   System.Classes,
-  System.Generics.Collections,
-  System.SysUtils;
+  System.StrUtils,
+  Data.DB,
+  System.Generics.Collections;
 
 type
   TDataProxyGenerator = class(TComponent)
   private
     Fields: TList<TField>;
     FDataSet: TDataSet;
-    FCode: TStringList;
+    fCode: TStringList;
     FGenCommentsWithPublicDataSet: boolean;
-    procedure Fill_FieldList;
     procedure Guard;
-    class function GetFieldClassName(fld: TField): string;
   protected
-    procedure DoGenerate_UnitHeader;
-    procedure DoGenerate_UsesSection;
-    procedure DoGenerate_ClassDeclaration;
-    procedure DoGenerate_PrivateFieldList;
-    procedure DoGenerate_PublicPropertyList;
-    procedure DoGenerate_FieldAssigments;
-    procedure DoGenerate_MethodConnectFields;
+    procedure Fill_FieldList;
+    function Gen_UnitHeader: string;
+    function Gen_UsesSection: string;
+    function Gen_ClassDeclaration: string;
+    function Gen_PrivateFieldList: string;
+    function Gen_PublicPropertyList: string;
+    function Gen_FieldAssigments: string;
+    function Gen_MethodConnectFields: string;
   public
     constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
   published
-    property Code: TStringList read FCode;
+    property Code: TStringList read fCode;
     property DataSet: TDataSet read FDataSet write FDataSet;
     property GenCommentsWithPublicDataSet: boolean
       read FGenCommentsWithPublicDataSet write FGenCommentsWithPublicDataSet;
@@ -43,7 +43,7 @@ constructor TDataProxyGenerator.Create(Owner: TComponent);
 begin
   inherited;
   Fields := TList<TField>.Create();
-  FCode := TStringList.Create;
+  fCode := TStringList.Create;
   FDataSet := nil;
   GenCommentsWithPublicDataSet := true;
 end;
@@ -51,7 +51,7 @@ end;
 destructor TDataProxyGenerator.Destroy;
 begin
   Fields.Free;
-  FCode.Free;
+  fCode.Free;
   inherited;
 end;
 
@@ -65,7 +65,7 @@ begin
   // Checks if Field List is equal to DataSet's Fields
   //
   IsEqual := (DataSet <> nil) and (DataSet.Fields.Count = Fields.Count);
-  if not IsEqual then
+  if IsEqual then
   begin
     for i := 0 to Fields.Count - 1 do
       if Fields[i] <> DataSet.Fields[i] then
@@ -75,15 +75,13 @@ begin
       end;
   end;
   // ------------------------------------
-  // if not equal then fill Fields list
-  //
-  if IsEqual then
-    exit;
-  Fields.Clear;
-  if DataSet <> nil then
-    for fld in DataSet.Fields do
-      Fields.Add(fld);
-  // ------------------------------------
+  if not IsEqual then
+  begin
+    Fields.Clear;
+    if DataSet <> nil then
+      for fld in DataSet.Fields do
+        Fields.Add(fld);
+  end;
 end;
 
 procedure TDataProxyGenerator.Guard;
@@ -92,95 +90,101 @@ begin
   Assert(DataSet.Active);
 end;
 
-procedure TDataProxyGenerator.DoGenerate_UnitHeader;
+function TDataProxyGenerator.Gen_UnitHeader: string;
 begin
 end;
 
-procedure TDataProxyGenerator.DoGenerate_UsesSection;
+function TDataProxyGenerator.Gen_UsesSection: string;
 begin
-  Code.Add('uses');
-  Code.Add('  Data.DB,');
-  Code.Add('  Data.DataProxy,');
-  Code.Add('  System.SysUtils,');
-  Code.Add('  System.Classes,');
-  Code.Add('  FireDAC.Comp.Client;');
+  Result :=
+  (* *) 'uses'#13 +
+  (* *) '  Data.DB,'#13 +
+  (* *) '  Data.DataProxy,'#13 +
+  (* *) '  System.SysUtils,'#13 +
+  (* *) '  System.Classes,'#13 +
+  (* *) '  FireDAC.Comp.Client;'#13;
 end;
 
-class function TDataProxyGenerator.GetFieldClassName(fld: TField): string;
+function GetFieldClassName(fld: TField): string;
 begin
   Result := Data.DB.DefaultFieldClasses[fld.DataType].ClassName;
 end;
 
-procedure TDataProxyGenerator.DoGenerate_PrivateFieldList;
+function TDataProxyGenerator.Gen_PrivateFieldList: string;
 var
   fld: TField;
 begin
-  Fill_FieldList;
+  Result := '';
   for fld in Fields do
-    Code.Add('    F' + fld.FieldName + ' :' + GetFieldClassName(fld) + ';');
+    Result := Result + Format('    F%s :%s;'#13,
+      [fld.FieldName, GetFieldClassName(fld)]);
 end;
 
-procedure TDataProxyGenerator.DoGenerate_PublicPropertyList;
+function TDataProxyGenerator.Gen_PublicPropertyList: string;
 var
   fld: TField;
 begin
-  Fill_FieldList;
+  Result := '';
   for fld in Fields do
-    Code.Add('    property ' + fld.FieldName + ' :' + GetFieldClassName(fld) +
-      ' read F' + fld.FieldName + ';');
+    Result := Result + Format('    property %s :%s read F%s;'#13,
+      [fld.FieldName, GetFieldClassName(fld), fld.FieldName]);
 end;
 
-procedure TDataProxyGenerator.DoGenerate_FieldAssigments;
+function TDataProxyGenerator.Gen_FieldAssigments: string;
 var
   fld: TField;
 begin
-  Fill_FieldList;
+  Result := '';
   for fld in Fields do
-    Code.Add('  F' + fld.FieldName + ' := FDataSet.FieldByName(' +
-      QuotedStr(fld.FieldName) + ') as ' + GetFieldClassName(fld) + ';');
+    Result := Result + Format('  F%s := FDataSet.FieldByName(%s) as %s;'#13,
+      [fld.FieldName, GetFieldClassName(fld), fld.FieldName]);
 end;
 
-procedure TDataProxyGenerator.DoGenerate_ClassDeclaration;
+function TDataProxyGenerator.Gen_ClassDeclaration: string;
+var
+  aDatasePropertyCode: string;
 begin
-  Code.Add('type');
-  Code.Add('  T{ObjectName}Proxy = class(TDatasetProxy)');
-  Code.Add('  private');
-  DoGenerate_PrivateFieldList;
-  Code.Add('  protected');
-  Code.Add('    procedure ConnectFields; override;');
-  Code.Add('  public');
-  DoGenerate_PublicPropertyList;
-  if GenCommentsWithPublicDataSet then
-  begin
-    Code.Add('    // this property should be hidden, but during migration can be usefull');
-    Code.Add('    // property DataSet: TDataSet read FDataSet;');
-  end;
-  Code.Add('  end;');
+  aDatasePropertyCode := IfThen(GenCommentsWithPublicDataSet,
+    (*   *) '    // this property should be hidden, but during migration can be usefull'#13
+    (* *) + '    // property DataSet: TDataSet read FDataSet;'#13, '');
+  Result :=
+  (* *) 'type'#13 +
+  (* *) '  T{ObjectName}Proxy = class(TDatasetProxy)'#13 +
+  (* *) '  private'#13 +
+  (* *) Gen_PrivateFieldList +
+  (* *) '  protected'#13 +
+  (* *) '    procedure ConnectFields; override;'#13 +
+  (* *) '  public'#13 +
+  (* *) Gen_PublicPropertyList +
+  (* *) aDatasePropertyCode +
+  (* *) '  end;';
 end;
 
-procedure TDataProxyGenerator.DoGenerate_MethodConnectFields;
+function TDataProxyGenerator.Gen_MethodConnectFields: string;
 begin
-  Fill_FieldList;
-  Code.Add('procedure T{ObjectName}Proxy.ConnectFields;');
-  Code.Add('const');
-  Code.Add('  ExpectedFieldCount = ' + Fields.Count.ToString + ';');
-  Code.Add('begin');
-  DoGenerate_FieldAssigments;
-  Code.Add('  Assert(FDataSet.Fields.Count = ExpectedFieldCount);');
-  Code.Add('end;');
+  Result :=
+  (* *) 'procedure T{ObjectName}Proxy.ConnectFields;'#13 +
+  (* *) 'const'#13 +
+  (* *) '  ExpectedFieldCount = ' + Fields.Count.ToString + ';'#13 +
+  (* *) 'begin'#13 +
+  (* *) Gen_FieldAssigments +
+  (* *) '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13 +
+  (* *) 'end;'#13;
 end;
 
 procedure TDataProxyGenerator.Execute;
 begin
   Guard;
-  DoGenerate_UnitHeader;
-  DoGenerate_UsesSection;
-  Code.Add('');
-  DoGenerate_ClassDeclaration;
-  Code.Add('');
-  Code.Add('implementation');
-  Code.Add('');
-  DoGenerate_MethodConnectFields;
+  Fill_FieldList;
+  fCode.Text :=
+  (* *) Gen_UnitHeader+
+  (* *) Gen_UsesSection +
+  (* *) #13 +
+  (* *) Gen_ClassDeclaration+
+  (* *) #13 +
+  (* *) 'implementation'#13 +
+  (* *) #13 +
+  (* *) Gen_MethodConnectFields;
 end;
 
 end.

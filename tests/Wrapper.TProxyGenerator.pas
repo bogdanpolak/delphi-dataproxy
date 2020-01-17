@@ -19,42 +19,46 @@ type
 
 implementation
 
-{ TProxyCodeGeneratorCUT }
-
 procedure TTestProxyDataGenerator.Generate_UnitHeader;
 begin
-  DoGenerate_UnitHeader;
+  Fill_FieldList;
+  Code.Text := Gen_UnitHeader;
 end;
 
 procedure TTestProxyDataGenerator.Generate_UsesSection;
 begin
-  DoGenerate_UsesSection;
-
+  Fill_FieldList;
+  Code.Text := Gen_UsesSection;
 end;
 
 procedure TTestProxyDataGenerator.Generate_ClassDeclaration;
 begin
-  DoGenerate_ClassDeclaration;
+  Fill_FieldList;
+  Code.Text := Gen_ClassDeclaration;
 end;
 
 procedure TTestProxyDataGenerator.Generate_PrivateFieldList;
 begin
-  DoGenerate_PrivateFieldList;
+  Fill_FieldList;
+  Code.Text := Gen_PrivateFieldList;
 end;
 
 procedure TTestProxyDataGenerator.Generate_PublicPropertyList;
 begin
-  DoGenerate_PublicPropertyList;
+  Fill_FieldList;
+  Code.Text := Gen_PublicPropertyList;
 end;
 
 procedure TTestProxyDataGenerator.Generate_FieldAssigments;
 begin
-  DoGenerate_FieldAssigments;
+  Fill_FieldList;
+  Code.Text := Gen_FieldAssigments;
 end;
 
 procedure TTestProxyDataGenerator.Generate_MethodConnectFields;
 begin
-  DoGenerate_MethodConnectFields;
+  Fill_FieldList;
+  Code.Text := Gen_MethodConnectFields;
 end;
 
 end.
