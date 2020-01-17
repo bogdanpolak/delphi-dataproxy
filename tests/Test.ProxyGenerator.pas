@@ -31,12 +31,14 @@ type
     [TearDown]
     procedure TearDown;
   published
-    // -------------
+    // ---
     procedure Test_UnitHeader_IsEmpty;
     procedure Test_UsesSection;
+    // ---
     procedure Test_ClassDeclaration_DataSetNil;
     procedure Test_ClassDeclaration_DataSetOneField;
     procedure GenerateClass_TwoFields_LowerCase;
+    // ---
     procedure Test_MethodConnectFields_DataSetNil;
     procedure Test_MethodConnectFields_DataSetOneField;
     procedure Gen_MethodConnectFields_TwoFields_LowerCase;
@@ -68,10 +70,6 @@ procedure TestGenerator.Setup;
 begin
   fOwner := TComponent.Create(nil);
   fGenerator := TTestProxyDataGenerator.Create(fOwner);
-  with fGenerator do
-  begin
-    GenCommentsWithPublicDataSet := false;
-  end;
   MemDataSet := TFDMemTable.Create(fOwner);
 end;
 

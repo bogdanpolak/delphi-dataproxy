@@ -11,13 +11,14 @@ uses
 
 type
   TFieldNamingStyle = (fnsUpperCaseF, fnsLowerCaseF);
+  TDataSetAccess = (dsaNoAccess, dsaGenComment, dsaFullAccess);
 
   TDataProxyGenerator = class(TComponent)
   private
     Fields: TList<TField>;
     FDataSet: TDataSet;
     fCode: TStringList;
-    FGenCommentsWithPublicDataSet: boolean;
+    fDataSetAccess: TDataSetAccess;
     fFieldNamingStyle: TFieldNamingStyle;
     procedure Guard;
     function GetFieldPrefix: string;
@@ -37,8 +38,8 @@ type
   published
     property Code: TStringList read fCode;
     property DataSet: TDataSet read FDataSet write FDataSet;
-    property GenCommentsWithPublicDataSet: boolean
-      read FGenCommentsWithPublicDataSet write FGenCommentsWithPublicDataSet;
+    property DataSetAccess: TDataSetAccess read fDataSetAccess
+      write fDataSetAccess;
     property FieldNamingStyle: TFieldNamingStyle read fFieldNamingStyle
       write fFieldNamingStyle;
   end;
@@ -51,7 +52,7 @@ begin
   Fields := TList<TField>.Create();
   fCode := TStringList.Create;
   FDataSet := nil;
-  GenCommentsWithPublicDataSet := true;
+  fDataSetAccess := dsaNoAccess;
 end;
 
 destructor TDataProxyGenerator.Destroy;
@@ -160,9 +161,16 @@ function TDataProxyGenerator.Gen_ClassDeclaration: string;
 var
   aDatasePropertyCode: string;
 begin
-  aDatasePropertyCode := IfThen(GenCommentsWithPublicDataSet,
-    (*   *) '    // this property should be hidden, but during migration can be usefull'#13
-    (* *) + '    // property DataSet: TDataSet read FDataSet;'#13, '');
+  case fDataSetAccess of
+    dsaNoAccess:
+      aDatasePropertyCode := '';
+    dsaGenComment:
+      aDatasePropertyCode :=
+      (* *) '    // this property should be hidden, but during migration can be usefull'#13
+      (* *) + '    // property DataSet: TDataSet read FDataSet;'#13;
+    dsaFullAccess:
+      aDatasePropertyCode := '';
+  end;
   Result :=
   (* *) 'type'#13 +
   (* *) '  T{ObjectName}Proxy = class(TDatasetProxy)'#13 +
