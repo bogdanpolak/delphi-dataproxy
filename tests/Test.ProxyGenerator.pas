@@ -164,7 +164,7 @@ end;
 // -----------------------------------------------------------------------
 // Test Unit Header and Uses Section
 // -----------------------------------------------------------------------
-{$REGION 'Test Unit Header and Uses Section'}
+
 
 procedure ProxyGenerator.Test_UnitHeader_IsEmpty;
 begin
@@ -177,13 +177,12 @@ begin
   fGenerator.Generate_UsesSection;
   TProxyTemplates.Asset_UsesSection(fGenerator.Code);
 end;
-{$ENDREGION}
 
 
 // -----------------------------------------------------------------------
 // Test Class Declaration Section
 // -----------------------------------------------------------------------
-{$REGION 'Test Class Declaration Section'}
+
 
 procedure ProxyGenerator.Test_ClassDeclaration_DataSetNil;
 begin
@@ -203,13 +202,12 @@ begin
   TProxyTemplates.Assert_ClassDeclaration_WithIntegerField
     (fGenerator.Code);
 end;
-{$ENDREGION}
 
 
 // -----------------------------------------------------------------------
 // Test Method ConnectFields Section
 // -----------------------------------------------------------------------
-{$REGION 'Test Method ConnectFields Section'}
+
 
 procedure ProxyGenerator.Test_MethodConnectFields_DataSetNil;
 begin
@@ -229,7 +227,6 @@ begin
   TProxyTemplates.Assert_MethodConnectFields_WithIntegerField
     (fGenerator.Code);
 end;
-{$ENDREGION}
 
 
 initialization
