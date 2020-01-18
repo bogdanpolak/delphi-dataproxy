@@ -23,7 +23,6 @@ type
   private
     fOwner: TComponent;
     fGenerator: TTestProxyDataGenerator;
-    MemDataSet: TFDMemTable;
     function GivenDataset(aFieldsDef: TMatrixOfVariants): TDataSet;
   public
     [Setup]
@@ -72,7 +71,6 @@ procedure TestGenerator.Setup;
 begin
   fOwner := TComponent.Create(nil);
   fGenerator := TTestProxyDataGenerator.Create(fOwner);
-  MemDataSet := TFDMemTable.Create(fOwner);
 end;
 
 procedure TestGenerator.TearDown;
@@ -168,6 +166,8 @@ procedure TestGenerator.Test_ClassDeclaration_DataSetNil;
 var
   actualCode: string;
 begin
+  fGenerator.DataSet := nil;
+
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreEqual(
@@ -184,12 +184,7 @@ procedure TestGenerator.Test_ClassDeclaration_DataSetOneField;
 var
   actualCode: string;
 begin
-  with MemDataSet do
-  begin
-    FieldDefs.Add('FieldInteger', ftInteger);
-    CreateDataSet;
-  end;
-  fGenerator.DataSet := MemDataSet;
+  fGenerator.DataSet := GivenDataset([['FieldInteger', ftInteger]]);
 
   actualCode := fGenerator.Generate_ClassDeclaration;
 
@@ -280,19 +275,17 @@ end;
 
 procedure TestGenerator.Test_MethodConnectFields_DataSetNil;
 begin
+  fGenerator.DataSet := nil;
   fGenerator.Generate_MethodConnectFields;
   TProxyTemplates.Assert_MethodConnectFields(fGenerator.Code);
 end;
 
 procedure TestGenerator.Test_MethodConnectFields_DataSetOneField;
 begin
-  with MemDataSet do
-  begin
-    FieldDefs.Add('FieldInteger', ftInteger);
-    CreateDataSet;
-  end;
-  fGenerator.DataSet := MemDataSet;
+  fGenerator.DataSet := GivenDataset([['FieldInteger', ftInteger]]);
+
   fGenerator.Generate_MethodConnectFields;
+
   TProxyTemplates.Assert_MethodConnectFields_WithIntegerField(fGenerator.Code);
 end;
 
