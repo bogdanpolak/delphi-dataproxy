@@ -20,6 +20,7 @@ type
     fCode: TStringList;
     fDataSetAccess: TDataSetAccess;
     fFieldNamingStyle: TFieldNamingStyle;
+    fObjectName: string;
     procedure Guard;
     function GetFieldPrefix: string;
   protected
@@ -41,6 +42,7 @@ type
       write fDataSetAccess;
     property FieldNamingStyle: TFieldNamingStyle read fFieldNamingStyle
       write fFieldNamingStyle;
+    property ObjectName: string read fObjectName write fObjectName;
   end;
 
 implementation
@@ -50,6 +52,7 @@ begin
   inherited;
   fCode := TStringList.Create;
   fDataSet := nil;
+  fObjectName := 'Something';
   fDataSetAccess := dsaNoAccess;
 end;
 
@@ -151,7 +154,7 @@ begin
   end;
   Result :=
   (* *) 'type' + sLineBreak +
-  (* *) '  T{ObjectName}Proxy = class(TDatasetProxy)' + sLineBreak +
+  (* *) '  T' + fObjectName + 'Proxy = class(TDatasetProxy)' + sLineBreak +
   (* *) '  private' + sLineBreak +
   (* *) Gen_PrivateFieldList +
   (* *) '  protected' + sLineBreak +
@@ -171,7 +174,7 @@ begin
   else
     aFieldCount := 0;
   Result :=
-  (* *) 'procedure T{ObjectName}Proxy.ConnectFields;' + sLineBreak +
+  (* *) 'procedure T' + fObjectName + 'Proxy.ConnectFields;' + sLineBreak +
   (* *) 'const' + sLineBreak +
   (* *) '  ExpectedFieldCount = ' + aFieldCount.ToString + ';' + sLineBreak +
   (* *) 'begin' + sLineBreak +

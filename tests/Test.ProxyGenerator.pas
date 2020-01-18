@@ -87,14 +87,14 @@ type
   const
     SingeCodeIndentation = '  ';
     Section_MethodConnectFields =
-    (* *) 'procedure T{ObjectName}Proxy.ConnectFields;→' +
+    (* *) 'procedure TSomethingProxy.ConnectFields;→' +
     (* *) 'const→' +
     (* *) '◇ExpectedFieldCount = 0;→' +
     (* *) 'begin→' +
     (* *) '◇Assert(FDataSet.Fields.Count = ExpectedFieldCount);→' +
     (* *) 'end;→';
     Section_MethodConnectFields_WithIntegerField =
-    (* *) 'procedure T{ObjectName}Proxy.ConnectFields;→' +
+    (* *) 'procedure TSomethingProxy.ConnectFields;→' +
     (* *) 'const→' +
     (* *) '◇ExpectedFieldCount = 1;→' +
     (* *) 'begin→' +
@@ -168,11 +168,12 @@ var
 begin
   fGenerator.DataSet := nil;
 
+  fGenerator.ObjectName := 'Something1';
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreEqual(
     (* *) 'type'#13#10 +
-    (* *) '  T{ObjectName}Proxy = class(TDatasetProxy)'#13#10 +
+    (* *) '  TSomething1Proxy = class(TDatasetProxy)'#13#10 +
     (* *) '  private'#13#10 +
     (* *) '  protected'#13#10 +
     (* *) '    procedure ConnectFields; override;'#13#10 +
@@ -186,11 +187,12 @@ var
 begin
   fGenerator.DataSet := GivenDataset([['FieldInteger', ftInteger]]);
 
+  fGenerator.ObjectName := 'Something2';
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreEqual(
     (* *) 'type'#13#10 +
-    (* *) '  T{ObjectName}Proxy = class(TDatasetProxy)'#13#10 +
+    (* *) '  TSomething2Proxy = class(TDatasetProxy)'#13#10 +
     (* *) '  private'#13#10 +
     (* *) '    FFieldInteger :TIntegerField;'#13#10 +
     (* *) '  protected'#13#10 +
@@ -207,12 +209,13 @@ begin
   fGenerator.DataSet := GivenDataset([['CustomerID', ftInteger],
     ['CompanyName', ftString]]);
 
+  fGenerator.ObjectName := 'Something';
   fGenerator.FieldNamingStyle := fnsLowerCaseF;
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreEqual(
     (* *) 'type'#13#10 +
-    (* *) '  T{ObjectName}Proxy = class(TDatasetProxy)'#13#10 +
+    (* *) '  TSomethingProxy = class(TDatasetProxy)'#13#10 +
     (* *) '  private'#13#10 +
     (* *) '    fCustomerID :TIntegerField;'#13#10 +
     (* *) '    fCompanyName :TStringField;'#13#10 +
@@ -230,12 +233,13 @@ var
 begin
   fGenerator.DataSet := GivenDataset([['FullName', ftString]]);
 
+  fGenerator.ObjectName := 'Something';
   fGenerator.DataSetAccess := dsaGenComment;
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreEqual(
     (* *) 'type'#13#10
-    (* *) + '  T{ObjectName}Proxy = class(TDatasetProxy)'#13#10
+    (* *) + '  TSomethingProxy = class(TDatasetProxy)'#13#10
     (* *) + '  private'#13#10
     (* *) + '    FFullName :TStringField;'#13#10
     (* *) + '  protected'#13#10
@@ -253,12 +257,13 @@ var
 begin
   fGenerator.DataSet := GivenDataset([['FullName', ftString]]);
 
+  fGenerator.ObjectName := 'Something';
   fGenerator.DataSetAccess := dsaFullAccess;
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreEqual(
     (* *) 'type'#13#10
-    (* *) + '  T{ObjectName}Proxy = class(TDatasetProxy)'#13#10
+    (* *) + '  TSomethingProxy = class(TDatasetProxy)'#13#10
     (* *) + '  private'#13#10
     (* *) + '    FFullName :TStringField;'#13#10
     (* *) + '  protected'#13#10
@@ -296,12 +301,13 @@ begin
   fGenerator.DataSet := GivenDataset([['CustomerID', ftInteger],
     ['CompanyName', ftString]]);
 
+  fGenerator.ObjectName := 'Something';
   fGenerator.FieldNamingStyle := fnsLowerCaseF;
   fGenerator.Generate_MethodConnectFields;
   actualCode := fGenerator.Code.Text;
 
   Assert.AreEqual(
-    (* *) 'procedure T{ObjectName}Proxy.ConnectFields;'#13#10
+    (* *) 'procedure TSomethingProxy.ConnectFields;'#13#10
     (* *) + 'const'#13#10
     (* *) + '  ExpectedFieldCount = 2;'#13#10
     (* *) + 'begin'#13#10
