@@ -47,6 +47,7 @@ type
     GroupBox1: TGroupBox;
     edtProxyName: TEdit;
     Label4: TLabel;
+    Label5: TLabel;
     // --------------------------------------------------------------------
     // Startup
     procedure FormCreate(Sender: TObject);
@@ -59,7 +60,7 @@ type
     procedure actGenerateProxyExecute(Sender: TObject);
     procedure actQueryBuilderExecute(Sender: TObject);
     procedure actChangeProxyNameExecute(Sender: TObject);
-    procedure edtProxyNameChange(Sender: TObject);
+    procedure edtProxyNameKeyPress(Sender: TObject; var Key: Char);
   private
     cmdProxyGenerator: TProxyGeneratorCommand;
     fCurrentConnDefName: string;
@@ -329,9 +330,13 @@ begin
   end;
 end;
 
-procedure TFormMain.edtProxyNameChange(Sender: TObject);
+procedure TFormMain.edtProxyNameKeyPress(Sender: TObject; var Key: Char);
 begin
-  actChangeProxyName.Execute;
+  if (Key=#13) then
+  begin
+    actChangeProxyName.Execute;
+    Key := #0;
+  end;
 end;
 
 procedure TFormMain.actConnectExecute(Sender: TObject);

@@ -2,8 +2,8 @@ object FormMain: TFormMain
   Left = 0
   Top = 0
   Caption = 'FormMain'
-  ClientHeight = 437
-  ClientWidth = 669
+  ClientHeight = 498
+  ClientWidth = 824
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,11 +18,12 @@ object FormMain: TFormMain
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 663
+    Width = 818
     Height = 49
     Align = alTop
     Caption = 'Generator Commands'
     TabOrder = 0
+    ExplicitWidth = 663
     object Button1: TButton
       AlignWithMargins = True
       Left = 5
@@ -48,28 +49,32 @@ object FormMain: TFormMain
   end
   object PageControl1: TPageControl
     AlignWithMargins = True
-    Left = 144
+    Left = 152
     Top = 58
-    Width = 522
-    Height = 376
+    Width = 669
+    Height = 437
     ActivePage = tshProxyCode
     Align = alRight
     TabOrder = 1
+    ExplicitHeight = 418
     object tshDataSet: TTabSheet
       Caption = 'SQL Statement'
+      ExplicitWidth = 514
+      ExplicitHeight = 348
       object Splitter1: TSplitter
         Left = 0
         Top = 225
-        Width = 514
+        Width = 661
         Height = 6
         Cursor = crVSplit
         Align = alTop
         ExplicitTop = 198
+        ExplicitWidth = 514
       end
       object GridPanel2: TGridPanel
         Left = 0
-        Top = 316
-        Width = 514
+        Top = 377
+        Width = 661
         Height = 32
         Align = alBottom
         BevelOuter = bvNone
@@ -100,21 +105,25 @@ object FormMain: TFormMain
             Value = 100.000000000000000000
           end>
         TabOrder = 2
+        ExplicitTop = 316
+        ExplicitWidth = 514
         object btnGenerateDAO: TButton
           AlignWithMargins = True
-          Left = 174
+          Left = 223
           Top = 3
-          Width = 165
+          Width = 214
           Height = 26
           Action = actGenerateProxy
           Align = alClient
           TabOrder = 0
+          ExplicitLeft = 174
+          ExplicitWidth = 165
         end
         object Label1: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 165
+          Width = 214
           Height = 26
           Align = alClient
           Alignment = taCenter
@@ -134,8 +143,8 @@ object FormMain: TFormMain
         AlignWithMargins = True
         Left = 3
         Top = 232
-        Width = 508
-        Height = 81
+        Width = 655
+        Height = 142
         Margins.Top = 1
         Align = alClient
         DataSource = DataSource1
@@ -150,17 +159,18 @@ object FormMain: TFormMain
       object Panel1: TPanel
         Left = 0
         Top = 0
-        Width = 514
+        Width = 661
         Height = 225
         Align = alTop
         BevelOuter = bvNone
         Caption = 'Panel1'
         TabOrder = 0
+        ExplicitWidth = 514
         object Label2: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 508
+          Width = 655
           Height = 13
           Margins.Bottom = 0
           Align = alTop
@@ -171,7 +181,7 @@ object FormMain: TFormMain
           AlignWithMargins = True
           Left = 3
           Top = 19
-          Width = 508
+          Width = 655
           Height = 171
           Align = alClient
           Font.Charset = DEFAULT_CHARSET
@@ -184,11 +194,12 @@ object FormMain: TFormMain
           ParentFont = False
           ScrollBars = ssVertical
           TabOrder = 0
+          ExplicitWidth = 508
         end
         object GridPanel1: TGridPanel
           Left = 0
           Top = 193
-          Width = 514
+          Width = 661
           Height = 32
           Align = alBottom
           BevelOuter = bvNone
@@ -224,21 +235,23 @@ object FormMain: TFormMain
               Value = 100.000000000000000000
             end>
           TabOrder = 1
+          ExplicitWidth = 514
           object Button3: TButton
             AlignWithMargins = True
             Left = 3
             Top = 3
-            Width = 165
+            Width = 214
             Height = 26
             Action = actExecSQL
             Align = alClient
             TabOrder = 0
+            ExplicitWidth = 165
           end
           object Label3: TLabel
             AlignWithMargins = True
-            Left = 181
+            Left = 230
             Top = 3
-            Width = 151
+            Width = 200
             Height = 26
             Margins.Left = 10
             Margins.Right = 10
@@ -252,17 +265,20 @@ object FormMain: TFormMain
             Font.Style = [fsItalic]
             ParentFont = False
             WordWrap = True
+            ExplicitLeft = 181
             ExplicitWidth = 143
           end
           object Button4: TButton
             AlignWithMargins = True
-            Left = 345
+            Left = 443
             Top = 3
-            Width = 166
+            Width = 215
             Height = 26
             Action = actQueryBuilder
             Align = alClient
             TabOrder = 1
+            ExplicitLeft = 345
+            ExplicitWidth = 166
           end
         end
       end
@@ -270,12 +286,14 @@ object FormMain: TFormMain
     object tshProxyCode: TTabSheet
       Caption = 'Generated DAO Code'
       ImageIndex = 1
+      ExplicitWidth = 514
+      ExplicitHeight = 390
       object mmProxyCode: TMemo
         AlignWithMargins = True
-        Left = 150
+        Left = 183
         Top = 3
-        Width = 361
-        Height = 342
+        Width = 475
+        Height = 403
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -287,21 +305,25 @@ object FormMain: TFormMain
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
+        ExplicitLeft = 150
+        ExplicitWidth = 361
+        ExplicitHeight = 342
       end
       object GroupBox1: TGroupBox
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 141
-        Height = 342
+        Width = 174
+        Height = 403
         Align = alLeft
         Caption = 'Proxy parameters'
         TabOrder = 1
+        ExplicitHeight = 342
         object Label4: TLabel
           AlignWithMargins = True
           Left = 7
           Top = 21
-          Width = 127
+          Width = 160
           Height = 13
           Margins.Left = 5
           Margins.Top = 6
@@ -310,20 +332,38 @@ object FormMain: TFormMain
           Caption = 'Proxy name:'
           ExplicitWidth = 61
         end
+        object Label5: TLabel
+          AlignWithMargins = True
+          Left = 5
+          Top = 63
+          Width = 164
+          Height = 13
+          Margins.Top = 0
+          Margins.Bottom = 8
+          Align = alTop
+          Caption = 'type [Enter] to apply changes'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clInactiveCaption
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsItalic]
+          ParentFont = False
+          ExplicitWidth = 144
+        end
         object edtProxyName: TEdit
           AlignWithMargins = True
           Left = 7
           Top = 40
-          Width = 127
+          Width = 160
           Height = 21
           Margins.Left = 5
           Margins.Right = 5
-          Margins.Bottom = 8
+          Margins.Bottom = 2
           Align = alTop
           TabOrder = 0
           Text = 'edtProxyName'
-          OnChange = edtProxyNameChange
-          ExplicitLeft = 9
+          OnKeyPress = edtProxyNameKeyPress
+          ExplicitWidth = 127
         end
       end
     end
