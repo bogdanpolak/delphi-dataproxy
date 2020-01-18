@@ -287,10 +287,6 @@ object FormMain: TFormMain
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
-        ExplicitLeft = 3
-        ExplicitTop = 55
-        ExplicitWidth = 508
-        ExplicitHeight = 158
       end
       object GroupBox1: TGroupBox
         AlignWithMargins = True
@@ -312,8 +308,6 @@ object FormMain: TFormMain
           Margins.Right = 5
           Align = alTop
           Caption = 'Proxy name:'
-          ExplicitLeft = 5
-          ExplicitTop = 18
           ExplicitWidth = 61
         end
         object edtProxyName: TEdit
@@ -321,7 +315,7 @@ object FormMain: TFormMain
           Left = 7
           Top = 40
           Width = 127
-          Height = 20
+          Height = 21
           Margins.Left = 5
           Margins.Right = 5
           Margins.Bottom = 8
@@ -329,10 +323,7 @@ object FormMain: TFormMain
           TabOrder = 0
           Text = 'edtProxyName'
           OnChange = edtProxyNameChange
-          ExplicitLeft = 32
-          ExplicitTop = 18
-          ExplicitWidth = 305
-          ExplicitHeight = 21
+          ExplicitLeft = 9
         end
       end
     end

@@ -65,8 +65,6 @@ type
     fCurrentConnDefName: string;
     fDataSet: TDataSet;
     fConnectionMruList: string;
-    fProxyName: string;
-    fCode: string;
     procedure InitializeControls;
     procedure UpdateActionEnable;
     procedure StoreConnectionDefinitionInMRUList(const ConnDefName: string);
@@ -259,13 +257,11 @@ end;
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
   // -------------------------------------------------------
-  fProxyName := TProxyGeneratorCommand.BaseProxyName;
-  edtProxyName.Text := fProxyName;
-  fCode := '';
-  // -------------------------------------------------------
   cmdProxyGenerator := TProxyGeneratorCommand.Create(Self);
   fDataSet := DataModule1.GetMainDataQuery;
   DataSource1.DataSet := fDataSet;
+  cmdProxyGenerator.ObjectName := 'Something';
+  edtProxyName.Text := cmdProxyGenerator.ObjectName;
   InitializeControls;
   // -------------------------------------------------------
   // Inititialize actions
@@ -356,10 +352,7 @@ end;
 procedure TFormMain.actGenerateProxyExecute(Sender: TObject);
 begin
   PageControl1.ActivePage := tshProxyCode;
-  fCode := cmdProxyGenerator.Execute(DataSource1.DataSet);
-  mmProxyCode.Lines.Text := fCode;
-  fProxyName := TProxyGeneratorCommand.BaseProxyName;
-  edtProxyName.Text := fProxyName;
+  mmProxyCode.Lines.Text := cmdProxyGenerator.Execute(DataSource1.DataSet);
 end;
 
 procedure TFormMain.actQueryBuilderExecute(Sender: TObject);
@@ -373,12 +366,9 @@ end;
 
 procedure TFormMain.actChangeProxyNameExecute(Sender: TObject);
 begin
-  if (fCode <> '') and (edtProxyName.Text <> fProxyName) then
-  begin
-    mmProxyCode.Lines.Text := StringReplace(fCode,
-      TProxyGeneratorCommand.BaseProxyName, edtProxyName.Text, [rfReplaceAll]);
-    fProxyName := edtProxyName.Text;
-  end;
+  cmdProxyGenerator.ObjectName := edtProxyName.Text;
+  if DataSource1.DataSet.Active then
+    mmProxyCode.Lines.Text := cmdProxyGenerator.Execute(DataSource1.DataSet);
 end;
 
 // --------------------------------------------------------------------------
