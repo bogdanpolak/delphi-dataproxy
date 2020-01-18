@@ -47,6 +47,7 @@ type
     GroupBox1: TGroupBox;
     edtProxyName: TEdit;
     Label4: TLabel;
+    Label5: TLabel;
     // --------------------------------------------------------------------
     // Startup
     procedure FormCreate(Sender: TObject);
@@ -59,16 +60,12 @@ type
     procedure actGenerateProxyExecute(Sender: TObject);
     procedure actQueryBuilderExecute(Sender: TObject);
     procedure actChangeProxyNameExecute(Sender: TObject);
-    // --------------------------------------------------------------------
-    procedure edtProxyNameKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure edtProxyNameKeyPress(Sender: TObject; var Key: Char);
   private
     cmdProxyGenerator: TProxyGeneratorCommand;
-    CurrentConnDefName: string;
-    FMainDataSet: TDataSet;
-    ConnectionMruList: string;
-    FCurrentProxyName: string;
-    FGeneratedCode: string;
+    fCurrentConnDefName: string;
+    fDataSet: TDataSet;
+    fConnectionMruList: string;
     procedure InitializeControls;
     procedure UpdateActionEnable;
     procedure StoreConnectionDefinitionInMRUList(const ConnDefName: string);
@@ -77,6 +74,7 @@ type
     procedure PopupMenuRecentConnectionsItemClick(Sender: TObject);
     function UpdateMRUList(const ConnDefName: string): boolean;
     procedure SetCurrentConnectionDefinition(ConnDefName: string);
+    procedure AutomateMainForm;
   public
   end;
 
@@ -89,13 +87,14 @@ implementation
 
 uses
   System.Win.Registry,
-  Helper.TApplication, Helper.TDBGrid,
+  Helper.TDBGrid,
+  Helper.TApplication,
   App.AppInfo,
   DataModule.Main,
-  Dialog.SelectDefinition, Dialog.QueryBuilder;
+  Dialog.SelectDefinition,
+  Dialog.QueryBuilder;
 
 const
-  AUTOOPEN_Application = False;
   AppRegistryKey = 'Software\DelphiPower\DataSetProxyGenerator';
 
 
@@ -114,14 +113,14 @@ var
   j: Integer;
 begin
   // TODO: Separate mru-list as an independent component
-  if ConnectionMruList = '' then
+  if fConnectionMruList = '' then
   begin
-    ConnectionMruList := ConnDefName;
+    fConnectionMruList := ConnDefName;
     Result := True;
   end
   else
   begin
-    list := System.StrUtils.SplitString(ConnectionMruList, ',');
+    list := System.StrUtils.SplitString(fConnectionMruList, ',');
     len := Length(list);
     if (list[0] = ConnDefName) then
       Result := False
@@ -136,7 +135,7 @@ begin
           list[j - 1] := list[j - 1];
         SetLength(list, len - 1);
       end;
-      ConnectionMruList := ConnDefName + ',' + String.Join(',', list);
+      fConnectionMruList := ConnDefName + ',' + String.Join(',', list);
       Result := True;
     end;
   end;
@@ -146,16 +145,36 @@ procedure TFormMain.SetCurrentConnectionDefinition(ConnDefName: string);
 var
   IsSelectedDef: boolean;
 begin
-  if (CurrentConnDefName = '') or (ConnDefName <> '') then
+  if (fCurrentConnDefName = '') or (ConnDefName <> '') then
   begin
-    CurrentConnDefName := ConnDefName;
-    IsSelectedDef := (CurrentConnDefName <> '');
+    fCurrentConnDefName := ConnDefName;
+    IsSelectedDef := (fCurrentConnDefName <> '');
     if IsSelectedDef then
-      actSelectConnectionDef.Caption := 'Definition: ' + CurrentConnDefName
+      actSelectConnectionDef.Caption := 'Definition: ' + fCurrentConnDefName
     else
       actSelectConnectionDef.Caption := 'Select Connection';
     actConnect.Enabled := IsSelectedDef;
   end;
+end;
+
+procedure TFormMain.AutomateMainForm;
+begin
+  // Level1: Select Connection
+  fCurrentConnDefName := 'SQLite_Demo';
+  actSelectConnectionDef.Caption := 'Definition: ' + fCurrentConnDefName;
+  actConnect.Enabled := True;
+  // Level2: Connect
+  if TAplicationAutomation.IsLevelSupported(2) then
+    actConnect.Execute;
+  // Level3: Open QueryBuilder dialog | Select demo query | Close dialog
+  if TAplicationAutomation.IsLevelSupported(3) then
+    actQueryBuilder.Execute;
+  // Level4: Execute SQL command and shor results in grid
+  if TAplicationAutomation.IsLevelSupported(4) then
+    actExecSQL.Execute;
+  // Level5: Generate proxy
+  if TAplicationAutomation.IsLevelSupported(5) then
+    actGenerateProxy.Execute;
 end;
 
 procedure TFormMain.StoreConnectionDefinitionInMRUList
@@ -179,7 +198,7 @@ begin
       reg.Access := KEY_WRITE;
       if reg.OpenKey(AppRegistryKey, False) then
       begin
-        reg.WriteString('ConnectionMruList', ConnectionMruList);
+        reg.WriteString('ConnectionMruList', fConnectionMruList);
       end;
     finally
       reg.Free;
@@ -191,22 +210,22 @@ function TFormMain.GetConnectionDefinitionMRUList: TStringDynArray;
 var
   reg: TRegistry;
 begin
-  if ConnectionMruList = '' then
+  if fConnectionMruList = '' then
   begin
     reg := TRegistry.Create(KEY_READ);
     try
       reg.RootKey := HKEY_CURRENT_USER;
       if reg.KeyExists(AppRegistryKey) then
         if reg.OpenKey(AppRegistryKey, False) then
-          ConnectionMruList := reg.ReadString('ConnectionMruList');
+          fConnectionMruList := reg.ReadString('ConnectionMruList');
     finally
       reg.Free;
     end;
   end;
-  if ConnectionMruList = '' then
+  if fConnectionMruList = '' then
     Result := nil
   else
-    Result := System.StrUtils.SplitString(ConnectionMruList, ',')
+    Result := System.StrUtils.SplitString(fConnectionMruList, ',')
 end;
 
 procedure TFormMain.FillConnectionMRUPopupMenu;
@@ -261,13 +280,11 @@ end;
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
   // -------------------------------------------------------
-  FCurrentProxyName := TProxyGeneratorCommand.BaseProxyName;
-  edtProxyName.Text := FCurrentProxyName;
-  FGeneratedCode := '';
-  // -------------------------------------------------------
   cmdProxyGenerator := TProxyGeneratorCommand.Create(Self);
-  FMainDataSet := DataModule1.GetMainDataQuery;
-  DataSource1.DataSet := FMainDataSet;
+  fDataSet := DataModule1.GetMainDataQuery;
+  DataSource1.DataSet := fDataSet;
+  cmdProxyGenerator.ObjectName := 'Something';
+  edtProxyName.Text := cmdProxyGenerator.ObjectName;
   InitializeControls;
   // -------------------------------------------------------
   // Inititialize actions
@@ -282,16 +299,8 @@ procedure TFormMain.tmrReadyTimer(Sender: TObject);
 begin
   tmrReady.Enabled := False;
   FillConnectionMRUPopupMenu;
-  if Application.InDeveloperMode and AUTOOPEN_Application then
-  begin
-    CurrentConnDefName := 'SQLite_Demo';
-    actSelectConnectionDef.Caption := 'Definition: ' + CurrentConnDefName;
-    actConnect.Enabled := True;
-    actConnect.Execute;
-    actQueryBuilder.Execute;
-    // actExecSQL.Execute;
-    // actGenerateProxy.Execute;
-  end;
+  if TAplicationAutomation.IsActive then
+    AutomateMainForm;
 end;
 
 procedure TFormMain.UpdateActionEnable();
@@ -300,7 +309,7 @@ var
   IsDataSetActive: boolean;
 begin
   IsConnected := DataModule1.IsConnected;
-  IsDataSetActive := FMainDataSet.Active;
+  IsDataSetActive := fDataSet.Active;
   actQueryBuilder.Enabled := IsConnected;
   actExecSQL.Enabled := IsConnected;
   actGenerateProxy.Enabled := IsDataSetActive;
@@ -321,22 +330,24 @@ begin
   end;
 end;
 
-procedure TFormMain.edtProxyNameKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TFormMain.edtProxyNameKeyPress(Sender: TObject; var Key: Char);
 begin
-  if (Shift = [ssCtrl]) and (Key = VK_RETURN) then
+  if (Key=#13) then
+  begin
     actChangeProxyName.Execute;
+    Key := #0;
+  end;
 end;
 
 procedure TFormMain.actConnectExecute(Sender: TObject);
 begin
   if not DataModule1.IsConnected then
   begin
-    DataModule1.OpenConnection(CurrentConnDefName);
+    DataModule1.OpenConnection(fCurrentConnDefName);
     // TODO: misleading method name (2 responsibilities)
     // * AddOrUpdateConnection_MruList = UpdateMRUList
     // * WriteConnectionMruList
-    StoreConnectionDefinitionInMRUList(CurrentConnDefName);
+    StoreConnectionDefinitionInMRUList(fCurrentConnDefName);
     FillConnectionMRUPopupMenu;
     actConnect.Caption := 'Disconnect';
   end
@@ -360,10 +371,7 @@ end;
 procedure TFormMain.actGenerateProxyExecute(Sender: TObject);
 begin
   PageControl1.ActivePage := tshProxyCode;
-  FGeneratedCode := cmdProxyGenerator.Execute(DataSource1.DataSet);
-  mmProxyCode.Lines.Text := FGeneratedCode;
-  FCurrentProxyName := TProxyGeneratorCommand.BaseProxyName;
-  edtProxyName.Text := FCurrentProxyName;
+  mmProxyCode.Lines.Text := cmdProxyGenerator.Execute(DataSource1.DataSet);
 end;
 
 procedure TFormMain.actQueryBuilderExecute(Sender: TObject);
@@ -377,14 +385,9 @@ end;
 
 procedure TFormMain.actChangeProxyNameExecute(Sender: TObject);
 begin
-  if edtProxyName.Text = '' then
-    edtProxyName.Text := TProxyGeneratorCommand.BaseProxyName;
-  if (FGeneratedCode <> '') and (edtProxyName.Text <> FCurrentProxyName) then
-  begin
-    mmProxyCode.Lines.Text := StringReplace(FGeneratedCode,
-      TProxyGeneratorCommand.BaseProxyName, edtProxyName.Text, [rfReplaceAll]);
-    FCurrentProxyName := edtProxyName.Text;
-  end;
+  cmdProxyGenerator.ObjectName := edtProxyName.Text;
+  if DataSource1.DataSet.Active then
+    mmProxyCode.Lines.Text := cmdProxyGenerator.Execute(DataSource1.DataSet);
 end;
 
 // --------------------------------------------------------------------------

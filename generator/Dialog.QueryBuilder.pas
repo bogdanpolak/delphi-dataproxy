@@ -30,6 +30,7 @@ type
     Button1: TButton;
     Button2: TButton;
     Button3: TButton;
+    tmrReady: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure actCancelExecute(Sender: TObject);
     procedure actDemoSelectExecute(Sender: TObject);
@@ -38,6 +39,7 @@ type
     procedure actUseSQLExecute(Sender: TObject);
     procedure actUseSQLUpdate(Sender: TObject);
     procedure cbxTablesMainChange(Sender: TObject);
+    procedure tmrReadyTimer(Sender: TObject);
   private
     FTables: System.Types.TStringDynArray;
     procedure PaintBox1Paint(Sender: TObject);
@@ -51,7 +53,8 @@ implementation
 {$R *.dfm}
 
 uses
-  DataModule.Main;
+  DataModule.Main,
+  App.AppInfo;
 
 class function TDialogQueryBuilder.Execute: string;
 var
@@ -195,6 +198,18 @@ end;
 procedure TDialogQueryBuilder.PaintBox1Paint(Sender: TObject);
 begin
   Self.DrawInfoListBoxNotImplemented(Sender as TPaintBox);
+end;
+
+procedure TDialogQueryBuilder.tmrReadyTimer(Sender: TObject);
+begin
+  tmrReady.Enabled := False;
+  if TAplicationAutomation.IsActive then
+  begin
+    TAplicationAutomation.SpeedSlowDown;
+    actDemoSelect.Execute;
+    TAplicationAutomation.SpeedSlowDown;
+    actUseSQL.Execute;
+  end;
 end;
 
 procedure TDialogQueryBuilder.DrawInfoListBoxNotImplemented

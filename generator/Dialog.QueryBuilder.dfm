@@ -151,4 +151,10 @@ object DialogQueryBuilder: TDialogQueryBuilder
       OnExecute = actJoinTableSelectedExecute
     end
   end
+  object tmrReady: TTimer
+    Interval = 1
+    OnTimer = tmrReadyTimer
+    Left = 232
+    Top = 8
+  end
 end
