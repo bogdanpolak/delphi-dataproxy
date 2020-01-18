@@ -73,6 +73,7 @@ type
     procedure PopupMenuRecentConnectionsItemClick(Sender: TObject);
     function UpdateMRUList(const ConnDefName: string): boolean;
     procedure SetCurrentConnectionDefinition(ConnDefName: string);
+    procedure AutomateMainForm;
   public
   end;
 
@@ -85,13 +86,14 @@ implementation
 
 uses
   System.Win.Registry,
-  Helper.TApplication, Helper.TDBGrid,
+  Helper.TDBGrid,
+  Helper.TApplication,
   App.AppInfo,
   DataModule.Main,
-  Dialog.SelectDefinition, Dialog.QueryBuilder;
+  Dialog.SelectDefinition,
+  Dialog.QueryBuilder;
 
 const
-  AUTOOPEN_Application = False;
   AppRegistryKey = 'Software\DelphiPower\DataSetProxyGenerator';
 
 
@@ -152,6 +154,26 @@ begin
       actSelectConnectionDef.Caption := 'Select Connection';
     actConnect.Enabled := IsSelectedDef;
   end;
+end;
+
+procedure TFormMain.AutomateMainForm;
+begin
+  // Level1: Select Connection
+  fCurrentConnDefName := 'SQLite_Demo';
+  actSelectConnectionDef.Caption := 'Definition: ' + fCurrentConnDefName;
+  actConnect.Enabled := True;
+  // Level2: Connect
+  if TAplicationAutomation.IsLevelSupported(2) then
+    actConnect.Execute;
+  // Level3: Open QueryBuilder dialog | Select demo query | Close dialog
+  if TAplicationAutomation.IsLevelSupported(3) then
+    actQueryBuilder.Execute;
+  // Level4: Execute SQL command and shor results in grid
+  if TAplicationAutomation.IsLevelSupported(4) then
+    actExecSQL.Execute;
+  // Level5: Generate proxy
+  if TAplicationAutomation.IsLevelSupported(5) then
+    actGenerateProxy.Execute;
 end;
 
 procedure TFormMain.StoreConnectionDefinitionInMRUList
@@ -276,16 +298,8 @@ procedure TFormMain.tmrReadyTimer(Sender: TObject);
 begin
   tmrReady.Enabled := False;
   FillConnectionMRUPopupMenu;
-  if Application.InDeveloperMode and AUTOOPEN_Application then
-  begin
-    fCurrentConnDefName := 'SQLite_Demo';
-    actSelectConnectionDef.Caption := 'Definition: ' + fCurrentConnDefName;
-    actConnect.Enabled := True;
-    actConnect.Execute;
-    actQueryBuilder.Execute;
-    // actExecSQL.Execute;
-    // actGenerateProxy.Execute;
-  end;
+  if TAplicationAutomation.IsActive then
+    AutomateMainForm;
 end;
 
 procedure TFormMain.UpdateActionEnable();
