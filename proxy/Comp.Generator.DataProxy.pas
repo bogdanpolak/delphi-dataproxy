@@ -15,6 +15,8 @@ type
   TDataSetAccess = (dsaNoAccess, dsaGenComment, dsaFullAccess);
 
   TDataProxyGenerator = class(TComponent)
+  private const
+    Version = '0.9';
   private
     fDataSet: TDataSet;
     fCode: TStringList;

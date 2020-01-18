@@ -20,13 +20,8 @@ uses
 
 type
   TGenericDataSetProxy = class(TComponent)
-  const
-    // * --------------------------------------------------------------------
-    // * Component Signature
-    ReleaseDate = '2019.09.28';
-    ReleaseVersion = '1.0';
-    // * --------------------------------------------------------------------
-  private
+  private const
+    Version = '0.9';
   protected
     FDataSet: TDataSet;
     procedure ConnectFields; virtual; abstract;
