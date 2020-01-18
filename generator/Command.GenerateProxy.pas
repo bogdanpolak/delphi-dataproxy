@@ -11,9 +11,8 @@ uses
 
 type
   TProxyGeneratorCommand = class(TComponent)
-  const
-    BaseProxyName = '{ObjectName}';
   private
+    fObjectName: string;
     fCode: TStringList;
     fProxyGenerator: TDataProxyGenerator;
     fDataSetGenerator: TDSGenerator;
@@ -21,6 +20,8 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function Execute(aDataset: TDataSet): String;
+  published
+    property ObjectName: string read fObjectName write fObjectName;
   end;
 
 implementation
@@ -59,6 +60,7 @@ end;
 function TProxyGeneratorCommand.Execute(aDataset: TDataSet): String;
 begin
   fProxyGenerator.dataset := aDataset;
+  fProxyGenerator.ObjectName := fObjectName;
   fProxyGenerator.Execute;
   fCode.Clear;
   with fCode do

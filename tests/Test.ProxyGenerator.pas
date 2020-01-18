@@ -23,7 +23,6 @@ type
   private
     fOwner: TComponent;
     fGenerator: TTestProxyDataGenerator;
-    MemDataSet: TFDMemTable;
     function GivenDataset(aFieldsDef: TMatrixOfVariants): TDataSet;
   public
     [Setup]
@@ -72,7 +71,6 @@ procedure TestGenerator.Setup;
 begin
   fOwner := TComponent.Create(nil);
   fGenerator := TTestProxyDataGenerator.Create(fOwner);
-  MemDataSet := TFDMemTable.Create(fOwner);
 end;
 
 procedure TestGenerator.TearDown;
@@ -88,40 +86,15 @@ type
   TProxyTemplates = class
   const
     SingeCodeIndentation = '  ';
-    Section_Uses =
-    (* *) 'uses→' +
-    (* *) '◇Data.DB,→' +
-    (* *) '◇Data.DataProxy,→' +
-    (* *) '◇System.SysUtils,→' +
-    (* *) '◇System.Classes,→' +
-    (* *) '◇FireDAC.Comp.Client;→';
-    Section_ClassDeclatarion =
-    (* *) 'type→' +
-    (* *) '◇T{ObjectName}Proxy = class(TDatasetProxy)→' +
-    (* *) '◇private→' +
-    (* *) '◇protected→' +
-    (* *) '◇◇procedure ConnectFields; override;→' +
-    (* *) '◇public→' +
-    (* *) '◇end;→';
-    Section_ClassDeclatarion_WithIntField =
-    (* *) 'type→' +
-    (* *) '◇T{ObjectName}Proxy = class(TDatasetProxy)→' +
-    (* *) '◇private→' +
-    (* *) '◇◇FFieldInteger :TIntegerField;→' +
-    (* *) '◇protected→' +
-    (* *) '◇◇procedure ConnectFields; override;→' +
-    (* *) '◇public→' +
-    (* *) '◇◇property FieldInteger :TIntegerField read FFieldInteger;→' +
-    (* *) '◇end;→';
     Section_MethodConnectFields =
-    (* *) 'procedure T{ObjectName}Proxy.ConnectFields;→' +
+    (* *) 'procedure TSomethingProxy.ConnectFields;→' +
     (* *) 'const→' +
     (* *) '◇ExpectedFieldCount = 0;→' +
     (* *) 'begin→' +
     (* *) '◇Assert(FDataSet.Fields.Count = ExpectedFieldCount);→' +
     (* *) 'end;→';
     Section_MethodConnectFields_WithIntegerField =
-    (* *) 'procedure T{ObjectName}Proxy.ConnectFields;→' +
+    (* *) 'procedure TSomethingProxy.ConnectFields;→' +
     (* *) 'const→' +
     (* *) '◇ExpectedFieldCount = 1;→' +
     (* *) 'begin→' +
@@ -133,9 +106,6 @@ type
     class var Expected: string;
     class function ReplaceArrowsAndDiamonds(const s: String): string;
   public
-    class procedure Asset_UsesSection(Code: TStrings);
-    class procedure Assert_ClassDeclaration(Code: TStrings);
-    class procedure Assert_ClassDeclaration_WithIntegerField(Code: TStrings);
     class procedure Assert_MethodConnectFields(Code: TStrings);
     class procedure Assert_MethodConnectFields_WithIntegerField(Code: TStrings);
   end;
@@ -145,25 +115,6 @@ class function TProxyTemplates.ReplaceArrowsAndDiamonds
 begin
   Result := StringReplace(s, '→', #13#10, [rfReplaceAll]);
   Result := StringReplace(Result, '◇', SingeCodeIndentation, [rfReplaceAll])
-end;
-
-class procedure TProxyTemplates.Asset_UsesSection(Code: TStrings);
-begin
-  Expected := ReplaceArrowsAndDiamonds(Section_Uses);
-  Assert.AreEqual(Expected, Code.Text);
-end;
-
-class procedure TProxyTemplates.Assert_ClassDeclaration(Code: TStrings);
-begin
-  Expected := ReplaceArrowsAndDiamonds(Section_ClassDeclatarion);
-  Assert.AreEqual(Expected, Code.Text);
-end;
-
-class procedure TProxyTemplates.Assert_ClassDeclaration_WithIntegerField
-  (Code: TStrings);
-begin
-  Expected := ReplaceArrowsAndDiamonds(Section_ClassDeclatarion_WithIntField);
-  Assert.AreEqual(Expected, Code.Text);
 end;
 
 class procedure TProxyTemplates.Assert_MethodConnectFields(Code: TStrings);
@@ -192,9 +143,18 @@ begin
 end;
 
 procedure TestGenerator.Test_UsesSection;
+var
+  actualCode: string;
 begin
-  fGenerator.Generate_UsesSection;
-  TProxyTemplates.Asset_UsesSection(fGenerator.Code);
+  actualCode := fGenerator.Generate_UsesSection;
+
+  Assert.AreEqual(
+    (* *) 'uses'#13#10 +
+    (* *) '  Data.DB,'#13#10 +
+    (* *) '  Data.DataProxy,'#13#10 +
+    (* *) '  System.SysUtils,'#13#10 +
+    (* *) '  System.Classes,'#13#10 +
+    (* *) '  FireDAC.Comp.Client;'#13#10, actualCode);
 end;
 
 
@@ -203,21 +163,43 @@ end;
 // -----------------------------------------------------------------------
 
 procedure TestGenerator.Test_ClassDeclaration_DataSetNil;
+var
+  actualCode: string;
 begin
-  fGenerator.Generate_ClassDeclaration;
-  TProxyTemplates.Assert_ClassDeclaration(fGenerator.Code);
+  fGenerator.DataSet := nil;
+
+  fGenerator.ObjectName := 'Something1';
+  actualCode := fGenerator.Generate_ClassDeclaration;
+
+  Assert.AreEqual(
+    (* *) 'type'#13#10 +
+    (* *) '  TSomething1Proxy = class(TDatasetProxy)'#13#10 +
+    (* *) '  private'#13#10 +
+    (* *) '  protected'#13#10 +
+    (* *) '    procedure ConnectFields; override;'#13#10 +
+    (* *) '  public'#13#10 +
+    (* *) '  end;'#13#10, actualCode);
 end;
 
 procedure TestGenerator.Test_ClassDeclaration_DataSetOneField;
+var
+  actualCode: string;
 begin
-  with MemDataSet do
-  begin
-    FieldDefs.Add('FieldInteger', ftInteger);
-    CreateDataSet;
-  end;
-  fGenerator.DataSet := MemDataSet;
-  fGenerator.Generate_ClassDeclaration;
-  TProxyTemplates.Assert_ClassDeclaration_WithIntegerField(fGenerator.Code);
+  fGenerator.DataSet := GivenDataset([['FieldInteger', ftInteger]]);
+
+  fGenerator.ObjectName := 'Something2';
+  actualCode := fGenerator.Generate_ClassDeclaration;
+
+  Assert.AreEqual(
+    (* *) 'type'#13#10 +
+    (* *) '  TSomething2Proxy = class(TDatasetProxy)'#13#10 +
+    (* *) '  private'#13#10 +
+    (* *) '    FFieldInteger :TIntegerField;'#13#10 +
+    (* *) '  protected'#13#10 +
+    (* *) '    procedure ConnectFields; override;'#13#10 +
+    (* *) '  public'#13#10 +
+    (* *) '    property FieldInteger :TIntegerField read FFieldInteger;'#13#10 +
+    (* *) '  end;'#13#10, actualCode);
 end;
 
 procedure TestGenerator.GenerateClass_TwoFields_LowerCase;
@@ -227,13 +209,13 @@ begin
   fGenerator.DataSet := GivenDataset([['CustomerID', ftInteger],
     ['CompanyName', ftString]]);
 
+  fGenerator.ObjectName := 'Something';
   fGenerator.FieldNamingStyle := fnsLowerCaseF;
-  fGenerator.Generate_ClassDeclaration;
-  actualCode := fGenerator.Code.Text;
+  actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreEqual(
     (* *) 'type'#13#10 +
-    (* *) '  T{ObjectName}Proxy = class(TDatasetProxy)'#13#10 +
+    (* *) '  TSomethingProxy = class(TDatasetProxy)'#13#10 +
     (* *) '  private'#13#10 +
     (* *) '    fCustomerID :TIntegerField;'#13#10 +
     (* *) '    fCompanyName :TStringField;'#13#10 +
@@ -251,13 +233,13 @@ var
 begin
   fGenerator.DataSet := GivenDataset([['FullName', ftString]]);
 
+  fGenerator.ObjectName := 'Something';
   fGenerator.DataSetAccess := dsaGenComment;
-  fGenerator.Generate_ClassDeclaration;
-  actualCode := fGenerator.Code.Text;
+  actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreEqual(
     (* *) 'type'#13#10
-    (* *) + '  T{ObjectName}Proxy = class(TDatasetProxy)'#13#10
+    (* *) + '  TSomethingProxy = class(TDatasetProxy)'#13#10
     (* *) + '  private'#13#10
     (* *) + '    FFullName :TStringField;'#13#10
     (* *) + '  protected'#13#10
@@ -275,13 +257,13 @@ var
 begin
   fGenerator.DataSet := GivenDataset([['FullName', ftString]]);
 
+  fGenerator.ObjectName := 'Something';
   fGenerator.DataSetAccess := dsaFullAccess;
-  fGenerator.Generate_ClassDeclaration;
-  actualCode := fGenerator.Code.Text;
+  actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreEqual(
     (* *) 'type'#13#10
-    (* *) + '  T{ObjectName}Proxy = class(TDatasetProxy)'#13#10
+    (* *) + '  TSomethingProxy = class(TDatasetProxy)'#13#10
     (* *) + '  private'#13#10
     (* *) + '    FFullName :TStringField;'#13#10
     (* *) + '  protected'#13#10
@@ -298,19 +280,17 @@ end;
 
 procedure TestGenerator.Test_MethodConnectFields_DataSetNil;
 begin
+  fGenerator.DataSet := nil;
   fGenerator.Generate_MethodConnectFields;
   TProxyTemplates.Assert_MethodConnectFields(fGenerator.Code);
 end;
 
 procedure TestGenerator.Test_MethodConnectFields_DataSetOneField;
 begin
-  with MemDataSet do
-  begin
-    FieldDefs.Add('FieldInteger', ftInteger);
-    CreateDataSet;
-  end;
-  fGenerator.DataSet := MemDataSet;
+  fGenerator.DataSet := GivenDataset([['FieldInteger', ftInteger]]);
+
   fGenerator.Generate_MethodConnectFields;
+
   TProxyTemplates.Assert_MethodConnectFields_WithIntegerField(fGenerator.Code);
 end;
 
@@ -321,12 +301,13 @@ begin
   fGenerator.DataSet := GivenDataset([['CustomerID', ftInteger],
     ['CompanyName', ftString]]);
 
+  fGenerator.ObjectName := 'Something';
   fGenerator.FieldNamingStyle := fnsLowerCaseF;
   fGenerator.Generate_MethodConnectFields;
   actualCode := fGenerator.Code.Text;
 
   Assert.AreEqual(
-    (* *) 'procedure T{ObjectName}Proxy.ConnectFields;'#13#10
+    (* *) 'procedure TSomethingProxy.ConnectFields;'#13#10
     (* *) + 'const'#13#10
     (* *) + '  ExpectedFieldCount = 2;'#13#10
     (* *) + 'begin'#13#10
