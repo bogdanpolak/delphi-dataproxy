@@ -159,7 +159,7 @@ begin
   (* *) '  public' + sLineBreak +
   (* *) Gen_PublicPropertyList +
   (* *) aDatasePropertyCode +
-  (* *) '  end;';
+  (* *) '  end;' + sLineBreak;
 end;
 
 function TDataProxyGenerator.Gen_MethodConnectFields: string;

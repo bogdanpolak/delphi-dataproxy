@@ -8,9 +8,9 @@ uses
 type
   TTestProxyDataGenerator = class(TDataProxyGenerator)
   public
-    procedure Generate_UnitHeader;
-    procedure Generate_UsesSection;
-    procedure Generate_ClassDeclaration;
+    function Generate_UnitHeader: string;
+    function Generate_UsesSection: string;
+    function Generate_ClassDeclaration: string;
     procedure Generate_PrivateFieldList;
     procedure Generate_PublicPropertyList;
     procedure Generate_FieldAssigments;
@@ -19,19 +19,19 @@ type
 
 implementation
 
-procedure TTestProxyDataGenerator.Generate_UnitHeader;
+function TTestProxyDataGenerator.Generate_UnitHeader: string;
 begin
-  Code.Text := Gen_UnitHeader;
+  Result := Gen_UnitHeader;
 end;
 
-procedure TTestProxyDataGenerator.Generate_UsesSection;
+function TTestProxyDataGenerator.Generate_UsesSection: string;
 begin
-  Code.Text := Gen_UsesSection;
+  Result := Gen_UsesSection;
 end;
 
-procedure TTestProxyDataGenerator.Generate_ClassDeclaration;
+function TTestProxyDataGenerator.Generate_ClassDeclaration: string;
 begin
-  Code.Text := Gen_ClassDeclaration;
+  Result := Gen_ClassDeclaration;
 end;
 
 procedure TTestProxyDataGenerator.Generate_PrivateFieldList;
