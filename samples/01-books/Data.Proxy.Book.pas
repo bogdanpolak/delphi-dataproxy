@@ -47,17 +47,17 @@ procedure TBookProxy.ConnectFields;
 const
   ExpectedFieldCount = 10;
 begin
-  FISBN := FDataSet.FieldByName('ISBN') as TWideStringField;
-  FTitle := FDataSet.FieldByName('Title') as TWideStringField;
-  FAuthors := FDataSet.FieldByName('Authors') as TWideStringField;
-  FStatus := FDataSet.FieldByName('Status') as TWideStringField;
-  FReleseDate := FDataSet.FieldByName('ReleseDate') as TDateField;
-  FPages := FDataSet.FieldByName('Pages') as TIntegerField;
-  FPrice := FDataSet.FieldByName('Price') as TBCDField;
-  FCurrency := FDataSet.FieldByName('Currency') as TWideStringField;
-  FImported := FDataSet.FieldByName('Imported') as TDateTimeField;
-  FDescription := FDataSet.FieldByName('Description') as TWideStringField;
-  Assert(FDataSet.Fields.Count = ExpectedFieldCount);
+  FISBN := fDataSet.FieldByName('ISBN') as TWideStringField;
+  FTitle := fDataSet.FieldByName('Title') as TWideStringField;
+  FAuthors := fDataSet.FieldByName('Authors') as TWideStringField;
+  FStatus := fDataSet.FieldByName('Status') as TWideStringField;
+  FReleseDate := fDataSet.FieldByName('ReleseDate') as TDateField;
+  FPages := fDataSet.FieldByName('Pages') as TIntegerField;
+  FPrice := fDataSet.FieldByName('Price') as TBCDField;
+  FCurrency := fDataSet.FieldByName('Currency') as TWideStringField;
+  FImported := fDataSet.FieldByName('Imported') as TDateTimeField;
+  FDescription := fDataSet.FieldByName('Description') as TWideStringField;
+  Assert(fDataSet.Fields.Count = ExpectedFieldCount);
 end;
 
 function TBookProxy.CountMoreExpensiveBooks: integer;
@@ -78,7 +78,7 @@ end;
 
 function TBookProxy.LocateISBN(const ISBN: string): boolean;
 begin
-  Result := FDataSet.Locate('ISBN',ISBN,[]);
+  Result := fDataSet.Locate('ISBN',ISBN,[]);
 end;
 
 function TBookProxy.ToString: String;

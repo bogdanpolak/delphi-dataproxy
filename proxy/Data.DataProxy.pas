@@ -23,7 +23,7 @@ type
   private const
     Version = '0.9';
   protected
-    FDataSet: TDataSet;
+    fDataSet: TDataSet;
     procedure ConnectFields; virtual; abstract;
     procedure SetDataSet(aDataSet: TDataSet);
   public
@@ -69,132 +69,132 @@ implementation
 
 procedure TDataSetProxy.Append;
 begin
-  FDataSet.Append;
+  fDataSet.Append;
 end;
 
 procedure TDataSetProxy.AppendRecord(const Values: array of const);
 begin
-  FDataSet.AppendRecord(Values);
+  fDataSet.AppendRecord(Values);
 end;
 
 procedure TDataSetProxy.BindToDataSource(DataSource: TDataSource);
 begin
-  DataSource.DataSet := FDataSet;
+  DataSource.DataSet := fDataSet;
 end;
 
 procedure TDataSetProxy.Cancel;
 begin
-  FDataSet.Cancel;
+  fDataSet.Cancel;
 end;
 
 procedure TDataSetProxy.Close;
 begin
-  FDataSet.Close;
+  fDataSet.Close;
 end;
 
 function TDataSetProxy.ConstructDataSource(AOwner: TComponent)
   : TDataSource;
 begin
   Result := TDataSource.Create(AOwner);
-  Result.DataSet := FDataSet;
+  Result.DataSet := fDataSet;
 end;
 
 function TDataSetProxy.ControlsDisabled: Boolean;
 begin
-  Result := FDataSet.ControlsDisabled;
+  Result := fDataSet.ControlsDisabled;
 end;
 
 function TDataSetProxy.CreateBlobStream(Field: TField;
   Mode: TBlobStreamMode): TStream;
 begin
-  Result := FDataSet.CreateBlobStream(Field, Mode);
+  Result := fDataSet.CreateBlobStream(Field, Mode);
 end;
 
 procedure TDataSetProxy.Delete;
 begin
-  FDataSet.Delete;
+  fDataSet.Delete;
 end;
 
 procedure TDataSetProxy.DisableControls;
 begin
-  FDataSet.DisableControls;
+  fDataSet.DisableControls;
 end;
 
 procedure TDataSetProxy.Edit;
 begin
-  FDataSet.Edit;
+  fDataSet.Edit;
 end;
 
 procedure TDataSetProxy.EnableControls;
 begin
-  FDataSet.EnableControls;
+  fDataSet.EnableControls;
 end;
 
 function TDataSetProxy.Eof: Boolean;
 begin
-  Result := FDataSet.Eof;
+  Result := fDataSet.Eof;
 end;
 
 procedure TDataSetProxy.First;
 begin
-  FDataSet.First;
+  fDataSet.First;
 end;
 
 procedure TDataSetProxy.Insert;
 begin
-  FDataSet.Insert;
+  fDataSet.Insert;
 end;
 
 procedure TDataSetProxy.InsertRecord(const Values: array of const);
 begin
-  FDataSet.InsertRecord(Values);
+  fDataSet.InsertRecord(Values);
 end;
 
 function TDataSetProxy.IsEmpty: Boolean;
 begin
-  Result := FDataSet.IsEmpty;
+  Result := fDataSet.IsEmpty;
 end;
 
 procedure TDataSetProxy.Last;
 begin
-  FDataSet.Last;
+  fDataSet.Last;
 end;
 
 function TDataSetProxy.Locate(const KeyFields: string;
   const KeyValues: Variant; Options: TLocateOptions): Boolean;
 begin
-  Result := FDataSet.Locate(KeyFields, KeyValues, Options);
+  Result := fDataSet.Locate(KeyFields, KeyValues, Options);
 end;
 
 function TDataSetProxy.Lookup(const KeyFields: string;
   const KeyValues: Variant; const ResultFields: string): Variant;
 begin
-  Result := FDataSet.Lookup(KeyFields, KeyValues, ResultFields);
+  Result := fDataSet.Lookup(KeyFields, KeyValues, ResultFields);
 end;
 
 procedure TDataSetProxy.Next;
 begin
-  FDataSet.Next;
+  fDataSet.Next;
 end;
 
 procedure TDataSetProxy.Post;
 begin
-  FDataSet.Post;
+  fDataSet.Post;
 end;
 
 procedure TDataSetProxy.Prior;
 begin
-  FDataSet.Prior;
+  fDataSet.Prior;
 end;
 
 procedure TDataSetProxy.Refresh;
 begin
-  FDataSet.Refresh;
+  fDataSet.Refresh;
 end;
 
 function TDataSetProxy.UpdateStatus: TUpdateStatus;
 begin
-  Result := FDataSet.UpdateStatus;
+  Result := fDataSet.UpdateStatus;
 end;
 
 
@@ -204,14 +204,14 @@ end;
 
 procedure TDataSetProxy.SetDataSet(aDataSet: TDataSet);
 begin
-  fDataSet := aDataset;
+  fDataSet := aDataSet;
   if fDataSet.Active then
     ConnectFields;
 end;
 
 function TDataSetProxy.WithDataSet(aDataSet: TDataSet): TDataSetProxy;
 begin
-  SetDataSet (aDataSet);
+  SetDataSet(aDataSet);
   Result := Self;
 end;
 
@@ -222,27 +222,27 @@ begin
   Result := Self;
 end;
 
-procedure TDatasetProxy.ForEach(OnElem: TProc);
+procedure TDataSetProxy.ForEach(OnElem: TProc);
 var
   Bookmark: TBookmark;
 begin
-  self.DisableControls;
+  Self.DisableControls;
   try
-    Bookmark := FDataSet.GetBookmark;
+    Bookmark := fDataSet.GetBookmark;
     try
-      self.First;
-      while not FDataSet.Eof do
+      Self.First;
+      while not fDataSet.Eof do
       begin
         OnElem();
-        FDataSet.Next;
+        fDataSet.Next;
       end;
     finally
-      if FDataSet.BookmarkValid(Bookmark) then
-        FDataSet.GotoBookmark(Bookmark);
-      FDataSet.FreeBookmark(Bookmark);
+      if fDataSet.BookmarkValid(Bookmark) then
+        fDataSet.GotoBookmark(Bookmark);
+      fDataSet.FreeBookmark(Bookmark);
     end;
   finally
-    FDataSet.EnableControls;
+    fDataSet.EnableControls;
   end;
 end;
 
