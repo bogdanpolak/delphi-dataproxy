@@ -3,17 +3,31 @@ unit Form.Main;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf, FireDAC.Stan.Option,
-  FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
-  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.SQLite,
-  FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs, FireDAC.VCLUI.Wait,
-  FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, Data.DB,
-  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Data.Proxy.Book, Data.Mock.Book;
+  System.SysUtils,
+  System.Variants,
+  System.Classes,
+  Winapi.Windows,
+  Winapi.Messages,
+  Vcl.Graphics,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.Dialogs,
+  Vcl.StdCtrls,
+  Vcl.ExtCtrls,
+  Data.DB,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf,
+  FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async,
+  FireDAC.Phys, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
+  FireDAC.Stan.ExprFuncs, FireDAC.VCLUI.Wait, FireDAC.Stan.Param, FireDAC.DatS,
+  FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
+
+  {Project uses}
+  Data.Proxy.Book,
+  Data.Mock.Book;
 
 type
+  TDatasetKind = (dskMemory, dskSQL);
+
   TForm1 = class(TForm)
     FDConnection1: TFDConnection;
     FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink;
@@ -22,14 +36,21 @@ type
     GroupBox1: TGroupBox;
     Splitter1: TSplitter;
     Button2: TButton;
+    GroupBox2: TGroupBox;
+    rbtnSqlDataset: TRadioButton;
+    rbtnMemoryDataset: TRadioButton;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
+    procedure rbtnMemoryDatasetClick(Sender: TObject);
+    procedure rbtnSqlDatasetClick(Sender: TObject);
   private
-    BookProxy: TBookProxy;
-    InsideUnitTests: Boolean;
-    procedure InitializeMoreExpensiveButtons(ABookProxy: TBookProxy);
+    fDatasetKind: TDatasetKind;
+    fBookProxy: TBookProxy;
+    procedure InitializeButtonCaptions;
+    procedure CreateBookProxy;
+    procedure ResetDemo;
   public
   end;
 
@@ -61,33 +82,40 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  InitializeMoreExpensiveButtons(nil);
-  // ----------------------------------
-  InsideUnitTests := True;
-  // ----------------------------------
-  BookProxy := TBookProxy.Create(Self);
-  if InsideUnitTests then
-    BookProxy.WithDataSet(CreateMockTableBook(BookProxy))
-  else
-    BookProxy.WithDataSet(CreateSQLDataSet_Book(BookProxy, FDConnection1));
+  fDatasetKind := dskMemory;
+  fBookProxy := nil;
+  InitializeButtonCaptions;
+end;
+
+procedure TForm1.CreateBookProxy;
+begin
+  fBookProxy := TBookProxy.Create(Self);
+  case fDatasetKind of
+    dskMemory:
+      fBookProxy.WithDataSet(CreateMockTableBook(fBookProxy));
+    dskSQL:
+      fBookProxy.WithDataSet(CreateSQLDataSet_Book(fBookProxy, FDConnection1));
+  end;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
+  if fBookProxy = nil then
+    CreateBookProxy;
   ListBox1.ItemIndex := -1;
-  InitializeMoreExpensiveButtons(nil);
+  InitializeButtonCaptions;
   ListBox1.Clear;
-  BookProxy.ForEach(
+  fBookProxy.ForEach(
     procedure
     begin
-      ListBox1.Items.Add(BookProxy.ISBN.Value + ' ' + BookProxy.ToString);
+      ListBox1.Items.Add(fBookProxy.ISBN.Value + ' ' + fBookProxy.ToString);
     end);
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 begin
   Button2.Caption := Format('More expensive books = %d',
-    [BookProxy.CountMoreExpensiveBooks]);
+    [fBookProxy.CountMoreExpensiveBooks]);
 end;
 
 procedure TForm1.ListBox1Click(Sender: TObject);
@@ -99,23 +127,42 @@ begin
   begin
     s := ListBox1.Items[ListBox1.ItemIndex];
     ISBN := s.Substring(0, 14);
-    BookProxy.LocateISBN(ISBN);
-    Self.Caption := BookProxy.Title.Value;
-    InitializeMoreExpensiveButtons(BookProxy);
+    fBookProxy.LocateISBN(ISBN);
+    Self.Caption := fBookProxy.Title.Value;
+    InitializeButtonCaptions;
   end;
 end;
 
-procedure TForm1.InitializeMoreExpensiveButtons(ABookProxy: TBookProxy);
+procedure TForm1.rbtnMemoryDatasetClick(Sender: TObject);
 begin
-  Button2.Enabled := (ABookProxy <> nil);
-  if ABookProxy = nil then
+  fDatasetKind := dskMemory;
+  ResetDemo;
+end;
+
+procedure TForm1.rbtnSqlDatasetClick(Sender: TObject);
+begin
+  fDatasetKind := dskSQL;
+  ResetDemo;
+end;
+
+procedure TForm1.ResetDemo;
+begin
+  FreeAndNil(fBookProxy);
+  InitializeButtonCaptions;
+  ListBox1.Clear;
+end;
+
+procedure TForm1.InitializeButtonCaptions;
+begin
+  Button2.Enabled := (fBookProxy <> nil);
+  if fBookProxy = nil then
   begin
     Button2.Caption := 'Load books and select one of them'
   end
   else
   begin
     Button2.Caption := 'Count more expensive books then: ' +
-      ABookProxy.Price.AsString + ' ' + BookProxy.Currency.Value;
+      fBookProxy.Price.AsString + ' ' + fBookProxy.Currency.Value;
   end;
 end;
 

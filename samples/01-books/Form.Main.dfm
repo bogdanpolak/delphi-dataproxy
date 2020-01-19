@@ -34,25 +34,70 @@ object Form1: TForm1
     object Button1: TButton
       AlignWithMargins = True
       Left = 5
-      Top = 18
+      Top = 103
       Width = 164
       Height = 39
       Align = alTop
       Caption = 'Read Books -> ListBox'
-      TabOrder = 0
+      TabOrder = 1
       OnClick = Button1Click
+      ExplicitTop = 18
     end
     object Button2: TButton
       AlignWithMargins = True
       Left = 5
-      Top = 63
+      Top = 148
       Width = 164
       Height = 40
       Align = alTop
       Caption = 'Button2'
-      TabOrder = 1
+      TabOrder = 2
       WordWrap = True
       OnClick = Button2Click
+      ExplicitTop = 63
+    end
+    object GroupBox2: TGroupBox
+      AlignWithMargins = True
+      Left = 5
+      Top = 27
+      Width = 164
+      Height = 70
+      Margins.Top = 12
+      Align = alTop
+      Caption = 'GroupBox2'
+      TabOrder = 0
+      object rbtnSqlDataset: TRadioButton
+        Tag = 2
+        AlignWithMargins = True
+        Left = 17
+        Top = 41
+        Width = 142
+        Height = 17
+        Margins.Left = 15
+        Align = alTop
+        Caption = 'SQL DataSet (SQLite)'
+        TabOrder = 0
+        OnClick = rbtnSqlDatasetClick
+        ExplicitLeft = 24
+        ExplicitTop = 48
+        ExplicitWidth = 113
+      end
+      object rbtnMemoryDataset: TRadioButton
+        Tag = 1
+        AlignWithMargins = True
+        Left = 17
+        Top = 18
+        Width = 142
+        Height = 17
+        Margins.Left = 15
+        Align = alTop
+        Caption = 'Memory DataSet'
+        Checked = True
+        TabOrder = 1
+        TabStop = True
+        OnClick = rbtnMemoryDatasetClick
+        ExplicitLeft = 19
+      end
     end
   end
   object ListBox1: TListBox
