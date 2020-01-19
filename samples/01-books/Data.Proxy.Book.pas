@@ -1,6 +1,7 @@
 unit Data.Proxy.Book;
 
 interface
+
 uses
   Data.DB,
   Data.DataProxy;
@@ -8,32 +9,32 @@ uses
 type
   TBookProxy = class(TDatasetProxy)
   private
-    FISBN :TWideStringField;
-    FTitle :TWideStringField;
-    FAuthors :TWideStringField;
-    FStatus :TWideStringField;
-    FReleseDate :TDateField;
-    FPages :TIntegerField;
-    FPrice :TBCDField;
-    FCurrency :TWideStringField;
-    FImported :TDateTimeField;
-    FDescription :TWideStringField;
+    FISBN: TWideStringField;
+    FTitle: TWideStringField;
+    FAuthors: TWideStringField;
+    FStatus: TWideStringField;
+    FReleseDate: TDateField;
+    FPages: TIntegerField;
+    FPrice: TBCDField;
+    FCurrency: TWideStringField;
+    FImported: TDateTimeField;
+    FDescription: TWideStringField;
   protected
     procedure ConnectFields; override;
   public
-    function ToString: String;  override;
+    function ToString: String; override;
     function CountMoreExpensiveBooks: integer;
-    function LocateISBN (const ISBN: string): boolean;
-    property ISBN :TWideStringField read FISBN;
-    property Title :TWideStringField read FTitle;
-    property Authors :TWideStringField read FAuthors;
-    property Status :TWideStringField read FStatus;
-    property ReleseDate :TDateField read FReleseDate;
-    property Pages :TIntegerField read FPages;
-    property Price :TBCDField read FPrice;
-    property Currency :TWideStringField read FCurrency;
-    property Imported :TDateTimeField read FImported;
-    property Description :TWideStringField read FDescription;
+    function LocateISBN(const ISBN: string): boolean;
+    property ISBN: TWideStringField read FISBN;
+    property Title: TWideStringField read FTitle;
+    property Authors: TWideStringField read FAuthors;
+    property Status: TWideStringField read FStatus;
+    property ReleseDate: TDateField read FReleseDate;
+    property Pages: TIntegerField read FPages;
+    property Price: TBCDField read FPrice;
+    property Currency: TWideStringField read FCurrency;
+    property Imported: TDateTimeField read FImported;
+    property Description: TWideStringField read FDescription;
     // this property should be hidden, but during migration can be usefull
     // property DataSet: TDataSet read FDataSet;
   end;
@@ -63,14 +64,14 @@ end;
 function TBookProxy.CountMoreExpensiveBooks: integer;
 var
   CurrentPrice: Extended;
-  Count: Integer;
+  Count: integer;
 begin
   Count := 0;
   CurrentPrice := Price.Value;
   self.ForEach(
     procedure
     begin
-      if Self.Price.Value > CurrentPrice then
+      if self.Price.Value > CurrentPrice then
         Count := Count + 1;
     end);
   Result := Count;
@@ -78,12 +79,12 @@ end;
 
 function TBookProxy.LocateISBN(const ISBN: string): boolean;
 begin
-  Result := fDataSet.Locate('ISBN',ISBN,[]);
+  Result := fDataSet.Locate('ISBN', ISBN, []);
 end;
 
 function TBookProxy.ToString: String;
 begin
-  Result := Format('%s (%.2f %s)',[Title.Value,Price.Value,Currency.Value]);
+  Result := Format('%s (%.2f %s)', [Title.Value, Price.Value, Currency.Value]);
 end;
 
 end.

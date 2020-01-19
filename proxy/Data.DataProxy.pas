@@ -1,14 +1,14 @@
-﻿{ * ------------------------------------------------------------------------
-  * ♥
-  * ♥  Delphi DataSetProxy component - wrapper for Delphi TDataSet
-  * ♥
-  * Home: https://github.com/bogdanpolak/delphi-dataproxy
-  *
-  * Classes:
-  *   1. TGenericDataSetProxy - base class for the wrapper
-  *   2. TDatasetProxy - inherited from TGenericDataSetProxy adding ForEach
-  *   3. TDataProxyFactory - TDasetProxy and derived clasess factory
-  *  ----------------------------------------------------------------------- * }
+﻿{* ------------------------------------------------------------------------
+ * ♥
+ * ♥  Delphi DataSetProxy component - wrapper for Delphi TDataSet
+ * ♥
+ * Home: https://github.com/bogdanpolak/delphi-dataproxy
+ *
+ * Classes:
+ *   1. TGenericDataSetProxy - base class for the wrapper
+ *   2. TDatasetProxy - inherited from TGenericDataSetProxy adding ForEach
+ *   3. TDataProxyFactory - TDasetProxy and derived clasess factory
+ *  ----------------------------------------------------------------------- * }
 unit Data.DataProxy;
 
 interface
@@ -92,8 +92,7 @@ begin
   fDataSet.Close;
 end;
 
-function TDataSetProxy.ConstructDataSource(AOwner: TComponent)
-  : TDataSource;
+function TDataSetProxy.ConstructDataSource(AOwner: TComponent): TDataSource;
 begin
   Result := TDataSource.Create(AOwner);
   Result.DataSet := fDataSet;
@@ -160,14 +159,14 @@ begin
   fDataSet.Last;
 end;
 
-function TDataSetProxy.Locate(const KeyFields: string;
-  const KeyValues: Variant; Options: TLocateOptions): Boolean;
+function TDataSetProxy.Locate(const KeyFields: string; const KeyValues: Variant;
+  Options: TLocateOptions): Boolean;
 begin
   Result := fDataSet.Locate(KeyFields, KeyValues, Options);
 end;
 
-function TDataSetProxy.Lookup(const KeyFields: string;
-  const KeyValues: Variant; const ResultFields: string): Variant;
+function TDataSetProxy.Lookup(const KeyFields: string; const KeyValues: Variant;
+  const ResultFields: string): Variant;
 begin
   Result := fDataSet.Lookup(KeyFields, KeyValues, ResultFields);
 end;
