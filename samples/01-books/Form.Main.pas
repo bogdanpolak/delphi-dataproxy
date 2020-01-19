@@ -60,20 +60,16 @@ begin
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var
-  ds: TDataset;
-  AOwner: TComponent;
 begin
   InitializeMoreExpensiveButtons(nil);
   // ----------------------------------
   InsideUnitTests := True;
   // ----------------------------------
-  AOwner := Self;
+  BookProxy := TBookProxy.Create(Self);
   if InsideUnitTests then
-    ds := CreateMockTableBook(AOwner)
+    BookProxy.WithDataSet(CreateMockTableBook(BookProxy))
   else
-    ds := CreateSQLDataSet_Book(AOwner, FDConnection1);
-  BookProxy := TDataProxyFactory.CreateProxy<TBookProxy>(AOwner, ds);
+    BookProxy.WithDataSet(CreateSQLDataSet_Book(BookProxy, FDConnection1));
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
