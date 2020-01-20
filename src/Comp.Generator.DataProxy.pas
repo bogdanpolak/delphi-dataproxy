@@ -29,9 +29,9 @@ type
     function Gen_UnitHeader: string;
     function Gen_UsesSection: string;
     function Gen_ClassDeclaration: string;
-    function Gen_PrivateFieldList(aFields: TFields): string;
-    function Gen_PublicPropertyList(aFields: TFields): string;
-    function Gen_FieldAssigments(aFields: TFields): string;
+    function Gen_PrivateField(fld: TField): string;
+    function Gen_PublicProperty(fld: TField): string;
+    function Gen_FieldAssigment(fld: TField): string;
     function Gen_MethodConnectFields: string;
   public
     constructor Create(Owner: TComponent); override;
@@ -100,56 +100,42 @@ begin
   end;
 end;
 
-function TDataProxyGenerator.Gen_PrivateFieldList(aFields: TFields): string;
-var
-  fld: TField;
+function TDataProxyGenerator.Gen_PrivateField(fld: TField): string;
 begin
-  Result := '';
-  for fld in aFields do
-    Result := Result + Format(
-      (* *) '    %s :%s;' + sLineBreak,
-      (* *) [GetFieldPrefix + fld.FieldName, GetFieldClassName(fld)]);
+  Result := GetFieldPrefix + fld.FieldName + ' :' +
+    GetFieldClassName(fld) + ';';
 end;
 
-function TDataProxyGenerator.Gen_PublicPropertyList(aFields: TFields): string;
-var
-  fld: TField;
+function TDataProxyGenerator.Gen_PublicProperty(fld: TField): string;
 begin
-  Result := '';
-  for fld in aFields do
-    Result := Result + Format(
-      (* *) '    property %s :%s read %s;' + sLineBreak,
-      (* *) [fld.FieldName, GetFieldClassName(fld),
-      GetFieldPrefix + fld.FieldName]);
+  Result := 'property ' + fld.FieldName + ' :' + GetFieldClassName(fld) +
+    ' read ' + GetFieldPrefix + fld.FieldName + ';';
 end;
 
-function TDataProxyGenerator.Gen_FieldAssigments(aFields: TFields): string;
-var
-  fld: TField;
+function TDataProxyGenerator.Gen_FieldAssigment(fld: TField): string;
 begin
-  Result := '';
-  for fld in aFields do
-    Result := Result + Format(
-      (* *) '  %s := FDataSet.FieldByName(''%s'') as %s;' + sLineBreak,
-      (* *) [GetFieldPrefix + fld.FieldName, fld.FieldName,
-      GetFieldClassName(fld)]);
+  Result := GetFieldPrefix + fld.FieldName + ' := FDataSet.FieldByName(''' +
+    fld.FieldName + ''') as ' + GetFieldClassName(fld) + ';';
 end;
 
 function TDataProxyGenerator.Gen_ClassDeclaration: string;
 var
-  aDatasePropertyCode: string;
+  fld: TField;
   aPrivateFields: string;
   aPublicProperties: string;
+  aDatasePropertyCode: string;
 begin
+  aPrivateFields := '';
+  aPublicProperties := '';
   if fDataSet <> nil then
   begin
-    aPrivateFields := Gen_PrivateFieldList(fDataSet.Fields);
-    aPublicProperties := Gen_PublicPropertyList(fDataSet.Fields);
-  end
-  else
-  begin
-    aPrivateFields := '';
-    aPublicProperties := '';
+    for fld in fDataSet.Fields do
+    begin
+      aPrivateFields := aPrivateFields +
+      (* *) '  ' + '  ' + Gen_PrivateField(fld) + sLineBreak;
+      aPublicProperties := aPublicProperties +
+      (* *) '  ' + '  ' + Gen_PublicProperty(fld) + sLineBreak;
+    end;
   end;
   // ----
   case fDataSetAccess of
@@ -181,12 +167,15 @@ end;
 function TDataProxyGenerator.Gen_MethodConnectFields: string;
 var
   aFieldCount: Integer;
+  fld: TField;
   aFieldAssigments: string;
 begin
   if fDataSet <> nil then
   begin
     aFieldCount := fDataSet.Fields.Count;
-    aFieldAssigments := Gen_FieldAssigments(fDataSet.Fields);
+    for fld in fDataSet.Fields do
+      aFieldAssigments := aFieldAssigments + '  ' + Gen_FieldAssigment(fld) +
+        sLineBreak;
   end
   else
   begin

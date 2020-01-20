@@ -12,9 +12,9 @@ type
     function Generate_UnitHeader: string;
     function Generate_UsesSection: string;
     function Generate_ClassDeclaration: string;
-    procedure Generate_PrivateFieldList(aFields: TFields);
-    procedure Generate_PublicPropertyList(aFields: TFields);
-    procedure Generate_FieldAssigments(aFields: TFields);
+    function Generate_PrivateField(fld: TField): string;
+    function Generate_PublicProperty(fld: TField): string;
+    function Generate_FieldAssigment(fld: TField): string;
     procedure Generate_MethodConnectFields;
   end;
 
@@ -35,19 +35,19 @@ begin
   Result := Gen_ClassDeclaration;
 end;
 
-procedure TTestProxyDataGenerator.Generate_PrivateFieldList(aFields: TFields);
+function TTestProxyDataGenerator.Generate_PrivateField(fld: TField): string;
 begin
-  Code.Text := Gen_PrivateFieldList(aFields);
+  Result := Gen_PrivateField(fld);
 end;
 
-procedure TTestProxyDataGenerator.Generate_PublicPropertyList(aFields: TFields);
+function TTestProxyDataGenerator.Generate_PublicProperty(fld: TField): string;
 begin
-  Code.Text := Gen_PublicPropertyList(aFields);
+  Result := Gen_PublicProperty(fld);
 end;
 
-procedure TTestProxyDataGenerator.Generate_FieldAssigments(aFields: TFields);
+function TTestProxyDataGenerator.Generate_FieldAssigment(fld: TField): string;
 begin
-  Code.Text := Gen_FieldAssigments(aFields);
+  Result := Gen_FieldAssigment(fld);
 end;
 
 procedure TTestProxyDataGenerator.Generate_MethodConnectFields;
