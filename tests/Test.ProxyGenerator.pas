@@ -34,6 +34,10 @@ type
     procedure Test_UnitHeader_IsEmpty;
     procedure Test_UsesSection;
     // ---
+    procedure GenClassFields_Integer;
+    procedure GenClassFields_Integer_LowerCaseStyle;
+    procedure GenClassFields_String;
+    // ---
     procedure Test_ClassDeclaration_DataSetNil;
     procedure Test_ClassDeclaration_DataSetOneField;
     procedure GenerateClass_TwoFields_LowerCase;
@@ -48,8 +52,19 @@ type
 implementation
 
 // -----------------------------------------------------------------------
-// Utils section
+// Dataset factories
 // -----------------------------------------------------------------------
+
+function GivenField(aOwner: TComponent; const fieldName: string;
+  fieldType: TFieldType; size: integer = 0): TField;
+var
+  ds: TFDMemTable;
+begin
+  ds := TFDMemTable.Create(aOwner);
+  ds.FieldDefs.Add(fieldName, fieldType, size);
+  ds.CreateDataSet;
+  Result := ds.Fields[0];
+end;
 
 function TestGenerator.GivenDataset(aFieldsDef: TMatrixOfVariants): TDataSet;
 var
@@ -159,8 +174,53 @@ end;
 
 
 // -----------------------------------------------------------------------
+// Tests: Field generation in class definition
+// -----------------------------------------------------------------------
+
+
+procedure TestGenerator.GenClassFields_Integer;
+var
+  fld: TField;
+  actualCode: string;
+begin
+  fld := GivenField(fOwner, 'Level', ftInteger);
+
+  actualCode := fGenerator.Generate_PrivateField(fld);
+
+  Assert.AreEqual('FLevel :TIntegerField;', actualCode);
+end;
+
+procedure TestGenerator.GenClassFields_Integer_LowerCaseStyle;
+var
+  fld: TField;
+  actualCode: string;
+begin
+  fld := GivenField(fOwner, 'Level', ftInteger);
+  fGenerator.FieldNamingStyle := fnsLowerCaseF;
+
+  actualCode := fGenerator.Generate_PrivateField(fld);
+
+  Assert.AreEqual('FLevel :TIntegerField;', actualCode);
+end;
+
+procedure TestGenerator.GenClassFields_String;
+var
+  fld: TField;
+  actualCode: string;
+begin
+  fld := GivenField(fOwner, 'Captal', ftString, 20);
+
+  actualCode := fGenerator.Generate_PrivateField(fld);
+
+  Assert.AreEqual('FCaptal :TStringField;', actualCode);
+end;
+
+
+
+// -----------------------------------------------------------------------
 // Tests: Class Declaration
 // -----------------------------------------------------------------------
+
 
 procedure TestGenerator.Test_ClassDeclaration_DataSetNil;
 var
