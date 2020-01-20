@@ -1,5 +1,8 @@
 ﻿# DataProxy Pattern for Delphi
 
+![ Delphi Support ](https://img.shields.io/badge/Delphi%20Support-%20XE8%20..%2010.3%20Rio-blue.svg)
+![ version ](https://img.shields.io/badge/version-%200.9-yellow.svg)
+
 ## Overview
 
 TDataSetProxy is a wrapper component for the TDataSet component (Delphi). The proxy allows to replace any dataset (TDataSet descendant) with a mock dataset - memory table. Solution can be used to separate a business class from  datasets during unit testing. Another use is to allow easy replacement of one DAC's components with another.
