@@ -11,7 +11,8 @@ uses
   FireDAC.Comp.Client,
 
   Comp.Generator.DataProxy,
-  Wrapper.TProxyGenerator;
+  Wrapper.TProxyGenerator,
+  Helper.DUnitAssert;
 
 {$M+}
 
@@ -215,7 +216,7 @@ begin
 
   actualCode := fGenerator.Generate_ClassDeclaration;
 
-  Assert.AreEqual(
+  Assert.AreMemosEqual(
     (* *) 'type'#13#10 +
     (* *) '  TSomething1Proxy = class(TDatasetProxy)'#13#10 +
     (* *) '  private'#13#10 +
@@ -234,7 +235,7 @@ begin
 
   actualCode := fGenerator.Generate_ClassDeclaration;
 
-  Assert.AreEqual(
+  Assert.AreMemosEqual(
     (* *) 'type'#13#10 +
     (* *) '  TSomething2Proxy = class(TDatasetProxy)'#13#10 +
     (* *) '  private'#13#10 +
@@ -257,7 +258,7 @@ begin
 
   actualCode := fGenerator.Generate_ClassDeclaration;
 
-  Assert.AreEqual(
+  Assert.AreMemosEqual(
     (* *) 'type'#13#10 +
     (* *) '  TSomethingProxy = class(TDatasetProxy)'#13#10 +
     (* *) '  private'#13#10 +
@@ -268,7 +269,7 @@ begin
     (* *) '  public'#13#10 +
     (* *) '    property CustomerID :TIntegerField read fCustomerID;'#13#10 +
     (* *) '    property CompanyName :TStringField read fCompanyName;'#13#10 +
-    (* *) '  end;'#13#10, actualCode, false);
+    (* *) '  end;'#13#10, actualCode);
 end;
 
 procedure TestGenerator.GenClass_AccessToDataSet_InComments;
@@ -281,7 +282,7 @@ begin
 
   actualCode := fGenerator.Generate_ClassDeclaration;
 
-  Assert.AreEqual(
+  Assert.AreMemosEqual(
     (* *) 'type'#13#10
     (* *) + '  TSomethingProxy = class(TDatasetProxy)'#13#10
     (* *) + '  private'#13#10
@@ -292,7 +293,7 @@ begin
     (* *) + '    property FullName :TStringField read FFullName;'#13#10
     (* *) + '    // the following property should be hidden (uncomment if required)'#13#10
     (* *) + '    // property DataSet: TDataSet read FDataSet;'#13#10
-    (* *) + '  end;'#13#10, actualCode, false);
+    (* *) + '  end;'#13#10, actualCode);
 end;
 
 procedure TestGenerator.GenClass_AccessToDataSet_Full;
@@ -305,7 +306,7 @@ begin
 
   actualCode := fGenerator.Generate_ClassDeclaration;
 
-  Assert.AreEqual(
+  Assert.AreMemosEqual(
     (* *) 'type'#13#10
     (* *) + '  TSomethingProxy = class(TDatasetProxy)'#13#10
     (* *) + '  private'#13#10
@@ -315,7 +316,7 @@ begin
     (* *) + '  public'#13#10
     (* *) + '    property FullName :TStringField read FFullName;'#13#10
     (* *) + '    property DataSet: TDataSet read FDataSet;'#13#10
-    (* *) + '  end;'#13#10, actualCode, false);
+    (* *) + '  end;'#13#10, actualCode);
 end;
 
 
@@ -331,7 +332,7 @@ begin
 
   actualCode := fGenerator.Generate_MethodConnectFields;
 
-  Assert.AreEqual(
+  Assert.AreMemosEqual(
     (* *) 'procedure TSomethingProxy.ConnectFields;'#13#10 +
     (* *) 'const'#13#10 +
     (* *) '  ExpectedFieldCount = 0;'#13#10 +
@@ -344,11 +345,11 @@ procedure TestGenerator.GenMethod_ConnectFields_DataSet_OneString;
 var
   actualCode: string;
 begin
-  fGenerator.DataSet := GivenDataset([['Fullname', ftString]]);
+  fGenerator.DataSet := GivenDataset([['FullName', ftString]]);
 
   actualCode := fGenerator.Generate_MethodConnectFields;
 
-  Assert.AreEqual(
+  Assert.AreMemosEqual(
     (* *) 'procedure TSomethingProxy.ConnectFields;'#13#10 +
     (* *) 'const'#13#10 +
     (* *) '  ExpectedFieldCount = 1;'#13#10 +
@@ -369,7 +370,7 @@ begin
 
   actualCode := fGenerator.Generate_MethodConnectFields;
 
-  Assert.AreEqual(
+  Assert.AreMemosEqual(
     (* *) 'procedure TSomethingProxy.ConnectFields;'#13#10
     (* *) + 'const'#13#10
     (* *) + '  ExpectedFieldCount = 2;'#13#10
@@ -377,7 +378,7 @@ begin
     (* *) + '  fCustomerID := FDataSet.FieldByName(''CustomerID'') as TIntegerField;'#13#10
     (* *) + '  fCompanyName := FDataSet.FieldByName(''CompanyName'') as TStringField;'#13#10
     (* *) + '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13#10
-    (* *) + 'end;'#13#10, actualCode, false);
+    (* *) + 'end;'#13#10, actualCode);
 end;
 
 initialization

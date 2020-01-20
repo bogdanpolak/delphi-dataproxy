@@ -13,7 +13,8 @@ uses
   DUnitX.TestFramework,
   Test.ProxyGenerator in 'Test.ProxyGenerator.pas',
   Wrapper.TProxyGenerator in 'Wrapper.TProxyGenerator.pas',
-  Comp.Generator.DataProxy in '..\src\Comp.Generator.DataProxy.pas';
+  Comp.Generator.DataProxy in '..\src\Comp.Generator.DataProxy.pas',
+  Helper.DUnitAssert in 'Helper.DUnitAssert.pas';
 
 var
   runner : ITestRunner;
