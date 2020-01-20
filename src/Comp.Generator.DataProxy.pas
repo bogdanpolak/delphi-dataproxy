@@ -29,9 +29,9 @@ type
     function Gen_UnitHeader: string;
     function Gen_UsesSection: string;
     function Gen_ClassDeclaration: string;
-    function Gen_PrivateFieldList: string;
-    function Gen_PublicPropertyList: string;
-    function Gen_FieldAssigments: string;
+    function Gen_PrivateFieldList(aFields: TFields): string;
+    function Gen_PublicPropertyList(aFields: TFields): string;
+    function Gen_FieldAssigments(aFields: TFields): string;
     function Gen_MethodConnectFields: string;
   public
     constructor Create(Owner: TComponent); override;
@@ -100,48 +100,58 @@ begin
   end;
 end;
 
-function TDataProxyGenerator.Gen_PrivateFieldList: string;
+function TDataProxyGenerator.Gen_PrivateFieldList(aFields: TFields): string;
 var
   fld: TField;
 begin
   Result := '';
-  if fDataSet <> nil then
-    for fld in fDataSet.Fields do
-      Result := Result + Format(
-        (* *) '    %s :%s;' + sLineBreak,
-        (* *) [GetFieldPrefix + fld.FieldName, GetFieldClassName(fld)]);
+  for fld in aFields do
+    Result := Result + Format(
+      (* *) '    %s :%s;' + sLineBreak,
+      (* *) [GetFieldPrefix + fld.FieldName, GetFieldClassName(fld)]);
 end;
 
-function TDataProxyGenerator.Gen_PublicPropertyList: string;
+function TDataProxyGenerator.Gen_PublicPropertyList(aFields: TFields): string;
 var
   fld: TField;
 begin
   Result := '';
-  if fDataSet <> nil then
-    for fld in fDataSet.Fields do
-      Result := Result + Format(
-        (* *) '    property %s :%s read %s;' + sLineBreak,
-        (* *) [fld.FieldName, GetFieldClassName(fld),
-        GetFieldPrefix + fld.FieldName]);
+  for fld in aFields do
+    Result := Result + Format(
+      (* *) '    property %s :%s read %s;' + sLineBreak,
+      (* *) [fld.FieldName, GetFieldClassName(fld),
+      GetFieldPrefix + fld.FieldName]);
 end;
 
-function TDataProxyGenerator.Gen_FieldAssigments: string;
+function TDataProxyGenerator.Gen_FieldAssigments(aFields: TFields): string;
 var
   fld: TField;
 begin
   Result := '';
-  if fDataSet <> nil then
-    for fld in fDataSet.Fields do
-      Result := Result + Format(
-        (* *) '  %s := FDataSet.FieldByName(''%s'') as %s;' + sLineBreak,
-        (* *) [GetFieldPrefix + fld.FieldName, fld.FieldName,
-        GetFieldClassName(fld)]);
+  for fld in aFields do
+    Result := Result + Format(
+      (* *) '  %s := FDataSet.FieldByName(''%s'') as %s;' + sLineBreak,
+      (* *) [GetFieldPrefix + fld.FieldName, fld.FieldName,
+      GetFieldClassName(fld)]);
 end;
 
 function TDataProxyGenerator.Gen_ClassDeclaration: string;
 var
   aDatasePropertyCode: string;
+  aPrivateFields: string;
+  aPublicProperties: string;
 begin
+  if fDataSet <> nil then
+  begin
+    aPrivateFields := Gen_PrivateFieldList(fDataSet.Fields);
+    aPublicProperties := Gen_PublicPropertyList(fDataSet.Fields);
+  end
+  else
+  begin
+    aPrivateFields := '';
+    aPublicProperties := '';
+  end;
+  // ----
   case fDataSetAccess of
     dsaNoAccess:
       aDatasePropertyCode := '';
@@ -154,15 +164,16 @@ begin
       aDatasePropertyCode :=
       (* *) '    property DataSet: TDataSet read FDataSet;' + sLineBreak;
   end;
+  // ----
   Result :=
   (* *) 'type' + sLineBreak +
   (* *) '  T' + fObjectName + 'Proxy = class(TDatasetProxy)' + sLineBreak +
   (* *) '  private' + sLineBreak +
-  (* *) Gen_PrivateFieldList +
+  (* *) aPrivateFields +
   (* *) '  protected' + sLineBreak +
   (* *) '    procedure ConnectFields; override;' + sLineBreak +
   (* *) '  public' + sLineBreak +
-  (* *) Gen_PublicPropertyList +
+  (* *) aPublicProperties +
   (* *) aDatasePropertyCode +
   (* *) '  end;' + sLineBreak;
 end;
@@ -170,17 +181,24 @@ end;
 function TDataProxyGenerator.Gen_MethodConnectFields: string;
 var
   aFieldCount: Integer;
+  aFieldAssigments: string;
 begin
   if fDataSet <> nil then
-    aFieldCount := fDataSet.Fields.Count
+  begin
+    aFieldCount := fDataSet.Fields.Count;
+    aFieldAssigments := Gen_FieldAssigments(fDataSet.Fields);
+  end
   else
+  begin
     aFieldCount := 0;
+    aFieldAssigments := '';
+  end;
   Result :=
   (* *) 'procedure T' + fObjectName + 'Proxy.ConnectFields;' + sLineBreak +
   (* *) 'const' + sLineBreak +
   (* *) '  ExpectedFieldCount = ' + aFieldCount.ToString + ';' + sLineBreak +
   (* *) 'begin' + sLineBreak +
-  (* *) Gen_FieldAssigments +
+  (* *) aFieldAssigments +
   (* *) '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);' + sLineBreak +
   (* *) 'end;' + sLineBreak;
 end;
