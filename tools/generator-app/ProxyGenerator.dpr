@@ -13,7 +13,7 @@ uses
   Comp.Generator.DataSetCode in 'Comp.Generator.DataSetCode.pas',
   Helper.TStrings in 'Helper.TStrings.pas',
   Command.GenerateProxy in 'Command.GenerateProxy.pas',
-  Comp.Generator.DataProxy in '..\proxy\Comp.Generator.DataProxy.pas';
+  Comp.Generator.DataProxy in '..\..\src\Comp.Generator.DataProxy.pas';
 
 {$R *.res}
 

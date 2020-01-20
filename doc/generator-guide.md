@@ -7,7 +7,7 @@ Application is required modern Delphi IDE with FireDAC components installed (it 
 ## Setup
 
 1) Clone this repository
-1) Load GeneratorApp project (`/generator/ProxyGenerator.dpr`)
+1) Load GeneratorApp project (`/tools/generator-app/ProxyGenerator.dpr`)
 1) Build the generator project
 1) Add a connection definition to your database
     - Can use `FireDAC Explorer` tool or Delphi IDE
