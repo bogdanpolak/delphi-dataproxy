@@ -15,7 +15,7 @@ type
     function Generate_PrivateField(fld: TField): string;
     function Generate_PublicProperty(fld: TField): string;
     function Generate_FieldAssigment(fld: TField): string;
-    procedure Generate_MethodConnectFields;
+    function Generate_MethodConnectFields: string;
   end;
 
 implementation
@@ -50,9 +50,9 @@ begin
   Result := Gen_FieldAssigment(fld);
 end;
 
-procedure TTestProxyDataGenerator.Generate_MethodConnectFields;
+function TTestProxyDataGenerator.Generate_MethodConnectFields: string;
 begin
-  Code.Text := Gen_MethodConnectFields;
+  Result := Gen_MethodConnectFields;
 end;
 
 end.

@@ -69,7 +69,7 @@ end;
 function TestGenerator.GivenDataset(aFieldsDef: TMatrixOfVariants): TDataSet;
 var
   aTable: TFDMemTable;
-  i: Integer;
+  i: integer;
 begin
   aTable := TFDMemTable.Create(fOwner);
   for i := 0 to High(aFieldsDef) do
@@ -77,6 +77,7 @@ begin
   aTable.CreateDataSet;
   Result := aTable;
 end;
+
 
 // -----------------------------------------------------------------------
 // Setup and TearDown section
@@ -91,59 +92,6 @@ end;
 procedure TestGenerator.TearDown;
 begin
   fOwner.Free;
-end;
-
-// -----------------------------------------------------------------------
-// Templates
-// -----------------------------------------------------------------------
-
-type
-  TProxyTemplates = class
-  const
-    SingeCodeIndentation = '  ';
-    Section_MethodConnectFields =
-    (* *) 'procedure TSomethingProxy.ConnectFields;→' +
-    (* *) 'const→' +
-    (* *) '◇ExpectedFieldCount = 0;→' +
-    (* *) 'begin→' +
-    (* *) '◇Assert(FDataSet.Fields.Count = ExpectedFieldCount);→' +
-    (* *) 'end;→';
-    Section_MethodConnectFields_WithIntegerField =
-    (* *) 'procedure TSomethingProxy.ConnectFields;→' +
-    (* *) 'const→' +
-    (* *) '◇ExpectedFieldCount = 1;→' +
-    (* *) 'begin→' +
-    (* *) '◇FFieldInteger := FDataSet.FieldByName(''FieldInteger'') as TIntegerField;→'
-      +
-    (* *) '◇Assert(FDataSet.Fields.Count = ExpectedFieldCount);→' +
-    (* *) 'end;→';
-  strict private
-    class var Expected: string;
-    class function ReplaceArrowsAndDiamonds(const s: String): string;
-  public
-    class procedure Assert_MethodConnectFields(Code: TStrings);
-    class procedure Assert_MethodConnectFields_WithIntegerField(Code: TStrings);
-  end;
-
-class function TProxyTemplates.ReplaceArrowsAndDiamonds
-  (const s: String): string;
-begin
-  Result := StringReplace(s, '→', #13#10, [rfReplaceAll]);
-  Result := StringReplace(Result, '◇', SingeCodeIndentation, [rfReplaceAll])
-end;
-
-class procedure TProxyTemplates.Assert_MethodConnectFields(Code: TStrings);
-begin
-  Expected := ReplaceArrowsAndDiamonds(Section_MethodConnectFields);
-  Assert.AreEqual(Expected, Code.Text);
-end;
-
-class procedure TProxyTemplates.Assert_MethodConnectFields_WithIntegerField
-  (Code: TStrings);
-begin
-  Expected := ReplaceArrowsAndDiamonds
-    (Section_MethodConnectFields_WithIntegerField);
-  Assert.AreEqual(Expected, Code.Text);
 end;
 
 
@@ -176,7 +124,6 @@ end;
 // -----------------------------------------------------------------------
 // Tests: Field generation in class definition
 // -----------------------------------------------------------------------
-
 
 procedure TestGenerator.GenClassFields_Integer;
 var
@@ -221,14 +168,13 @@ end;
 // Tests: Class Declaration
 // -----------------------------------------------------------------------
 
-
 procedure TestGenerator.Test_ClassDeclaration_DataSetNil;
 var
   actualCode: string;
 begin
   fGenerator.DataSet := nil;
-
   fGenerator.ObjectName := 'Something1';
+
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreEqual(
@@ -246,8 +192,8 @@ var
   actualCode: string;
 begin
   fGenerator.DataSet := GivenDataset([['FieldInteger', ftInteger]]);
-
   fGenerator.ObjectName := 'Something2';
+
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreEqual(
@@ -268,9 +214,9 @@ var
 begin
   fGenerator.DataSet := GivenDataset([['CustomerID', ftInteger],
     ['CompanyName', ftString]]);
-
   fGenerator.ObjectName := 'Something';
   fGenerator.FieldNamingStyle := fnsLowerCaseF;
+
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreEqual(
@@ -292,9 +238,9 @@ var
   actualCode: string;
 begin
   fGenerator.DataSet := GivenDataset([['FullName', ftString]]);
-
   fGenerator.ObjectName := 'Something';
   fGenerator.DataSetAccess := dsaGenComment;
+
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreEqual(
@@ -316,9 +262,9 @@ var
   actualCode: string;
 begin
   fGenerator.DataSet := GivenDataset([['FullName', ftString]]);
-
   fGenerator.ObjectName := 'Something';
   fGenerator.DataSetAccess := dsaFullAccess;
+
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreEqual(
@@ -334,24 +280,44 @@ begin
     (* *) + '  end;'#13#10, actualCode, false);
 end;
 
+
 // -----------------------------------------------------------------------
 // Tests: Method ConnectFields
 // -----------------------------------------------------------------------
 
 procedure TestGenerator.Test_MethodConnectFields_DataSetNil;
+var
+  actualCode: string;
 begin
   fGenerator.DataSet := nil;
-  fGenerator.Generate_MethodConnectFields;
-  TProxyTemplates.Assert_MethodConnectFields(fGenerator.Code);
+
+  actualCode := fGenerator.Generate_MethodConnectFields;
+
+  Assert.AreEqual(
+    (* *) 'procedure TSomethingProxy.ConnectFields;'#13#10 +
+    (* *) 'const'#13#10 +
+    (* *) '  ExpectedFieldCount = 0;'#13#10 +
+    (* *) 'begin'#13#10 +
+    (* *) '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13#10 +
+    (* *) 'end;'#13#10, actualCode);
 end;
 
 procedure TestGenerator.Test_MethodConnectFields_DataSetOneField;
+var
+  actualCode: string;
 begin
   fGenerator.DataSet := GivenDataset([['FieldInteger', ftInteger]]);
 
-  fGenerator.Generate_MethodConnectFields;
+  actualCode := fGenerator.Generate_MethodConnectFields;
 
-  TProxyTemplates.Assert_MethodConnectFields_WithIntegerField(fGenerator.Code);
+  Assert.AreEqual(
+    (* *) 'procedure TSomethingProxy.ConnectFields;'#13#10 +
+    (* *) 'const'#13#10 +
+    (* *) '  ExpectedFieldCount = 1;'#13#10 +
+    (* *) 'begin'#13#10 +
+    (* *) '  FFieldInteger := FDataSet.FieldByName(''FieldInteger'') as TIntegerField;'#13#10
+    (* *) + '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13#10 +
+    (* *) 'end;'#13#10, actualCode);
 end;
 
 procedure TestGenerator.Gen_MethodConnectFields_TwoFields_LowerCase;
@@ -360,11 +326,10 @@ var
 begin
   fGenerator.DataSet := GivenDataset([['CustomerID', ftInteger],
     ['CompanyName', ftString]]);
-
   fGenerator.ObjectName := 'Something';
   fGenerator.FieldNamingStyle := fnsLowerCaseF;
-  fGenerator.Generate_MethodConnectFields;
-  actualCode := fGenerator.Code.Text;
+
+  actualCode := fGenerator.Generate_MethodConnectFields;
 
   Assert.AreEqual(
     (* *) 'procedure TSomethingProxy.ConnectFields;'#13#10
