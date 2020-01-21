@@ -29,6 +29,8 @@ type
     procedure Navigation_Last;
     procedure Navigation_LastAndPrior;
     procedure Navigation_LastAndFirst;
+    procedure Navigation_Eof;
+    procedure Navigation_LastAndEof;
 
     procedure Locate_BookTitle;
   end;
@@ -175,6 +177,36 @@ begin
 
   Assert.AreEqual(1, aDataSet.RecNo);
 end;
+
+procedure TestBookMemProxy.Navigation_Eof;
+var
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+  actual: Boolean;
+begin
+  aDataSet := GivenBookDataSet(fOwner);
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+
+  actual := aBookProxy.Eof;
+
+  Assert.AreEqual(False, actual);
+end;
+
+procedure TestBookMemProxy.Navigation_LastAndEof;
+var
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+  actual: Boolean;
+begin
+  aDataSet := GivenBookDataSet(fOwner);
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+
+  aBookProxy.Last;
+  actual := aBookProxy.Eof;
+
+  Assert.AreEqual(True, actual);
+end;
+
 
 // -----------------------------------------------------------------------
 // Tests: Locate
