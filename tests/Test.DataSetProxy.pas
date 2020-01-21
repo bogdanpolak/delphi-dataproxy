@@ -32,6 +32,12 @@ type
     procedure Navigation_Eof;
     procedure Navigation_LastAndEof;
 
+    procedure ProcessData_Delete;
+    procedure ProcessData_EditAndPost;
+    procedure ProcessData_EditAndCancel;
+    procedure ProcessData_InsertAndPost;
+    procedure ProcessData_Append;
+
     procedure Locate_BookTitle;
   end;
 
@@ -207,6 +213,90 @@ begin
   Assert.AreEqual(True, actual);
 end;
 
+// -----------------------------------------------------------------------
+// Tests: Process data: inster, update, delete, etc.
+// -----------------------------------------------------------------------
+
+procedure TestBookMemProxy.ProcessData_Delete;
+var
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+begin
+  aDataSet := GivenBookDataSet(fOwner);
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+
+  aBookProxy.Delete;
+
+  Assert.AreEqual(3, aDataSet.RecordCount);
+end;
+
+procedure TestBookMemProxy.ProcessData_EditAndPost;
+var
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+begin
+  aDataSet := GivenBookDataSet(fOwner);
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+
+  aBookProxy.Edit;
+  aBookProxy.Author.Value := 'Anonymous author';
+  aBookProxy.Post;
+
+  Assert.AreEqual('Anonymous author', aDataSet.FieldByName('Author').AsString);
+end;
+
+procedure TestBookMemProxy.ProcessData_EditAndCancel;
+var
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+begin
+  aDataSet := GivenBookDataSet(fOwner);
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+
+  aBookProxy.Edit;
+  aBookProxy.Author.Value := 'Anonymous author';
+  aBookProxy.Cancel;
+
+  Assert.AreEqual('Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides',
+    aDataSet.FieldByName('Author').AsString);
+end;
+
+procedure TestBookMemProxy.ProcessData_InsertAndPost;
+var
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+begin
+  aDataSet := GivenBookDataSet(fOwner);
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+
+  aBookProxy.Insert;
+  aBookProxy.ISBN.Value := '978-1788621304';
+  aBookProxy.Title.Value := 'Delphi Cookbook - Third Edition';
+  aBookProxy.Author.Value := 'Daniele Spinetti, Daniele Teti';
+  aBookProxy.ReleseDate.Value := EncodeDate(2018, 7, 1);
+  aBookProxy.Pages.Value := 668;
+  aBookProxy.Price.Value := 29.99;
+  aBookProxy.Post;
+
+  Assert.AreEqual(5, aDataSet.RecordCount);
+  Assert.AreEqual(1, aDataSet.RecNo);
+end;
+
+procedure TestBookMemProxy.ProcessData_Append;
+var
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+begin
+  aDataSet := GivenBookDataSet(fOwner);
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+
+  aBookProxy.Append;
+  aBookProxy.ISBN.Value := '978-1788621304';
+  aBookProxy.Post;
+
+  Assert.AreEqual(5, aDataSet.RecordCount);
+  Assert.AreEqual(5, aDataSet.RecNo);
+end;
 
 // -----------------------------------------------------------------------
 // Tests: Locate
