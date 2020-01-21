@@ -37,6 +37,8 @@ type
     procedure ProcessData_EditAndCancel;
     procedure ProcessData_InsertAndPost;
     procedure ProcessData_Append;
+    procedure ProcessData_AppendRecord;
+    procedure ProcessData_InsertRecord;
 
     procedure Locate_BookTitle;
   end;
@@ -296,6 +298,38 @@ begin
 
   Assert.AreEqual(5, aDataSet.RecordCount);
   Assert.AreEqual(5, aDataSet.RecNo);
+end;
+
+procedure TestBookMemProxy.ProcessData_AppendRecord;
+var
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+begin
+  aDataSet := GivenBookDataSet(fOwner);
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+
+  aBookProxy.AppendRecord(['978-1788621304', 'Delphi Cookbook - Third Edition',
+    'Daniele Spinetti, Daniele Teti', EncodeDate(2018, 7, 1), 668, 29.99]);
+
+  Assert.AreEqual(5, aDataSet.RecordCount);
+  Assert.AreEqual('978-1788621304', aDataSet.FieldByName('ISBN').AsString);
+  Assert.AreEqual(EncodeDate(2018, 7, 1), aDataSet.FieldByName('ReleseDate').AsDateTime);
+  Assert.AreEqual(29.99, aDataSet.FieldByName('Price').AsFloat, 0.000001);
+end;
+
+procedure TestBookMemProxy.ProcessData_InsertRecord;
+var
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+begin
+  aDataSet := GivenBookDataSet(fOwner);
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+
+  aBookProxy.InsertRecord(['978000']);
+
+  Assert.AreEqual(5, aDataSet.RecordCount);
+  Assert.AreEqual(1, aDataSet.RecNo);
+  Assert.AreEqual('978000', aDataSet.FieldByName('ISBN').AsString);
 end;
 
 // -----------------------------------------------------------------------
