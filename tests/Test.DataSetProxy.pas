@@ -39,6 +39,9 @@ type
     procedure ProcessData_Append;
     procedure ProcessData_AppendRecord;
     procedure ProcessData_InsertRecord;
+    procedure ProcessData_IsEmpty;
+    procedure ProcessData_UpdateStatus_Unmodified;
+    procedure ProcessData_UpdateStatus_Inserted;
 
     procedure Locate_BookTitle;
   end;
@@ -46,7 +49,23 @@ type
 implementation
 
 uses
+  System.TypInfo,
   Datasnap.DBClient;
+
+
+// -----------------------------------------------------------------------
+// DataSetProxy factories
+// -----------------------------------------------------------------------
+
+type
+  TUpdateStatusHelper = record helper for TUpdateStatus
+    function ToString: string;
+  end;
+
+function TUpdateStatusHelper.ToString: string;
+begin
+  Result := GetEnumName(TypeInfo(TUpdateStatus), Integer(Self));
+end;
 
 // -----------------------------------------------------------------------
 // DataSetProxy factories
@@ -111,6 +130,7 @@ begin
       EncodeDate(2002, 11, 1), 560, 55.99]);
   end;
   ds.First;
+  ds.MergeChangeLog;
   Result := ds;
 end;
 
@@ -313,7 +333,8 @@ begin
 
   Assert.AreEqual(5, aDataSet.RecordCount);
   Assert.AreEqual('978-1788621304', aDataSet.FieldByName('ISBN').AsString);
-  Assert.AreEqual(EncodeDate(2018, 7, 1), aDataSet.FieldByName('ReleseDate').AsDateTime);
+  Assert.AreEqual(EncodeDate(2018, 7, 1), aDataSet.FieldByName('ReleseDate')
+    .AsDateTime);
   Assert.AreEqual(29.99, aDataSet.FieldByName('Price').AsFloat, 0.000001);
 end;
 
@@ -331,6 +352,47 @@ begin
   Assert.AreEqual(1, aDataSet.RecNo);
   Assert.AreEqual('978000', aDataSet.FieldByName('ISBN').AsString);
 end;
+
+procedure TestBookMemProxy.ProcessData_IsEmpty;
+var
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+begin
+  aDataSet := GivenBookDataSet(fOwner);
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+
+  Assert.AreEqual(False, aBookProxy.IsEmpty);
+  aDataSet.Delete;
+  aDataSet.Delete;
+  aDataSet.Delete;
+  aDataSet.Delete;
+  Assert.AreEqual(True, aBookProxy.IsEmpty);
+end;
+
+procedure TestBookMemProxy.ProcessData_UpdateStatus_Unmodified;
+var
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+begin
+  aDataSet := GivenBookDataSet(fOwner);
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+
+  Assert.AreEqual('usUnmodified', aBookProxy.UpdateStatus.ToString);
+end;
+
+procedure TestBookMemProxy.ProcessData_UpdateStatus_Inserted;
+var
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+begin
+  aDataSet := GivenBookDataSet(fOwner);
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+
+  aDataSet.InsertRecord(['123456789', 'Title', 'Author', Int(Now)]);
+
+  Assert.AreEqual('usInserted', aBookProxy.UpdateStatus.ToString);
+end;
+
 
 // -----------------------------------------------------------------------
 // Tests: Locate
