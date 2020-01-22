@@ -43,6 +43,8 @@ type
     procedure ProcessData_UpdateStatus_Unmodified;
     procedure ProcessData_UpdateStatus_Inserted;
 
+    procedure ControlsDB_DisableControls;
+
     procedure Locate_BookTitle;
   end;
 
@@ -50,6 +52,7 @@ implementation
 
 uses
   System.TypInfo,
+  Vcl.DBCtrls,
   Datasnap.DBClient;
 
 
@@ -133,6 +136,18 @@ begin
   ds.MergeChangeLog;
   Result := ds;
 end;
+
+function GivienDBEdit(aDataSet: TDataSet; aDataFieldName: string): TDBEdit;
+var
+  aDBEdit: TDBEdit;
+begin
+  aDBEdit := TDBEdit.Create(aDataSet);
+  aDBEdit.DataSource := TDataSource.Create(aDataSet);
+  aDBEdit.DataSource.DataSet := aDataSet;
+  aDBEdit.DataField := aDataFieldName;
+  Result := aDBEdit;
+end;
+
 
 // -----------------------------------------------------------------------
 // Setup and TearDown section
@@ -393,6 +408,36 @@ begin
   Assert.AreEqual('usInserted', aBookProxy.UpdateStatus.ToString);
 end;
 
+
+// -----------------------------------------------------------------------
+// Tests: DB aware controls
+// -----------------------------------------------------------------------
+
+procedure TestBookMemProxy.ControlsDB_DisableControls;
+var
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+  aDBEdit: TDBEdit;
+begin
+  aDataSet := GivenBookDataSet(fOwner);
+
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+  aDBEdit := GivienDBEdit(aDataSet, 'Author');
+
+  aBookProxy.DisableControls;
+  aBookProxy.Next;
+
+  Assert.AreEqual('Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides',
+    aDBEdit.Text);
+  Assert.AreEqual(True, aBookProxy.ControlsDisabled);
+
+  aBookProxy.EnableControls;
+
+  Assert.AreEqual
+    ('Martin Fowler, Kent Beck, John Brant, William Opdyke, Don Roberts',
+    aDBEdit.Text);
+  Assert.AreEqual(False, aBookProxy.ControlsDisabled);
+end;
 
 // -----------------------------------------------------------------------
 // Tests: Locate
