@@ -189,7 +189,10 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner, [
+    { } ['978-0201633610', 'Book1'],
+    { } ['978-0201485677', 'Book2'],
+    { } ['11111']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aBookProxy.Next;
@@ -202,12 +205,29 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner, [
+    { 1 }['978-0201633610',
+    'Design Patterns: Elements of Reusable Object-Oriented Software',
+    'Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides', EncodeDate(1994,
+    11, 1), 395, 54.90],
+    { 2 }['978-0201485677',
+    'Refactoring: Improving the Design of Existing Code',
+    'Martin Fowler, Kent Beck, John Brant, William Opdyke,' + ' Don Roberts',
+    EncodeDate(1999, 7, 1), 464, 52.98],
+    { 3 }['978-0131177055', 'Working Effectively with Legacy Code',
+    'Michael Feathers', EncodeDate(2004, 10, 1), 464, 52.69],
+    { 4 }['978-0321127426', 'Patterns of Enterprise Application Architecture',
+    'Martin Fowler', EncodeDate(2002, 11, 1), 560, 55.99]]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aBookProxy.Last;
 
-  Assert.AreEqual(4, aDataSet.RecNo);
+  Assert.AreEqual('978-0321127426', aBookProxy.ISBN.Value);
+  Assert.AreEqual('Patterns of Enterprise Application Architecture',
+    aBookProxy.Title.Value);
+  Assert.AreEqual('Martin Fowler', aBookProxy.Author.Value);
+  Assert.AreEqual(560, aBookProxy.Pages.Value);
+  Assert.AreEqual(55.99, aBookProxy.Price.Value, 0.000001);
 end;
 
 procedure TestBookMemProxy.Navigation_LastAndPrior;
@@ -215,7 +235,7 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner, [['111'], ['222'], ['333'], ['444']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aBookProxy.Last;
@@ -229,7 +249,7 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner, [['111'], ['222'], ['333']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aBookProxy.Last;
@@ -244,7 +264,7 @@ var
   aBookProxy: TBookProxy;
   actual: Boolean;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner, [['111'], ['222']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   actual := aBookProxy.Eof;
@@ -258,7 +278,7 @@ var
   aBookProxy: TBookProxy;
   actual: Boolean;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner, [['111'], ['222'], ['333'], ['444']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aBookProxy.Last;
