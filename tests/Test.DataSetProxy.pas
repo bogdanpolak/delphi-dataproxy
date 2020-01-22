@@ -1,4 +1,4 @@
-unit Test.DataSetProxy;
+﻿unit Test.DataSetProxy;
 
 interface
 
@@ -44,6 +44,7 @@ type
     procedure ProcessData_UpdateStatus_Inserted;
 
     procedure ControlsDB_DisableControls;
+    procedure DataSource_BindToDataSource;
 
     procedure Locate_BookTitle;
   end;
@@ -426,7 +427,7 @@ end;
 
 
 // -----------------------------------------------------------------------
-// Tests: DB aware controls
+// Tests: DB aware controls  / TDataSource factories
 // -----------------------------------------------------------------------
 
 procedure TestBookMemProxy.ControlsDB_DisableControls;
@@ -460,9 +461,33 @@ begin
   Assert.AreEqual(False, aBookProxy.ControlsDisabled);
 end;
 
-// -----------------------------------------------------------------------
-// Tests: TBD
-// -----------------------------------------------------------------------
+procedure TestBookMemProxy.DataSource_BindToDataSource;
+var
+  aFormatSettings: TFormatSettings;
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+  aDBEdit: TDBEdit;
+begin
+  aFormatSettings := FormatSettings;
+  FormatSettings := TFormatSettings.Create('en-us');
+  try
+    aDataSet := GivenBookDataSet(fOwner, [
+      { 1 }['978-1788621304', 'Delphi Cookbook', NULL, NULL, NULL, 29.99],
+      { 2 }['978-0201485677', 'Refactoring', NULL, NULL, NULL, 52.98]]);
+    aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+    aDBEdit := TDBEdit.Create(fOwner);
+    aDBEdit.DataSource := TDataSource.Create(fOwner);
+    aDBEdit.DataField := 'Price';
+
+    aBookProxy.BindToDataSource(aDBEdit.DataSource);
+
+    Assert.AreEqual('$29.99', aDBEdit.Text);
+    aBookProxy.Next;
+    Assert.AreEqual('$52.98', aDBEdit.Text);
+  finally
+    FormatSettings := aFormatSettings;
+  end;
+end;
 
 (* Test to deliver:
   ------------ ------------ ------------ ------------ ------------
