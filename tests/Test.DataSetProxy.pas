@@ -192,14 +192,23 @@ var
   aBookProxy: TBookProxy;
 begin
   aDataSet := GivenBookDataSet(fOwner, [
-    { } ['978-0201633610', 'Book1'],
-    { } ['978-0201485677', 'Book2'],
-    { } ['11111']]);
+    { 1 }['00000000'],
+    { 2 }['978-0201485677',
+    'Refactoring: Improving the Design of Existing Code',
+    'Martin Fowler, Kent Beck, John Brant, William Opdyke, Don Roberts',
+    EncodeDate(1999, 7, 1), 464, 52.98]]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aBookProxy.Next;
 
-  Assert.AreEqual(2, aDataSet.RecNo);
+  Assert.AreEqual('978-0201485677', aBookProxy.ISBN.Value);
+  Assert.AreEqual('Refactoring: Improving the Design of Existing Code',
+    aBookProxy.Title.Value);
+  Assert.AreEqual
+    ('Martin Fowler, Kent Beck, John Brant, William Opdyke, Don Roberts',
+    aBookProxy.Author.Value);
+  Assert.AreEqual(464, aBookProxy.Pages.Value);
+  Assert.AreEqual(52.98, aBookProxy.Price.Value, 0.000001);
 end;
 
 procedure TestBookMemProxy.Navigation_Last;
@@ -214,7 +223,7 @@ begin
     11, 1), 395, 54.90],
     { 2 }['978-0201485677',
     'Refactoring: Improving the Design of Existing Code',
-    'Martin Fowler, Kent Beck, John Brant, William Opdyke,' + ' Don Roberts',
+    'Martin Fowler, Kent Beck, John Brant, William Opdyke, Don Roberts',
     EncodeDate(1999, 7, 1), 464, 52.98],
     { 3 }['978-0131177055', 'Working Effectively with Legacy Code',
     'Michael Feathers', EncodeDate(2004, 10, 1), 464, 52.69],
@@ -501,12 +510,15 @@ begin
   aBookProxy.DisableControls;
   aBookProxy.Next;
 
-  Assert.AreEqual('Gang of Four', aDBEdit.Text);
+  Assert.AreEqual('Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides',
+    aDBEdit.Text);
   Assert.AreEqual(True, aBookProxy.ControlsDisabled);
 
   aBookProxy.EnableControls;
 
-  Assert.AreEqual('Martin Fowler', aDBEdit.Text);
+  Assert.AreEqual
+    ('Martin Fowler, Kent Beck, John Brant, William Opdyke, Don Roberts',
+    aDBEdit.Text);
   Assert.AreEqual(False, aBookProxy.ControlsDisabled);
 end;
 
