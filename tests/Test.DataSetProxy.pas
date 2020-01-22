@@ -461,6 +461,32 @@ begin
 end;
 
 // -----------------------------------------------------------------------
+// Tests: TBD
+// -----------------------------------------------------------------------
+
+(* Test to deliver:
+  ------------ ------------ ------------ ------------ ------------
+ procedure BindToDataSource(DataSource: TDataSource);
+ function ConstructDataSource(AOwner: TComponent): TDataSource;
+
+ function CreateBlobStream(Field: TField; Mode: TBlobStreamMode): TStream;
+
+ function Locate(const KeyFields: string; const KeyValues: Variant; Options: TLocateOptions): Boolean;
+ function Lookup(const KeyFields: string; const KeyValues: Variant; const ResultFields: string): Variant;
+ ------------ ------------ ------------ ------------ ------------
+*)
+
+(* Verify implementation opportiunity:
+  ------------ ------------ ------------ ------------ ------------
+ procedure Refresh;
+ //  doc: http://docwiki.embarcadero.com/Libraries/Rio/en/Data.DB.TDataSet.Refresh
+
+ TDataProxy.Reload; = dataset.Close & dataset.Open
+ procedure Close;
+ ------------ ------------ ------------ ------------ ------------
+*)
+
+// -----------------------------------------------------------------------
 // Tests: Locate
 // -----------------------------------------------------------------------
 
