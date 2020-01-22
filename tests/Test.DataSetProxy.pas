@@ -43,6 +43,7 @@ type
     procedure ProcessData_UpdateStatus_Unmodified;
     procedure ProcessData_UpdateStatus_Inserted;
 
+    procedure ControlsDB_TestPriceFormatting;
     procedure ControlsDB_DisableControls;
     procedure DataSource_BindToDataSource;
     procedure DataSource_ConstructDataSource;
@@ -451,6 +452,30 @@ end;
 // Tests: DB aware controls  / TDataSource factories
 // -----------------------------------------------------------------------
 
+procedure TestBookMemProxy.ControlsDB_TestPriceFormatting;
+var
+  aFormatSettings: TFormatSettings;
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+  aDBEdit: TDBEdit;
+begin
+  aFormatSettings := FormatSettings;
+  FormatSettings := TFormatSettings.Create('en-us');
+  try
+    aDataSet := GivenBookDataSet(fOwner, [
+      { 1 }['978-1111111111', NULL, NULL, NULL, 395, 54.90],
+      { 2 }['978-0201485677', NULL, NULL, NULL, 256, 55.99]]);
+    aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+    aDBEdit := GivienDBEdit(aDataSet, 'Price');
+
+    Assert.AreEqual('$54.90', aDBEdit.Text);
+    aBookProxy.Next;
+    Assert.AreEqual('$55.99', aDBEdit.Text);
+  finally
+    FormatSettings := aFormatSettings;
+  end;
+end;
+
 procedure TestBookMemProxy.ControlsDB_DisableControls;
 var
   aDataSet: TDataSet;
@@ -458,9 +483,13 @@ var
   aDBEdit: TDBEdit;
 begin
   aDataSet := GivenBookDataSet(fOwner, [
-    { 1 }['978-0201633610', 'Design Patterns', 'Gang of Four', EncodeDate(1994,
+    { 1 }['978-0201633610',
+    'Design Patterns: Elements of Reusable Object-Oriented Software',
+    'Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides', EncodeDate(1994,
     11, 1), 395, 54.90],
-    { 2 }['978-0201485677', 'Refactoring: ...', 'Martin Fowler',
+    { 2 }['978-0201485677',
+    'Refactoring: Improving the Design of Existing Code',
+    'Martin Fowler, Kent Beck, John Brant, William Opdyke, Don Roberts',
     EncodeDate(1999, 7, 1), 464, 52.98],
     { 3 }['978-0131177055', 'Working Effectively with Legacy Code',
     'Michael Feathers', EncodeDate(2004, 10, 1), 464, 52.69],
@@ -483,30 +512,22 @@ end;
 
 procedure TestBookMemProxy.DataSource_BindToDataSource;
 var
-  aFormatSettings: TFormatSettings;
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
   aDBEdit: TDBEdit;
 begin
-  aFormatSettings := FormatSettings;
-  FormatSettings := TFormatSettings.Create('en-us');
-  try
-    aDataSet := GivenBookDataSet(fOwner, [
-      { 1 }['978-1788621304', 'Delphi Cookbook', NULL, NULL, NULL, 29.99],
-      { 2 }['978-0201485677', 'Refactoring', NULL, NULL, NULL, 52.98]]);
+    aDataSet := GivenBookDataSet(fOwner, [['978-1788621304'],
+      ['978-0201485677']]);
     aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
     aDBEdit := TDBEdit.Create(fOwner);
     aDBEdit.DataSource := TDataSource.Create(fOwner);
-    aDBEdit.DataField := 'Price';
+    aDBEdit.DataField := 'ISBN';
 
     aBookProxy.BindToDataSource(aDBEdit.DataSource);
 
-    Assert.AreEqual('$29.99', aDBEdit.Text);
+    Assert.AreEqual('978-1788621304', aDBEdit.Text);
     aBookProxy.Next;
-    Assert.AreEqual('$52.98', aDBEdit.Text);
-  finally
-    FormatSettings := aFormatSettings;
-  end;
+    Assert.AreEqual('978-0201485677', aDBEdit.Text);
 end;
 
 procedure TestBookMemProxy.DataSource_ConstructDataSource;
@@ -515,16 +536,16 @@ var
   aBookProxy: TBookProxy;
   aDBEdit: TDBEdit;
 begin
-    aDataSet := GivenBookDataSet(fOwner, [['11111'],['222222']]);
-    aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
-    aDBEdit := TDBEdit.Create(fOwner);
-    aDBEdit.DataField := 'ISBN';
+  aDataSet := GivenBookDataSet(fOwner, [['11111'], ['222222']]);
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+  aDBEdit := TDBEdit.Create(fOwner);
+  aDBEdit.DataField := 'ISBN';
 
-    aDBEdit.DataSource := aBookProxy.ConstructDataSource(fOwner);
+  aDBEdit.DataSource := aBookProxy.ConstructDataSource(fOwner);
 
-    Assert.AreEqual('11111', aDBEdit.Text);
-    aBookProxy.Next;
-    Assert.AreEqual('222222', aDBEdit.Text);
+  Assert.AreEqual('11111', aDBEdit.Text);
+  aBookProxy.Next;
+  Assert.AreEqual('222222', aDBEdit.Text);
 end;
 
 (* Test to deliver:
