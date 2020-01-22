@@ -104,9 +104,12 @@ begin
   FPrice := FDataSet.FieldByName('Price') as TCurrencyField;
 end;
 
-function GivenBookDataSet(aOwner: TComponent): TDataSet;
+function GivenBookDataSet(aOwner: TComponent;
+  aDataToInsert: TArray < TArray < Variant >> = nil): TDataSet;
 var
   ds: TClientDataSet;
+  i: Integer;
+  j: Integer;
 begin
   ds := TClientDataSet.Create(aOwner);
   with ds do
@@ -118,19 +121,32 @@ begin
     FieldDefs.Add('Pages', ftInteger);
     FieldDefs.Add('Price', ftCurrency);
     CreateDataSet;
-    AppendRecord(['978-0201633610',
+  end;
+  if aDataToInsert = nil then
+  begin
+    ds.AppendRecord(['978-0201633610',
       'Design Patterns: Elements of Reusable Object-Oriented Software',
       'Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides',
       EncodeDate(1994, 11, 1), 395, 54.90]);
-    AppendRecord(['978-0201485677',
+    ds.AppendRecord(['978-0201485677',
       'Refactoring: Improving the Design of Existing Code',
       'Martin Fowler,' + ' Kent Beck,' + ' John Brant,' + ' William Opdyke,' +
       ' Don Roberts', EncodeDate(1999, 7, 1), 464, 52.98]);
-    AppendRecord(['978-0131177055', 'Working Effectively with Legacy Code',
+    ds.AppendRecord(['978-0131177055', 'Working Effectively with Legacy Code',
       'Michael Feathers', EncodeDate(2004, 10, 1), 464, 52.69]);
-    AppendRecord(['978-0321127426',
+    ds.AppendRecord(['978-0321127426',
       'Patterns of Enterprise Application Architecture', 'Martin Fowler',
       EncodeDate(2002, 11, 1), 560, 55.99]);
+  end
+  else
+  begin
+    for i := 0 to High(aDataToInsert) do
+    begin
+      ds.Append;
+      for j := 0 to High(aDataToInsert[i]) do
+        ds.Fields[j].Value := aDataToInsert[i][j];
+      ds.Post;
+    end;
   end;
   ds.First;
   ds.MergeChangeLog;
@@ -419,7 +435,15 @@ var
   aBookProxy: TBookProxy;
   aDBEdit: TDBEdit;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner, [
+    { 1 }['978-0201633610', 'Design Patterns', 'Gang of Four', EncodeDate(1994,
+    11, 1), 395, 54.90],
+    { 2 }['978-0201485677', 'Refactoring: ...', 'Martin Fowler',
+    EncodeDate(1999, 7, 1), 464, 52.98],
+    { 3 }['978-0131177055', 'Working Effectively with Legacy Code',
+    'Michael Feathers', EncodeDate(2004, 10, 1), 464, 52.69],
+    { 4 }['978-0321127426', 'Patterns of Enterprise Application Architecture',
+    'Martin Fowler', EncodeDate(2002, 11, 1), 560, 55.99]]);
 
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
   aDBEdit := GivienDBEdit(aDataSet, 'Author');
@@ -427,15 +451,12 @@ begin
   aBookProxy.DisableControls;
   aBookProxy.Next;
 
-  Assert.AreEqual('Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides',
-    aDBEdit.Text);
+  Assert.AreEqual('Gang of Four', aDBEdit.Text);
   Assert.AreEqual(True, aBookProxy.ControlsDisabled);
 
   aBookProxy.EnableControls;
 
-  Assert.AreEqual
-    ('Martin Fowler, Kent Beck, John Brant, William Opdyke, Don Roberts',
-    aDBEdit.Text);
+  Assert.AreEqual('Martin Fowler', aDBEdit.Text);
   Assert.AreEqual(False, aBookProxy.ControlsDisabled);
 end;
 
