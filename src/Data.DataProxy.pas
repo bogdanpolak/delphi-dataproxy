@@ -57,6 +57,7 @@ type
     procedure Next;
     procedure Post;
     procedure Prior;
+    function RecordCount: integer;
     procedure Refresh;
     function UpdateStatus: TUpdateStatus;
   end;
@@ -184,6 +185,11 @@ end;
 procedure TDataSetProxy.Prior;
 begin
   fDataSet.Prior;
+end;
+
+function TDataSetProxy.RecordCount: integer;
+begin
+  Result := fDataSet.RecordCount;
 end;
 
 procedure TDataSetProxy.Refresh;
