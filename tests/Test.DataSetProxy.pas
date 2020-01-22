@@ -45,6 +45,7 @@ type
 
     procedure ControlsDB_DisableControls;
     procedure DataSource_BindToDataSource;
+    procedure DataSource_ConstructDataSource;
 
     procedure Locate_BookTitle;
   end;
@@ -465,7 +466,6 @@ begin
     'Michael Feathers', EncodeDate(2004, 10, 1), 464, 52.69],
     { 4 }['978-0321127426', 'Patterns of Enterprise Application Architecture',
     'Martin Fowler', EncodeDate(2002, 11, 1), 560, 55.99]]);
-
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
   aDBEdit := GivienDBEdit(aDataSet, 'Author');
 
@@ -509,11 +509,26 @@ begin
   end;
 end;
 
+procedure TestBookMemProxy.DataSource_ConstructDataSource;
+var
+  aDataSet: TDataSet;
+  aBookProxy: TBookProxy;
+  aDBEdit: TDBEdit;
+begin
+    aDataSet := GivenBookDataSet(fOwner, [['11111'],['222222']]);
+    aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+    aDBEdit := TDBEdit.Create(fOwner);
+    aDBEdit.DataField := 'ISBN';
+
+    aDBEdit.DataSource := aBookProxy.ConstructDataSource(fOwner);
+
+    Assert.AreEqual('11111', aDBEdit.Text);
+    aBookProxy.Next;
+    Assert.AreEqual('222222', aDBEdit.Text);
+end;
+
 (* Test to deliver:
   ------------ ------------ ------------ ------------ ------------
- procedure BindToDataSource(DataSource: TDataSource);
- function ConstructDataSource(AOwner: TComponent): TDataSource;
-
  function CreateBlobStream(Field: TField; Mode: TBlobStreamMode): TStream;
 
  function Locate(const KeyFields: string; const KeyValues: Variant; Options: TLocateOptions): Boolean;
