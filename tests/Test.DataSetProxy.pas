@@ -79,7 +79,7 @@ end;
 
 type
   TBookProxy = class(TDatasetProxy)
-  private
+  strict private
     FISBN: TWideStringField;
     FTitle: TWideStringField;
     FAuthor: TWideStringField;
@@ -125,23 +125,7 @@ begin
     FieldDefs.Add('Price', ftCurrency);
     CreateDataSet;
   end;
-  if aDataToInsert = nil then
-  begin
-    ds.AppendRecord(['978-0201633610',
-      'Design Patterns: Elements of Reusable Object-Oriented Software',
-      'Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides',
-      EncodeDate(1994, 11, 1), 395, 54.90]);
-    ds.AppendRecord(['978-0201485677',
-      'Refactoring: Improving the Design of Existing Code',
-      'Martin Fowler,' + ' Kent Beck,' + ' John Brant,' + ' William Opdyke,' +
-      ' Don Roberts', EncodeDate(1999, 7, 1), 464, 52.98]);
-    ds.AppendRecord(['978-0131177055', 'Working Effectively with Legacy Code',
-      'Michael Feathers', EncodeDate(2004, 10, 1), 464, 52.69]);
-    ds.AppendRecord(['978-0321127426',
-      'Patterns of Enterprise Application Architecture', 'Martin Fowler',
-      EncodeDate(2002, 11, 1), 560, 55.99]);
-  end
-  else
+  if aDataToInsert <> nil then
   begin
     for i := 0 to High(aDataToInsert) do
     begin
@@ -150,9 +134,9 @@ begin
         ds.Fields[j].Value := aDataToInsert[i][j];
       ds.Post;
     end;
+    ds.First;
+    ds.MergeChangeLog;
   end;
-  ds.First;
-  ds.MergeChangeLog;
   Result := ds;
 end;
 
@@ -246,13 +230,14 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner, [['111'], ['222'], ['333'], ['444']]);
+  aDataSet := GivenBookDataSet(fOwner, [['978-0201633610'], ['978-0201485677'],
+    ['978-0131177055'], ['978-0321127426']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aBookProxy.Last;
   aBookProxy.Prior;
 
-  Assert.AreEqual(3, aDataSet.RecNo);
+  Assert.AreEqual({3}'978-0131177055', aBookProxy.ISBN.Value);
 end;
 
 procedure TestBookMemProxy.Navigation_LastAndFirst;
@@ -260,42 +245,39 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner, [['111'], ['222'], ['333']]);
+  aDataSet := GivenBookDataSet(fOwner, [['978-0201633610'], ['978-0201485677'],
+    ['978-0131177055'], ['978-0321127426']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aBookProxy.Last;
   aBookProxy.First;
 
-  Assert.AreEqual(1, aDataSet.RecNo);
+  Assert.AreEqual({1}'978-0201633610', aBookProxy.ISBN.Value);
 end;
 
 procedure TestBookMemProxy.Navigation_Eof;
 var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
-  actual: Boolean;
 begin
-  aDataSet := GivenBookDataSet(fOwner, [['111'], ['222']]);
+  aDataSet := GivenBookDataSet(fOwner, [['978-0201633610'], ['978-0201485677'],
+    ['978-0131177055'], ['978-0321127426']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
-  actual := aBookProxy.Eof;
-
-  Assert.AreEqual(False, actual);
+  Assert.AreEqual(False, aBookProxy.Eof);
 end;
 
 procedure TestBookMemProxy.Navigation_LastAndEof;
 var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
-  actual: Boolean;
 begin
-  aDataSet := GivenBookDataSet(fOwner, [['111'], ['222'], ['333'], ['444']]);
+  aDataSet := GivenBookDataSet(fOwner, [['978-0201633610'], ['978-0201485677'],
+    ['978-0131177055'], ['978-0321127426']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aBookProxy.Last;
-  actual := aBookProxy.Eof;
-
-  Assert.AreEqual(True, actual);
+  Assert.AreEqual(True, aBookProxy.Eof);
 end;
 
 // -----------------------------------------------------------------------
@@ -307,12 +289,14 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner, [['978-0201633610'], ['978-0201485677'],
+    ['978-0131177055'], ['978-0321127426']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aBookProxy.Delete;
 
-  Assert.AreEqual(3, aDataSet.RecordCount);
+  Assert.AreEqual({2}'978-0201485677', aBookProxy.ISBN.Value);
+  Assert.AreEqual(3, aBookProxy.RecordCount);
 end;
 
 procedure TestBookMemProxy.ProcessData_EditAndPost;
@@ -334,16 +318,19 @@ procedure TestBookMemProxy.ProcessData_EditAndCancel;
 var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
+  actualAutorInDataSet: String;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner,
+    [['978-1788625456', 'Delphi High Performance', 'Primož Gabrijelčič',
+    EncodeDate(2018, 2, 1), 336, 25.83]]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aBookProxy.Edit;
-  aBookProxy.Author.Value := 'Anonymous author';
+  aBookProxy.Author.Value := 'Bogdan Polak';
   aBookProxy.Cancel;
+  actualAutorInDataSet := aDataSet.FieldByName('Author').AsString;
 
-  Assert.AreEqual('Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides',
-    aDataSet.FieldByName('Author').AsString);
+  Assert.AreEqual('Primož Gabrijelčič', actualAutorInDataSet);
 end;
 
 procedure TestBookMemProxy.ProcessData_InsertAndPost;
@@ -351,7 +338,7 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner, [['978-0201633610']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aBookProxy.Insert;
@@ -363,8 +350,11 @@ begin
   aBookProxy.Price.Value := 29.99;
   aBookProxy.Post;
 
-  Assert.AreEqual(5, aDataSet.RecordCount);
+  Assert.AreEqual(2, aDataSet.RecordCount);
   Assert.AreEqual(1, aDataSet.RecNo);
+  Assert.AreEqual('Daniele Spinetti, Daniele Teti',
+    aDataSet.FieldByName('Author').AsString);
+  Assert.AreEqual(668, aDataSet.FieldByName('Pages').AsInteger);
 end;
 
 procedure TestBookMemProxy.ProcessData_Append;
@@ -372,15 +362,17 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner, [['978-0201633610'],
+    ['978-0201485677']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aBookProxy.Append;
   aBookProxy.ISBN.Value := '978-1788621304';
   aBookProxy.Post;
 
-  Assert.AreEqual(5, aDataSet.RecordCount);
-  Assert.AreEqual(5, aDataSet.RecNo);
+  Assert.AreEqual(3, aDataSet.RecordCount);
+  Assert.AreEqual(3, aDataSet.RecNo);
+  Assert.AreEqual('978-1788621304', aDataSet.FieldByName('ISBN').AsString);
 end;
 
 procedure TestBookMemProxy.ProcessData_AppendRecord;
@@ -394,11 +386,11 @@ begin
   aBookProxy.AppendRecord(['978-1788621304', 'Delphi Cookbook - Third Edition',
     'Daniele Spinetti, Daniele Teti', EncodeDate(2018, 7, 1), 668, 29.99]);
 
-  Assert.AreEqual(5, aDataSet.RecordCount);
   Assert.AreEqual('978-1788621304', aDataSet.FieldByName('ISBN').AsString);
   Assert.AreEqual(EncodeDate(2018, 7, 1), aDataSet.FieldByName('ReleseDate')
     .AsDateTime);
   Assert.AreEqual(29.99, aDataSet.FieldByName('Price').AsFloat, 0.000001);
+  Assert.AreEqual(1, aDataSet.RecordCount);
 end;
 
 procedure TestBookMemProxy.ProcessData_InsertRecord;
@@ -409,11 +401,10 @@ begin
   aDataSet := GivenBookDataSet(fOwner);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
-  aBookProxy.InsertRecord(['978000']);
+  aBookProxy.InsertRecord(['978-1788621304']);
 
-  Assert.AreEqual(5, aDataSet.RecordCount);
-  Assert.AreEqual(1, aDataSet.RecNo);
-  Assert.AreEqual('978000', aDataSet.FieldByName('ISBN').AsString);
+  Assert.AreEqual('978-1788621304', aDataSet.FieldByName('ISBN').AsString);
+  Assert.AreEqual(1, aDataSet.RecordCount);
 end;
 
 procedure TestBookMemProxy.ProcessData_IsEmpty;
@@ -421,7 +412,8 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner, [['978-0201633610'], ['978-0201485677'],
+    ['978-0131177055'], ['978-0321127426']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   Assert.AreEqual(False, aBookProxy.IsEmpty);
@@ -437,7 +429,7 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner,[['978-0201633610']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   Assert.AreEqual('usUnmodified', aBookProxy.UpdateStatus.ToString);
@@ -448,10 +440,10 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner,[['978-0201633610']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
-  aDataSet.InsertRecord(['123456789', 'Title', 'Author', Int(Now)]);
+  aDataSet.InsertRecord(['978-1788621304']);
 
   Assert.AreEqual('usInserted', aBookProxy.UpdateStatus.ToString);
 end;
@@ -528,18 +520,18 @@ var
   aBookProxy: TBookProxy;
   aDBEdit: TDBEdit;
 begin
-    aDataSet := GivenBookDataSet(fOwner, [['978-1788621304'],
-      ['978-0201485677']]);
-    aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
-    aDBEdit := TDBEdit.Create(fOwner);
-    aDBEdit.DataSource := TDataSource.Create(fOwner);
-    aDBEdit.DataField := 'ISBN';
+  aDataSet := GivenBookDataSet(fOwner, [['978-1788621304'],
+    ['978-0201485677']]);
+  aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
+  aDBEdit := TDBEdit.Create(fOwner);
+  aDBEdit.DataSource := TDataSource.Create(fOwner);
+  aDBEdit.DataField := 'ISBN';
 
-    aBookProxy.BindToDataSource(aDBEdit.DataSource);
+  aBookProxy.BindToDataSource(aDBEdit.DataSource);
 
-    Assert.AreEqual('978-1788621304', aDBEdit.Text);
-    aBookProxy.Next;
-    Assert.AreEqual('978-0201485677', aDBEdit.Text);
+  Assert.AreEqual('978-1788621304', aDBEdit.Text);
+  aBookProxy.Next;
+  Assert.AreEqual('978-0201485677', aDBEdit.Text);
 end;
 
 procedure TestBookMemProxy.DataSource_ConstructDataSource;
@@ -588,7 +580,19 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner);
+  aDataSet := GivenBookDataSet(fOwner, [
+    { 1 }['978-0201633610',
+    'Design Patterns: Elements of Reusable Object-Oriented Software',
+    'Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides', EncodeDate(1994,
+    11, 1), 395, 54.90],
+    { 2 }['978-0201485677',
+    'Refactoring: Improving the Design of Existing Code',
+    'Martin Fowler, Kent Beck, John Brant, William Opdyke, Don Roberts',
+    EncodeDate(1999, 7, 1), 464, 52.98],
+    { 3 }['978-0131177055', 'Working Effectively with Legacy Code',
+    'Michael Feathers', EncodeDate(2004, 10, 1), 464, 52.69],
+    { 4 }['978-0321127426', 'Patterns of Enterprise Application Architecture',
+    'Martin Fowler', EncodeDate(2002, 11, 1), 560, 55.99]]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aBookProxy.Locate('Title', 'Working Effectively with Legacy Code', []);
