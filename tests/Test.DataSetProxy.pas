@@ -48,6 +48,8 @@ type
     procedure DataSource_BindToDataSource;
     procedure DataSource_ConstructDataSource;
 
+    procedure Blob_CreateBlobStream;
+
     procedure Locate_BookTitle;
   end;
 
@@ -60,7 +62,7 @@ uses
 
 
 // -----------------------------------------------------------------------
-// DataSetProxy factories
+// Utils
 // -----------------------------------------------------------------------
 
 type
@@ -73,8 +75,21 @@ begin
   Result := GetEnumName(TypeInfo(TUpdateStatus), Integer(Self));
 end;
 
+function HexesIntoBytes(aHexes: TArray<string>): TBytes;
+var
+  i: Integer;
+  b: byte;
+begin
+  SetLength(Result, Length(aHexes));
+  for i := 0 to High(aHexes) do
+  begin
+    b := byte(StrToint('$' + aHexes[i]));
+    Result[i] := b;
+  end;
+end;
+
 // -----------------------------------------------------------------------
-// DataSetProxy factories
+// DataSetProxy declarations
 // -----------------------------------------------------------------------
 
 type
@@ -107,6 +122,30 @@ begin
   FPrice := FDataSet.FieldByName('Price') as TCurrencyField;
 end;
 
+type
+  TBlobProxy = class(TDatasetProxy)
+  strict private
+    fID: TIntegerField;
+    fData: TBlobField;
+  protected
+    procedure ConnectFields; override;
+  public
+    property ID: TIntegerField read fID;
+    property Data: TBlobField read fData;
+  end;
+
+procedure TBlobProxy.ConnectFields;
+begin
+  inherited;
+  fID := FDataSet.FieldByName('ID') as TIntegerField;
+  fData := FDataSet.FieldByName('Data') as TBlobField;
+end;
+
+
+// -----------------------------------------------------------------------
+// DataSetProxy factories
+// -----------------------------------------------------------------------
+
 function GivenBookDataSet(aOwner: TComponent;
   aDataToInsert: TArray < TArray < Variant >> = nil): TDataSet;
 var
@@ -132,6 +171,34 @@ begin
       ds.Append;
       for j := 0 to High(aDataToInsert[i]) do
         ds.Fields[j].Value := aDataToInsert[i][j];
+      ds.Post;
+    end;
+    ds.First;
+    ds.MergeChangeLog;
+  end;
+  Result := ds;
+end;
+
+function GivenBlobDataSet(aOwner: TComponent;
+  const aDataToInsert: TArray<TBytes>): TDataSet;
+var
+  ds: TClientDataSet;
+  i: Integer;
+begin
+  ds := TClientDataSet.Create(aOwner);
+  with ds do
+  begin
+    FieldDefs.Add('ID', ftInteger);
+    FieldDefs.Add('Data', ftBlob);
+    CreateDataSet;
+  end;
+  if aDataToInsert <> nil then
+  begin
+    for i := 0 to High(aDataToInsert) do
+    begin
+      ds.Append;
+      ds.FieldByName('ID').AsInteger := i + 1;
+      (ds.FieldByName('Data') as TBlobField).Value := aDataToInsert[i];
       ds.Post;
     end;
     ds.First;
@@ -429,7 +496,7 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner,[['978-0201633610']]);
+  aDataSet := GivenBookDataSet(fOwner, [['978-0201633610']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   Assert.AreEqual('usUnmodified', aBookProxy.UpdateStatus.ToString);
@@ -440,7 +507,7 @@ var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
-  aDataSet := GivenBookDataSet(fOwner,[['978-0201633610']]);
+  aDataSet := GivenBookDataSet(fOwner, [['978-0201633610']]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
   aDataSet.InsertRecord(['978-1788621304']);
@@ -552,29 +619,40 @@ begin
   Assert.AreEqual('222222', aDBEdit.Text);
 end;
 
-(* Test to deliver:
-  ------------ ------------ ------------ ------------ ------------
- function CreateBlobStream(Field: TField; Mode: TBlobStreamMode): TStream;
+// -----------------------------------------------------------------------
+// Tests: Blob
+// -----------------------------------------------------------------------
 
- function Locate(const KeyFields: string; const KeyValues: Variant; Options: TLocateOptions): Boolean;
- function Lookup(const KeyFields: string; const KeyValues: Variant; const ResultFields: string): Variant;
- ------------ ------------ ------------ ------------ ------------
-*)
+procedure TestBookMemProxy.Blob_CreateBlobStream;
+var
+  aDataSet: TDataSet;
+  aBlobProxy: TBlobProxy;
+  aDBEdit: TDBEdit;
+  stream: TStream;
+  aBuffer: TBytes;
+begin
+  aDataSet := GivenBlobDataSet(fOwner,
+    [HexesIntoBytes(['f0', '22', '3e', '7a', 'c4', '6b', '00', '00', '01']),
+    HexesIntoBytes(['00', '00', '70', '4b', '00', '00', '02'])]);
+  aBlobProxy := TBlobProxy.Create(fOwner).WithDataSet(aDataSet) as TBlobProxy;
 
-(* Verify implementation opportiunity:
-  ------------ ------------ ------------ ------------ ------------
- procedure Refresh;
- //  doc: http://docwiki.embarcadero.com/Libraries/Rio/en/Data.DB.TDataSet.Refresh
+  stream := aBlobProxy.CreateBlobStream(aBlobProxy.Data, bmRead);
+  SetLength(aBuffer, stream.Size);
+  stream.Read(aBuffer, stream.Size);
+  stream.Free;
 
- TDataProxy.Reload; = dataset.Close & dataset.Open
- procedure Close;
- ------------ ------------ ------------ ------------ ------------
-*)
+  Assert.AreEqual(byte(15 * 16), aBuffer[0]);
+end;
+
 
 // -----------------------------------------------------------------------
 // Tests: Locate
 // -----------------------------------------------------------------------
 
+(*
+ function Locate(const KeyFields: string; const KeyValues: Variant; Options: TLocateOptions): Boolean;
+ function Lookup(const KeyFields: string; const KeyValues: Variant; const ResultFields: string): Variant;
+*)
 procedure TestBookMemProxy.Locate_BookTitle;
 var
   aDataSet: TDataSet;
