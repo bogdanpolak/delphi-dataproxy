@@ -627,7 +627,6 @@ procedure TestBookMemProxy.Blob_CreateBlobStream;
 var
   aDataSet: TDataSet;
   aBlobProxy: TBlobProxy;
-  aDBEdit: TDBEdit;
   stream: TStream;
   aBuffer: TBytes;
 begin
@@ -649,34 +648,38 @@ end;
 // Tests: Locate
 // -----------------------------------------------------------------------
 
-(*
- function Locate(const KeyFields: string; const KeyValues: Variant; Options: TLocateOptions): Boolean;
- function Lookup(const KeyFields: string; const KeyValues: Variant; const ResultFields: string): Variant;
-*)
 procedure TestBookMemProxy.Locate_BookTitle;
 var
   aDataSet: TDataSet;
   aBookProxy: TBookProxy;
 begin
   aDataSet := GivenBookDataSet(fOwner, [
-    { 1 }['978-0201633610',
-    'Design Patterns: Elements of Reusable Object-Oriented Software',
-    'Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides', EncodeDate(1994,
-    11, 1), 395, 54.90],
-    { 2 }['978-0201485677',
-    'Refactoring: Improving the Design of Existing Code',
-    'Martin Fowler, Kent Beck, John Brant, William Opdyke, Don Roberts',
-    EncodeDate(1999, 7, 1), 464, 52.98],
-    { 3 }['978-0131177055', 'Working Effectively with Legacy Code',
-    'Michael Feathers', EncodeDate(2004, 10, 1), 464, 52.69],
-    { 4 }['978-0321127426', 'Patterns of Enterprise Application Architecture',
-    'Martin Fowler', EncodeDate(2002, 11, 1), 560, 55.99]]);
+    {1} ['978-1941266038', 'Coding in Delphi', 'Nick Hodges', EncodeDate(2014,
+    4, 1), 236, 24.99],
+    {2} ['978-1941266106', 'More Coding in Delphi', 'Nick Hodges',
+    EncodeDate(2015, 12, 1), 246, 25.99],
+    {3} ['978-1785287428', 'Delphi Cookbook - Second Edition', 'Daniele Teti',
+    EncodeDate(2016, 6, 1), 470, 30.13],
+    {4} ['978-1941266229', 'Dependency Injection In Delphi', 'Nick Hodges',
+    EncodeDate(2017, 2, 1), 132, 18.18],
+    {5} ['978-1546391272', 'Delphi in Depth: FireDAC', 'Cary Jensen',
+    EncodeDate(2017, 5, 1), 556, 52.43],
+    {6} ['978-1786460165', 'Expert Delphi', 'Paweł Głowacki', EncodeDate(2017,
+    6, 1), 506, 32.71],
+    {7} ['978-1788625456', 'Delphi High Performance', 'Primož Gabrijelčič',
+    EncodeDate(2018, 2, 1), 336, 25.83],
+    {8} ['978-1788621304', 'Delphi Cookbook - Third Edition',
+    'Daniele Spinetti, Daniele Teti', EncodeDate(2018, 7, 1), 668, 30.13],
+    {9} ['978-1789343243', 'Hands-On Design Patterns with Delphi',
+    'Primož Gabrijelčič', EncodeDate(2019, 2, 27), 476, 35.99],
+    {10} ['978-1788624176', 'Delphi GUI Programming with FireMonkey',
+    'Andrea Magni', EncodeDate(2020, 04, 11), 437, 29.27]]);
   aBookProxy := TBookProxy.Create(fOwner).WithDataSet(aDataSet) as TBookProxy;
 
-  aBookProxy.Locate('Title', 'Working Effectively with Legacy Code', []);
+  aBookProxy.Locate('Title', 'Expert Delphi', []);
 
-  Assert.AreEqual('Michael Feathers', aBookProxy.Author.Value);
-  Assert.AreEqual('Michael Feathers', String(aDataSet.FieldValues['Author']));
+  Assert.AreEqual(6, aDataSet.RecNo);
+  Assert.AreEqual('Paweł Głowacki', aBookProxy.Author.Value);
 end;
 
 end.
