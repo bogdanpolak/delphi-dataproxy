@@ -14,7 +14,9 @@ uses
   Test.ProxyGenerator in 'Test.ProxyGenerator.pas',
   Wrapper.TProxyGenerator in 'Wrapper.TProxyGenerator.pas',
   Comp.Generator.DataProxy in '..\src\Comp.Generator.DataProxy.pas',
-  Helper.DUnitAssert in 'Helper.DUnitAssert.pas';
+  Data.DataProxy in '..\src\Data.DataProxy.pas',
+  Helper.DUnitAssert in 'Helper.DUnitAssert.pas',
+  Test.DataSetProxy in 'Test.DataSetProxy.pas';
 
 var
   runner : ITestRunner;
