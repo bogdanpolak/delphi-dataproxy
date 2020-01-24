@@ -182,8 +182,8 @@ begin
   begin
     aFieldCount := fDataSet.Fields.Count;
     for fld in fDataSet.Fields do
-      aFieldAssigments := aFieldAssigments + '  ' + Gen_FieldAssigment(fld) +
-        sLineBreak;
+      aFieldAssigments := aFieldAssigments + fIdentationText +
+        Gen_FieldAssigment(fld) + sLineBreak;
   end
   else
   begin
@@ -191,13 +191,15 @@ begin
     aFieldAssigments := '';
   end;
   Result :=
-  (* *) 'procedure T' + fObjectName + 'Proxy.ConnectFields;' + sLineBreak +
-  (* *) 'const' + sLineBreak +
-  (* *) '  ExpectedFieldCount = ' + aFieldCount.ToString + ';' + sLineBreak +
-  (* *) 'begin' + sLineBreak +
-  (* *) aFieldAssigments +
-  (* *) '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);' + sLineBreak +
-  (* *) 'end;' + sLineBreak;
+  {} 'procedure T' + fObjectName + 'Proxy.ConnectFields;' + sLineBreak +
+  {} 'const' + sLineBreak +
+  {} fIdentationText + 'ExpectedFieldCount = ' + aFieldCount.ToString + ';' +
+    sLineBreak +
+  {} 'begin' + sLineBreak +
+  {} aFieldAssigments +
+  {} fIdentationText + 'Assert(FDataSet.Fields.Count = ExpectedFieldCount);' +
+    sLineBreak +
+  {} 'end;' + sLineBreak;
 end;
 
 procedure TDataProxyGenerator.Execute;
