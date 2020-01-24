@@ -52,6 +52,7 @@ type
     procedure GenMethod_ConnectFields_DataSet_Nil;
     procedure GenMethod_ConnectFields_DataSet_OneString;
     procedure GenMethod_ConnectFields_TwoFields_LowerCaseStyle;
+    procedure GenMethod_ConnectFields_Identation4;
   end;
 
 implementation
@@ -424,6 +425,29 @@ begin
     (* *) + '  fCompanyName := FDataSet.FieldByName(''CompanyName'') as TStringField;'#13#10
     (* *) + '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13#10
     (* *) + 'end;'#13#10, actualCode);
+end;
+
+procedure TestGenerator.GenMethod_ConnectFields_Identation4;
+var
+  actualCode: string;
+begin
+  fGenerator.DataSet := GivenDataset([
+    {} ['CustomerID', ftInteger],
+    {} ['CompanyName', ftString]]);
+  fGenerator.ObjectName := 'Foo';
+  fGenerator.IdentationText := '    ';
+
+  actualCode := fGenerator.Generate_MethodConnectFields;
+
+  Assert.AreMemosEqual(
+    {} 'procedure TFooProxy.ConnectFields;'#13#10
+    {} + 'const'#13#10
+    {} + '    ExpectedFieldCount = 2;'#13#10
+    {} + 'begin'#13#10
+    {} + '    FCustomerID := FDataSet.FieldByName(''CustomerID'') as TIntegerField;'#13#10
+    {} + '    FCompanyName := FDataSet.FieldByName(''CompanyName'') as TStringField;'#13#10
+    {} + '    Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13#10
+    {} + 'end;'#13#10, actualCode);
 end;
 
 initialization
