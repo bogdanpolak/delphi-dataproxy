@@ -23,6 +23,7 @@ type
     fDataSetAccess: TDataSetAccess;
     fFieldNamingStyle: TFieldNamingStyle;
     fObjectName: string;
+    fIdentationText: string;
     procedure Guard;
     function GetFieldPrefix: string;
   protected
@@ -40,11 +41,13 @@ type
   published
     property Code: TStringList read fCode;
     property DataSet: TDataSet read fDataSet write fDataSet;
+    // ---- options ----
     property DataSetAccess: TDataSetAccess read fDataSetAccess
       write fDataSetAccess;
     property FieldNamingStyle: TFieldNamingStyle read fFieldNamingStyle
       write fFieldNamingStyle;
     property ObjectName: string read fObjectName write fObjectName;
+    property IdentationText: string read fIdentationText write fIdentationText;
   end;
 
 implementation
@@ -56,6 +59,7 @@ begin
   fDataSet := nil;
   fObjectName := 'Something';
   fDataSetAccess := dsaNoAccess;
+  fIdentationText := '  ';
 end;
 
 destructor TDataProxyGenerator.Destroy;
@@ -78,11 +82,11 @@ function TDataProxyGenerator.Gen_UsesSection: string;
 begin
   Result :=
   (* *) 'uses' + sLineBreak +
-  (* *) '  Data.DB,' + sLineBreak +
-  (* *) '  Data.DataProxy,' + sLineBreak +
-  (* *) '  System.SysUtils,' + sLineBreak +
-  (* *) '  System.Classes,' + sLineBreak +
-  (* *) '  FireDAC.Comp.Client;' + sLineBreak;
+  (* *) fIdentationText + 'Data.DB,' + sLineBreak +
+  (* *) fIdentationText + 'Data.DataProxy,' + sLineBreak +
+  (* *) fIdentationText + 'System.SysUtils,' + sLineBreak +
+  (* *) fIdentationText + 'System.Classes,' + sLineBreak +
+  (* *) fIdentationText + 'FireDAC.Comp.Client;' + sLineBreak;
 end;
 
 function GetFieldClassName(fld: TField): string;
@@ -131,10 +135,10 @@ begin
   begin
     for fld in fDataSet.Fields do
     begin
-      aPrivateFields := aPrivateFields +
-      (* *) '  ' + '  ' + Gen_PrivateField(fld) + sLineBreak;
-      aPublicProperties := aPublicProperties +
-      (* *) '  ' + '  ' + Gen_PublicProperty(fld) + sLineBreak;
+      aPrivateFields := aPrivateFields + fIdentationText + fIdentationText +
+        Gen_PrivateField(fld) + sLineBreak;
+      aPublicProperties := aPublicProperties + fIdentationText + fIdentationText
+        + Gen_PublicProperty(fld) + sLineBreak;
     end;
   end;
   // ----
@@ -143,25 +147,29 @@ begin
       aDatasePropertyCode := '';
     dsaGenComment:
       aDatasePropertyCode :=
-      (* *) '    // the following property should be hidden (uncomment if required)'
-        + sLineBreak +
-      (* *) '    // property DataSet: TDataSet read FDataSet;' + sLineBreak;
+      {} fIdentationText + fIdentationText + '// the following property' +
+        ' should be hidden (uncomment if required)' + sLineBreak +
+      {} fIdentationText + fIdentationText + '// property DataSet: TDataSet' +
+        ' read FDataSet;' + sLineBreak;
     dsaFullAccess:
       aDatasePropertyCode :=
-      (* *) '    property DataSet: TDataSet read FDataSet;' + sLineBreak;
+      {} fIdentationText + fIdentationText + 'property DataSet: TDataSet' +
+        ' read FDataSet;' + sLineBreak;
   end;
   // ----
   Result :=
-  (* *) 'type' + sLineBreak +
-  (* *) '  T' + fObjectName + 'Proxy = class(TDatasetProxy)' + sLineBreak +
-  (* *) '  private' + sLineBreak +
-  (* *) aPrivateFields +
-  (* *) '  protected' + sLineBreak +
-  (* *) '    procedure ConnectFields; override;' + sLineBreak +
-  (* *) '  public' + sLineBreak +
-  (* *) aPublicProperties +
-  (* *) aDatasePropertyCode +
-  (* *) '  end;' + sLineBreak;
+  {} 'type' + sLineBreak +
+  {} fIdentationText + 'T' + fObjectName + 'Proxy = class(TDatasetProxy)' +
+    sLineBreak +
+  {} fIdentationText + 'private' + sLineBreak +
+  {} aPrivateFields +
+  {} fIdentationText + 'protected' + sLineBreak +
+  {} fIdentationText + fIdentationText + 'procedure ConnectFields; override;' +
+    sLineBreak +
+  {} fIdentationText + 'public' + sLineBreak +
+  {} aPublicProperties +
+  {} aDatasePropertyCode +
+  {} fIdentationText + 'end;' + sLineBreak;
 end;
 
 function TDataProxyGenerator.Gen_MethodConnectFields: string;
@@ -174,8 +182,8 @@ begin
   begin
     aFieldCount := fDataSet.Fields.Count;
     for fld in fDataSet.Fields do
-      aFieldAssigments := aFieldAssigments + '  ' + Gen_FieldAssigment(fld) +
-        sLineBreak;
+      aFieldAssigments := aFieldAssigments + fIdentationText +
+        Gen_FieldAssigment(fld) + sLineBreak;
   end
   else
   begin
@@ -183,13 +191,15 @@ begin
     aFieldAssigments := '';
   end;
   Result :=
-  (* *) 'procedure T' + fObjectName + 'Proxy.ConnectFields;' + sLineBreak +
-  (* *) 'const' + sLineBreak +
-  (* *) '  ExpectedFieldCount = ' + aFieldCount.ToString + ';' + sLineBreak +
-  (* *) 'begin' + sLineBreak +
-  (* *) aFieldAssigments +
-  (* *) '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);' + sLineBreak +
-  (* *) 'end;' + sLineBreak;
+  {} 'procedure T' + fObjectName + 'Proxy.ConnectFields;' + sLineBreak +
+  {} 'const' + sLineBreak +
+  {} fIdentationText + 'ExpectedFieldCount = ' + aFieldCount.ToString + ';' +
+    sLineBreak +
+  {} 'begin' + sLineBreak +
+  {} aFieldAssigments +
+  {} fIdentationText + 'Assert(FDataSet.Fields.Count = ExpectedFieldCount);' +
+    sLineBreak +
+  {} 'end;' + sLineBreak;
 end;
 
 procedure TDataProxyGenerator.Execute;
