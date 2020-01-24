@@ -274,6 +274,7 @@ begin
     {} ['CustomerID', ftInteger],
     {} ['CompanyName', ftString]]);
   fGenerator.ObjectName := 'TwoField';
+  fGenerator.IdentationText := '    ';
 
   actualCode := fGenerator.Generate_ClassDeclaration;
 
@@ -281,13 +282,13 @@ begin
     {} 'type'#13#10 +
     {} '    TTwoFieldProxy = class(TDatasetProxy)'#13#10 +
     {} '    private'#13#10 +
-    {} '        fCustomerID :TIntegerField;'#13#10 +
-    {} '        fCompanyName :TStringField;'#13#10 +
+    {} '        FCustomerID :TIntegerField;'#13#10 +
+    {} '        FCompanyName :TStringField;'#13#10 +
     {} '    protected'#13#10 +
     {} '        procedure ConnectFields; override;'#13#10 +
     {} '    public'#13#10 +
-    {} '        property CustomerID :TIntegerField read fCustomerID;'#13#10 +
-    {} '        property CompanyName :TStringField read fCompanyName;'#13#10 +
+    {} '        property CustomerID :TIntegerField read FCustomerID;'#13#10 +
+    {} '        property CompanyName :TStringField read FCompanyName;'#13#10 +
     {} '    end;'#13#10, actualCode);
 end;
 

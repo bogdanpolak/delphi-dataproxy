@@ -135,10 +135,10 @@ begin
   begin
     for fld in fDataSet.Fields do
     begin
-      aPrivateFields := aPrivateFields +
-      (* *) '  ' + '  ' + Gen_PrivateField(fld) + sLineBreak;
-      aPublicProperties := aPublicProperties +
-      (* *) '  ' + '  ' + Gen_PublicProperty(fld) + sLineBreak;
+      aPrivateFields := aPrivateFields + fIdentationText + fIdentationText +
+        Gen_PrivateField(fld) + sLineBreak;
+      aPublicProperties := aPublicProperties + fIdentationText + fIdentationText
+        + Gen_PublicProperty(fld) + sLineBreak;
     end;
   end;
   // ----
@@ -147,25 +147,29 @@ begin
       aDatasePropertyCode := '';
     dsaGenComment:
       aDatasePropertyCode :=
-      (* *) '    // the following property should be hidden (uncomment if required)'
-        + sLineBreak +
-      (* *) '    // property DataSet: TDataSet read FDataSet;' + sLineBreak;
+      {} fIdentationText + fIdentationText + '// the following property' +
+        ' should be hidden (uncomment if required)' + sLineBreak +
+      {} fIdentationText + fIdentationText + '// property DataSet: TDataSet' +
+        ' read FDataSet;' + sLineBreak;
     dsaFullAccess:
       aDatasePropertyCode :=
-      (* *) '    property DataSet: TDataSet read FDataSet;' + sLineBreak;
+      {} fIdentationText + fIdentationText + 'property DataSet: TDataSet' +
+        ' read FDataSet;' + sLineBreak;
   end;
   // ----
   Result :=
-  (* *) 'type' + sLineBreak +
-  (* *) '  T' + fObjectName + 'Proxy = class(TDatasetProxy)' + sLineBreak +
-  (* *) '  private' + sLineBreak +
-  (* *) aPrivateFields +
-  (* *) '  protected' + sLineBreak +
-  (* *) '    procedure ConnectFields; override;' + sLineBreak +
-  (* *) '  public' + sLineBreak +
-  (* *) aPublicProperties +
-  (* *) aDatasePropertyCode +
-  (* *) '  end;' + sLineBreak;
+  {} 'type' + sLineBreak +
+  {} fIdentationText + 'T' + fObjectName + 'Proxy = class(TDatasetProxy)' +
+    sLineBreak +
+  {} fIdentationText + 'private' + sLineBreak +
+  {} aPrivateFields +
+  {} fIdentationText + 'protected' + sLineBreak +
+  {} fIdentationText + fIdentationText + 'procedure ConnectFields; override;' +
+    sLineBreak +
+  {} fIdentationText + 'public' + sLineBreak +
+  {} aPublicProperties +
+  {} aDatasePropertyCode +
+  {} fIdentationText + 'end;' + sLineBreak;
 end;
 
 function TDataProxyGenerator.Gen_MethodConnectFields: string;
