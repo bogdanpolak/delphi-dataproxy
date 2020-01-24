@@ -34,6 +34,7 @@ type
     // ---
     procedure GenUnitHeader_IsEmpty;
     procedure GenUsesSection;
+    procedure GenUsesSection_Identation_4spaces;
     // ---
     procedure GenClassFields_Integer;
     procedure GenClassFields_Integer_LowerCaseStyle;
@@ -121,6 +122,23 @@ begin
     (* *) '  System.SysUtils,'#13#10 +
     (* *) '  System.Classes,'#13#10 +
     (* *) '  FireDAC.Comp.Client;'#13#10, actualCode);
+end;
+
+procedure TestGenerator.GenUsesSection_Identation_4spaces;
+var
+  actualCode: string;
+begin
+  fGenerator.IdentationText := '    ';
+
+  actualCode := fGenerator.Generate_UsesSection;
+
+  Assert.AreEqual(
+    (* *) 'uses'#13#10 +
+    (* *) '    Data.DB,'#13#10 +
+    (* *) '    Data.DataProxy,'#13#10 +
+    (* *) '    System.SysUtils,'#13#10 +
+    (* *) '    System.Classes,'#13#10 +
+    (* *) '    FireDAC.Comp.Client;'#13#10, actualCode);
 end;
 
 

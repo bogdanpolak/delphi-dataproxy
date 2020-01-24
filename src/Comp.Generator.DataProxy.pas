@@ -23,6 +23,7 @@ type
     fDataSetAccess: TDataSetAccess;
     fFieldNamingStyle: TFieldNamingStyle;
     fObjectName: string;
+    fIdentationText: string;
     procedure Guard;
     function GetFieldPrefix: string;
   protected
@@ -40,11 +41,13 @@ type
   published
     property Code: TStringList read fCode;
     property DataSet: TDataSet read fDataSet write fDataSet;
+    // ---- options ----
     property DataSetAccess: TDataSetAccess read fDataSetAccess
       write fDataSetAccess;
     property FieldNamingStyle: TFieldNamingStyle read fFieldNamingStyle
       write fFieldNamingStyle;
     property ObjectName: string read fObjectName write fObjectName;
+    property IdentationText: string read fIdentationText write fIdentationText;
   end;
 
 implementation
