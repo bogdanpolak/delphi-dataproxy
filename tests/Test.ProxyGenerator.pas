@@ -53,6 +53,8 @@ type
     procedure GenMethod_ConnectFields_DataSet_OneString;
     procedure GenMethod_ConnectFields_TwoFields_LowerCaseStyle;
     procedure GenMethod_ConnectFields_Identation4;
+    // ---
+    procedure Generate_BooksProxy;
   end;
 
 implementation
@@ -448,6 +450,67 @@ begin
     {} + '    FCompanyName := FDataSet.FieldByName(''CompanyName'') as TStringField;'#13#10
     {} + '    Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13#10
     {} + 'end;'#13#10, actualCode);
+end;
+
+// -----------------------------------------------------------------------
+// Tests: Generate books proxy
+// -----------------------------------------------------------------------
+
+procedure TestGenerator.Generate_BooksProxy;
+begin
+  fGenerator.DataSet := GivenDataset([
+    {} ['ISBN', ftWideString, 20],
+    {} ['Title', ftWideString, 100],
+    {} ['Authors', ftWideString, 100],
+    {} ['ReleseDate', ftDate],
+    {} ['Pages', ftInteger],
+    {} ['Price', ftBCD, 12, 2]]);
+  fGenerator.ObjectName := 'Books';
+
+  fGenerator.Execute;
+
+  Assert.AreMemosEqual(
+    {} 'uses'#13#10
+    {} + '  Data.DB,'#13#10
+    {} + '  Data.DataProxy,'#13#10
+    {} + '  System.SysUtils,'#13#10
+    {} + '  System.Classes,'#13#10
+    {} + '  FireDAC.Comp.Client;'#13#10
+    {} + ''#13#10
+    {} + 'type'#13#10
+    {} + '  TBooksProxy = class(TDatasetProxy)'#13#10
+    {} + '  private'#13#10
+    {} + '    FISBN :TWideStringField;'#13#10
+    {} + '    FTitle :TWideStringField;'#13#10
+    {} + '    FAuthors :TWideStringField;'#13#10
+    {} + '    FReleseDate :TDateField;'#13#10
+    {} + '    FPages :TIntegerField;'#13#10
+    {} + '    FPrice :TBCDField;'#13#10
+    {} + '  protected'#13#10
+    {} + '    procedure ConnectFields; override;'#13#10
+    {} + '  public'#13#10
+    {} + '    property ISBN :TWideStringField read FISBN;'#13#10
+    {} + '    property Title :TWideStringField read FTitle;'#13#10
+    {} + '    property Authors :TWideStringField read FAuthors;'#13#10
+    {} + '    property ReleseDate :TDateField read FReleseDate;'#13#10
+    {} + '    property Pages :TIntegerField read FPages;'#13#10
+    {} + '    property Price :TBCDField read FPrice;'#13#10
+    {} + '  end;'#13#10
+    {} + ''#13#10
+    {} + 'implementation'#13#10
+    {} + ''#13#10
+    {} + 'procedure TBooksProxy.ConnectFields;'#13#10
+    {} + 'const'#13#10
+    {} + '  ExpectedFieldCount = 6;'#13#10
+    {} + 'begin'#13#10
+    {} + '  FISBN := FDataSet.FieldByName(''ISBN'') as TWideStringField;'#13#10
+    {} + '  FTitle := FDataSet.FieldByName(''Title'') as TWideStringField;'#13#10
+    {} + '  FAuthors := FDataSet.FieldByName(''Authors'') as TWideStringField;'#13#10
+    {} + '  FReleseDate := FDataSet.FieldByName(''ReleseDate'') as TDateField;'#13#10
+    {} + '  FPages := FDataSet.FieldByName(''Pages'') as TIntegerField;'#13#10
+    {} + '  FPrice := FDataSet.FieldByName(''Price'') as TBCDField;'#13#10
+    {} + '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13#10
+    {} + 'end;'#13#10, fGenerator.Code.Text);
 end;
 
 initialization
