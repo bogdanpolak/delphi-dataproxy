@@ -59,6 +59,7 @@ begin
   fDataSet := nil;
   fObjectName := 'Something';
   fDataSetAccess := dsaNoAccess;
+  fIdentationText := '  ';
 end;
 
 destructor TDataProxyGenerator.Destroy;
@@ -81,11 +82,11 @@ function TDataProxyGenerator.Gen_UsesSection: string;
 begin
   Result :=
   (* *) 'uses' + sLineBreak +
-  (* *) '  Data.DB,' + sLineBreak +
-  (* *) '  Data.DataProxy,' + sLineBreak +
-  (* *) '  System.SysUtils,' + sLineBreak +
-  (* *) '  System.Classes,' + sLineBreak +
-  (* *) '  FireDAC.Comp.Client;' + sLineBreak;
+  (* *) fIdentationText + 'Data.DB,' + sLineBreak +
+  (* *) fIdentationText + 'Data.DataProxy,' + sLineBreak +
+  (* *) fIdentationText + 'System.SysUtils,' + sLineBreak +
+  (* *) fIdentationText + 'System.Classes,' + sLineBreak +
+  (* *) fIdentationText + 'FireDAC.Comp.Client;' + sLineBreak;
 end;
 
 function GetFieldClassName(fld: TField): string;
