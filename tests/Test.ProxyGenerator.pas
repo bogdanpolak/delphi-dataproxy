@@ -44,6 +44,7 @@ type
     // ---
     procedure GenClass_DataSet_Nil;
     procedure GenClass_Dataset_OneInteger;
+    procedure GenClass_With2Fields_Identation4;
     procedure GenClass_TwoFields_LowerCaseStyle;
     procedure GenClass_AccessToDataSet_InComments;
     procedure GenClass_AccessToDataSet_Full;
@@ -263,6 +264,31 @@ begin
     (* *) '  public'#13#10 +
     (* *) '    property FieldInteger :TIntegerField read FFieldInteger;'#13#10 +
     (* *) '  end;'#13#10, actualCode);
+end;
+
+procedure TestGenerator.GenClass_With2Fields_Identation4;
+var
+  actualCode: string;
+begin
+  fGenerator.DataSet := GivenDataset([
+    {} ['CustomerID', ftInteger],
+    {} ['CompanyName', ftString]]);
+  fGenerator.ObjectName := 'TwoField';
+
+  actualCode := fGenerator.Generate_ClassDeclaration;
+
+  Assert.AreMemosEqual(
+    {} 'type'#13#10 +
+    {} '    TTwoFieldProxy = class(TDatasetProxy)'#13#10 +
+    {} '    private'#13#10 +
+    {} '        fCustomerID :TIntegerField;'#13#10 +
+    {} '        fCompanyName :TStringField;'#13#10 +
+    {} '    protected'#13#10 +
+    {} '        procedure ConnectFields; override;'#13#10 +
+    {} '    public'#13#10 +
+    {} '        property CustomerID :TIntegerField read fCustomerID;'#13#10 +
+    {} '        property CompanyName :TStringField read fCompanyName;'#13#10 +
+    {} '    end;'#13#10, actualCode);
 end;
 
 procedure TestGenerator.GenClass_TwoFields_LowerCaseStyle;
