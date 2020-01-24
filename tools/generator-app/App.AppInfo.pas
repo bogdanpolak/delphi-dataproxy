@@ -36,7 +36,7 @@ type
     class function IsLevelSupported(level: integer): boolean;
     class procedure SpeedSlowDown;
   private const
-    AutomationActive = True;
+    AutomationActive = False;
     AutomationLevel = 5;
     // 1: Select Connection
     // 2: Connect
