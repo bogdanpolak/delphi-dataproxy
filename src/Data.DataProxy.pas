@@ -28,6 +28,8 @@ type
     procedure SetDataSet(aDataSet: TDataSet);
   public
     function WithDataSet(aDataSet: TDataSet): TDataSetProxy;
+    function WithSQL(const aSQL: String; const aParams: TArray<Variant> = [];
+      const aParamTypes: TArray<TFieldType> = []): TDatasetProxy;
     function Open: TDataSetProxy;
     procedure ForEach(OnElem: TProc);
     // ----------------
@@ -202,6 +204,19 @@ begin
   Result := fDataSet.UpdateStatus;
 end;
 
+
+// * --------------------------------------------------------------------
+// * SQL DataSet proxy (supporting FireDAC only. Considering: ADO, IBX)
+// * --------------------------------------------------------------------
+
+function TDatasetProxy.WithSQL (
+    const aSQL: String;
+    const aParams: TArray<Variant> = [];
+    const aParamTypes: TArray<TFieldType> = []
+): TDatasetProxy;
+begin
+  Result := self;
+end;
 
 // * --------------------------------------------------------------------
 // * Extra methods (dedicated for Proxy)
