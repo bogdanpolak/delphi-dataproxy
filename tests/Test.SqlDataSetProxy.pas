@@ -29,6 +29,7 @@ type
   published
     procedure CheckFireDAC_ConnectionDef;
     procedure WithSql_CustomerOrders;
+    procedure WithSql_Orders_Year1998_Month01;
   end;
 
 implementation
@@ -88,6 +89,33 @@ begin
   System.Assert(FDataSet.Fields.Count = ExpectedFieldCount);
 end;
 
+type
+  TMiniOrdersProxy = class(TDatasetProxy)
+  private
+    FOrderID: TAutoIncField;
+    FCustomerID: TStringField;
+    FOrderDate: TDateTimeField;
+    FFreight: TCurrencyField;
+  protected
+    procedure ConnectFields; override;
+  public
+    property OrderID: TAutoIncField read FOrderID;
+    property CustomerID: TStringField read FCustomerID;
+    property OrderDate: TDateTimeField read FOrderDate;
+    property Freight: TCurrencyField read FFreight;
+  end;
+
+procedure TMiniOrdersProxy.ConnectFields;
+const
+  ExpectedFieldCount = 4;
+begin
+  FOrderID := FDataSet.FieldByName('OrderID') as TAutoIncField;
+  FCustomerID := FDataSet.FieldByName('CustomerID') as TStringField;
+  FOrderDate := FDataSet.FieldByName('OrderDate') as TDateTimeField;
+  FFreight := FDataSet.FieldByName('Freight') as TCurrencyField;
+  System.Assert(FDataSet.Fields.Count = ExpectedFieldCount);
+end;
+
 
 // -----------------------------------------------------------------------
 // Utilities
@@ -97,6 +125,7 @@ function GivenConnection(aOwner: TComponent): TFDConnection;
 begin
   Result := TFDConnection.Create(aOwner);
   Result.ConnectionName := TestSqDemoProxy.TestUsingFireDefinitionName;
+  Result.FetchOptions.RowsetSize := 100;
 end;
 
 
@@ -154,6 +183,21 @@ begin
     {} 'ORDER BY Orders.OrderID');
 
   Assert.AreEqual(34, aCustOrdersProxy.RecordCount);
+end;
+
+procedure TestSqDemoProxy.WithSql_Orders_Year1998_Month01;
+var
+  aCustOrdersProxy: TCustomerOrdersProxy;
+begin
+  aCustOrdersProxy := TCustomerOrdersProxy.Create(fOwner);
+
+  aCustOrdersProxy.WithFiredacSQL(GivenConnection(fOwner),
+    {} 'SELECT OrderID, CustomerID, OrderDate, Freight' +
+    {} ' FROM {id Orders} ' +
+    {} ' WHERE {year(OrderDate)} = :AYear and {month(OrderDate)} = :AMonth',
+    [1998, 01]);
+
+  Assert.AreEqual(55, aCustOrdersProxy.RecordCount);
 end;
 
 end.
