@@ -16,7 +16,8 @@ interface
 uses
   System.Classes,
   System.SysUtils,
-  Data.DB;
+  Data.DB,
+  FireDAC.Comp.Client;
 
 type
   TDataSetProxy = class(TComponent)
@@ -28,8 +29,9 @@ type
     procedure SetDataSet(aDataSet: TDataSet);
   public
     function WithDataSet(aDataSet: TDataSet): TDataSetProxy;
-    function WithSQL(const aSQL: String; const aParams: TArray<Variant> = [];
-      const aParamTypes: TArray<TFieldType> = []): TDatasetProxy;
+    function WithFiredacSQL(aConnection: TFDConnection; const aSQL: String;
+      const aParams: TArray<Variant> = [];
+      const aParamTypes: TArray<TFieldType> = []): TDataSetProxy;
     function Open: TDataSetProxy;
     procedure ForEach(OnElem: TProc);
     // ----------------
@@ -65,6 +67,11 @@ type
   end;
 
 implementation
+
+uses
+  {FireDAC - for component TFDeuery}
+  FireDAC.DApt,
+  FireDAC.Stan.Async;
 
 // * --------------------------------------------------------------------
 // * TGenericDataSetProxy
@@ -209,13 +216,17 @@ end;
 // * SQL DataSet proxy (supporting FireDAC only. Considering: ADO, IBX)
 // * --------------------------------------------------------------------
 
-function TDatasetProxy.WithSQL (
-    const aSQL: String;
-    const aParams: TArray<Variant> = [];
-    const aParamTypes: TArray<TFieldType> = []
-): TDatasetProxy;
+function TDataSetProxy.WithFiredacSQL(aConnection: TFDConnection;
+  const aSQL: String; const aParams: TArray<Variant> = [];
+  const aParamTypes: TArray<TFieldType> = []): TDataSetProxy;
+var
+  aFDQuery: TFDQuery;
 begin
-  Result := self;
+  aFDQuery := TFDQuery.Create(Self);
+  aFDQuery.Connection := aConnection;
+  aFDQuery.Open(aSQL);
+  fDataSet := aFDQuery;
+  Result := Self;
 end;
 
 // * --------------------------------------------------------------------
