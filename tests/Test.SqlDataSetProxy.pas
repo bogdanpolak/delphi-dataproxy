@@ -31,6 +31,7 @@ type
     procedure WithSql_CustomerOrders;
     procedure WithSql_Orders_Year1998_Month01;
     procedure WithSql_Orders_Params2xDateTime;
+    procedure WithSql_Orders_GetFieldValues;
   end;
 
 implementation
@@ -215,6 +216,21 @@ begin
     {} [ftDate, ftDate]);
 
   Assert.AreEqual(17, aOrdersProxy.RecordCount);
+end;
+
+procedure TestSqDemoProxy.WithSql_Orders_GetFieldValues;
+var
+  aOrdersProxy: TMiniOrdersProxy;
+begin
+  aOrdersProxy := TMiniOrdersProxy.Create(fOwner);
+
+  aOrdersProxy.WithFiredacSQL(GivenConnection(fOwner),
+    {} 'SELECT OrderID, CustomerID, OrderDate, Freight' +
+    {} ' FROM {id Orders} WHERE Freight>400 ORDER BY Freight');
+
+  Assert.AreEqual(10941, aOrdersProxy.OrderID.Value);
+  Assert.AreEqual('SAVEA', aOrdersProxy.CustomerID.AsString);
+  Assert.AreEqual(400.81, aOrdersProxy.Freight.Value, 0.00001);
 end;
 
 end.
