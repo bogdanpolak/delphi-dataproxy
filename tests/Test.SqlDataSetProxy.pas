@@ -46,7 +46,7 @@ uses
 
 type
   TCustomerOrdersProxy = class(TDatasetProxy)
-  private
+  strict private
     FOrderID: TAutoIncField;
     FCustomerID: TStringField;
     FCompanyName: TStringField;
@@ -57,7 +57,7 @@ type
     FShippedDate: TDateTimeField;
     FShipVia: TIntegerField;
     FFreight: TCurrencyField;
-  protected
+  strict protected
     procedure ConnectFields; override;
   public
     property OrderID: TAutoIncField read FOrderID;
@@ -91,12 +91,12 @@ end;
 
 type
   TMiniOrdersProxy = class(TDatasetProxy)
-  private
+  strict private
     FOrderID: TAutoIncField;
     FCustomerID: TStringField;
     FOrderDate: TDateTimeField;
     FFreight: TCurrencyField;
-  protected
+  strict protected
     procedure ConnectFields; override;
   public
     property OrderID: TAutoIncField read FOrderID;
@@ -185,19 +185,20 @@ begin
   Assert.AreEqual(34, aCustOrdersProxy.RecordCount);
 end;
 
+
 procedure TestSqDemoProxy.WithSql_Orders_Year1998_Month01;
 var
-  aCustOrdersProxy: TCustomerOrdersProxy;
+  aOrdersProxy: TMiniOrdersProxy;
 begin
-  aCustOrdersProxy := TCustomerOrdersProxy.Create(fOwner);
+  aOrdersProxy := TMiniOrdersProxy.Create(fOwner);
 
-  aCustOrdersProxy.WithFiredacSQL(GivenConnection(fOwner),
+  aOrdersProxy.WithFiredacSQL(GivenConnection(fOwner),
     {} 'SELECT OrderID, CustomerID, OrderDate, Freight' +
     {} ' FROM {id Orders} ' +
     {} ' WHERE {year(OrderDate)} = :AYear and {month(OrderDate)} = :AMonth',
     [1998, 01]);
 
-  Assert.AreEqual(55, aCustOrdersProxy.RecordCount);
+  Assert.AreEqual(55, aOrdersProxy.RecordCount);
 end;
 
 end.
