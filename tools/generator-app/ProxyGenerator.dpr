@@ -2,18 +2,18 @@ program ProxyGenerator;
 
 uses
   Vcl.Forms,
-  Form.Main in 'Form.Main.pas' {FormMain},
-  Dialog.SelectDefinition in 'Dialog.SelectDefinition.pas' {DialogSelectDefinition},
-  DataModule.Main in 'DataModule.Main.pas' {DataModule1: TDataModule},
-  Helper.TApplication in 'Helper.TApplication.pas',
-  App.AppInfo in 'App.AppInfo.pas',
-  Helper.TDBGrid in 'Helper.TDBGrid.pas',
-  Dialog.QueryBuilder in 'Dialog.QueryBuilder.pas' {DialogQueryBuilder},
-  Helper.TField in 'Helper.TField.pas',
+  Helper.TApplication in 'helpers\Helper.TApplication.pas',
+  Helper.TDBGrid in 'helpers\Helper.TDBGrid.pas',
+  Helper.TField in 'helpers\Helper.TField.pas',
+  Helper.TStrings in 'helpers\Helper.TStrings.pas',
+  Comp.Generator.DataProxy in '..\..\src\Comp.Generator.DataProxy.pas',
   Comp.Generator.DataSetCode in 'Comp.Generator.DataSetCode.pas',
-  Helper.TStrings in 'Helper.TStrings.pas',
+  App.AppInfo in 'App.AppInfo.pas',
+  DataModule.Main in 'DataModule.Main.pas' {DataModule1: TDataModule},
+  Form.Main in 'Form.Main.pas' {FormMain},
   Command.GenerateProxy in 'Command.GenerateProxy.pas',
-  Comp.Generator.DataProxy in '..\..\src\Comp.Generator.DataProxy.pas';
+  Dialog.SelectDefinition in 'Dialog.SelectDefinition.pas' {DialogSelectDefinition},
+  Dialog.QueryBuilder in 'Dialog.QueryBuilder.pas' {DialogQueryBuilder};
 
 {$R *.res}
 
