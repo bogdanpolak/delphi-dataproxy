@@ -28,6 +28,7 @@ type
     procedure TearDown;
   published
     procedure CheckFireDAC_ConnectionDef;
+    procedure WithSql_CustomerOrders;
   end;
 
 implementation
@@ -37,12 +38,64 @@ uses
   FireDAC.Stan.Def,
   FireDAC.Phys.Intf, FireDAC.Phys, FireDAC.Phys.SQLiteDef, FireDAC.Phys.SQLite;
 
+
+// -----------------------------------------------------------------------
+// Proxy: CustomerOrders
+// -----------------------------------------------------------------------
+
+type
+  TCustomerOrdersProxy = class(TDatasetProxy)
+  private
+    FOrderID: TAutoIncField;
+    FCustomerID: TStringField;
+    FCompanyName: TStringField;
+    FEmployeeID: TIntegerField;
+    FEmployeeName: TWideStringField;
+    FOrderDate: TDateTimeField;
+    FRequiredDate: TDateTimeField;
+    FShippedDate: TDateTimeField;
+    FShipVia: TIntegerField;
+    FFreight: TCurrencyField;
+  protected
+    procedure ConnectFields; override;
+  public
+    property OrderID: TAutoIncField read FOrderID;
+    property CustomerID: TStringField read FCustomerID;
+    property CompanyName: TStringField read FCompanyName;
+    property EmployeeID: TIntegerField read FEmployeeID;
+    property EmployeeName: TWideStringField read FEmployeeName;
+    property OrderDate: TDateTimeField read FOrderDate;
+    property RequiredDate: TDateTimeField read FRequiredDate;
+    property ShippedDate: TDateTimeField read FShippedDate;
+    property ShipVia: TIntegerField read FShipVia;
+    property Freight: TCurrencyField read FFreight;
+  end;
+
+procedure TCustomerOrdersProxy.ConnectFields;
+const
+  ExpectedFieldCount = 10;
+begin
+  FOrderID := FDataSet.FieldByName('OrderID') as TAutoIncField;
+  FCustomerID := FDataSet.FieldByName('CustomerID') as TStringField;
+  FCompanyName := FDataSet.FieldByName('CompanyName') as TStringField;
+  FEmployeeID := FDataSet.FieldByName('EmployeeID') as TIntegerField;
+  FEmployeeName := FDataSet.FieldByName('EmployeeName') as TWideStringField;
+  FOrderDate := FDataSet.FieldByName('OrderDate') as TDateTimeField;
+  FRequiredDate := FDataSet.FieldByName('RequiredDate') as TDateTimeField;
+  FShippedDate := FDataSet.FieldByName('ShippedDate') as TDateTimeField;
+  FShipVia := FDataSet.FieldByName('ShipVia') as TIntegerField;
+  FFreight := FDataSet.FieldByName('Freight') as TCurrencyField;
+  System.Assert(FDataSet.Fields.Count = ExpectedFieldCount);
+end;
+
+
 // -----------------------------------------------------------------------
 // Setup and TearDown section
 // -----------------------------------------------------------------------
 
 procedure TestSqDemoProxy.Setup;
 begin
+  FDManager.SilentMode := True;
   fOwner := TComponent.Create(nil);
 end;
 
@@ -50,6 +103,7 @@ procedure TestSqDemoProxy.TearDown;
 begin
   fOwner.Free;
 end;
+
 
 // -----------------------------------------------------------------------
 // Tests: CheckFireDAC
@@ -61,6 +115,37 @@ begin
     (TestUsingFireDefinitionName) <> nil, 'Test fixture ' + Self.ClassName +
     ' required FireDAC to work. ' + 'Expected connction definition "' +
     TestUsingFireDefinitionName + '" not found.');
+end;
+
+
+// -----------------------------------------------------------------------
+// Tests: WithSql
+// -----------------------------------------------------------------------
+
+procedure TestSqDemoProxy.WithSql_CustomerOrders;
+var
+  aCustOrdersProxy: TCustomerOrdersProxy;
+  aConnection: TFDConnection;
+begin
+  aConnection := TFDConnection.Create(fOwner);
+  aConnection.ConnectionName := TestUsingFireDefinitionName;
+  aCustOrdersProxy := TCustomerOrdersProxy.Create(fOwner);
+
+  aCustOrdersProxy.WithFiredacSQL(aConnection,
+    {} 'SELECT Orders.OrderID,'#13#10 +
+    {} '  Orders.CustomerID, Customers.CompanyName, Orders.EmployeeID,'#13#10 +
+    {} '  Employees.FirstName||'' ''||Employees.LastName EmployeeName,'#13#10 +
+    {} '  Orders.OrderDate, Orders.RequiredDate, Orders.ShippedDate,'#13#10 +
+    {} '  Orders.ShipVia, Orders.Freight'#13#10 +
+    {} 'FROM {id Orders} Orders'#13#10 +
+    {} '  INNER JOIN {id Employees} Employees'#13#10 +
+    {} '    ON Orders.EmployeeID = Employees.EmployeeID'#13#10 +
+    {} '  INNER JOIN {id Customers} Customers'#13#10 +
+    {} '    ON Orders.CustomerID = Customers.CustomerID'#13#10 +
+    {} 'WHERE {year(OrderDate)} = 1997 and {month(OrderDate)} = 11 '#13#10 +
+    {} 'ORDER BY Orders.OrderID');
+
+  Assert.AreEqual(34, aCustOrdersProxy.RecordCount);
 end;
 
 end.
