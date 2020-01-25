@@ -30,6 +30,7 @@ type
     procedure CheckFireDAC_ConnectionDef;
     procedure WithSql_CustomerOrders;
     procedure WithSql_Orders_Year1998_Month01;
+    procedure WithSql_Orders_Params2xDateTime;
   end;
 
 implementation
@@ -185,7 +186,6 @@ begin
   Assert.AreEqual(34, aCustOrdersProxy.RecordCount);
 end;
 
-
 procedure TestSqDemoProxy.WithSql_Orders_Year1998_Month01;
 var
   aOrdersProxy: TMiniOrdersProxy;
@@ -199,6 +199,22 @@ begin
     [1998, 01]);
 
   Assert.AreEqual(55, aOrdersProxy.RecordCount);
+end;
+
+procedure TestSqDemoProxy.WithSql_Orders_Params2xDateTime;
+var
+  aOrdersProxy: TMiniOrdersProxy;
+begin
+  aOrdersProxy := TMiniOrdersProxy.Create(fOwner);
+
+  aOrdersProxy.WithFiredacSQL(GivenConnection(fOwner),
+    {} 'SELECT OrderID, CustomerID, OrderDate, Freight' +
+    {} ' FROM {id Orders} ' +
+    {} ' WHERE OrderDate between :StartDate and :EndDate',
+    {} [EncodeDate(1998, 04, 01), EncodeDate(1998, 04, 07)],
+    {} [ftDate, ftDate]);
+
+  Assert.AreEqual(17, aOrdersProxy.RecordCount);
 end;
 
 end.
