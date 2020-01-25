@@ -31,6 +31,7 @@ type
     procedure WithSql_CustomerOrders;
     procedure WithSql_Orders_Year1998_Month01;
     procedure WithSql_Orders_Params2xDateTime;
+    procedure WithSql_Orders_ParamCurrency;
     procedure WithSql_Orders_GetFieldValues;
   end;
 
@@ -216,6 +217,24 @@ begin
     {} [ftDate, ftDate]);
 
   Assert.AreEqual(17, aOrdersProxy.RecordCount);
+end;
+
+procedure TestSqDemoProxy.WithSql_Orders_ParamCurrency;
+var
+  aOrdersProxy: TMiniOrdersProxy;
+  aFreightField: TCurrencyField;
+begin
+  aOrdersProxy := TMiniOrdersProxy.Create(fOwner);
+
+  aOrdersProxy.WithFiredacSQL(GivenConnection(fOwner),
+    {} 'SELECT OrderID, CustomerID, OrderDate, Freight' +
+    {} ' FROM {id Orders} ' +
+    {} ' WHERE Freight > :Freight1' +
+    {} ' ORDER BY Freight',
+    {} [490.01], [ftCurrency]);
+
+  Assert.AreEqual(13, aOrdersProxy.RecordCount);
+  Assert.AreEqual(544.08, aOrdersProxy.Freight.Value, 0.000001);
 end;
 
 procedure TestSqDemoProxy.WithSql_Orders_GetFieldValues;
