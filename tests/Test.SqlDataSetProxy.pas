@@ -90,6 +90,17 @@ end;
 
 
 // -----------------------------------------------------------------------
+// Utilities
+// -----------------------------------------------------------------------
+
+function GivenConnection(aOwner: TComponent): TFDConnection;
+begin
+  Result := TFDConnection.Create(aOwner);
+  Result.ConnectionName := TestSqDemoProxy.TestUsingFireDefinitionName;
+end;
+
+
+// -----------------------------------------------------------------------
 // Setup and TearDown section
 // -----------------------------------------------------------------------
 
@@ -125,13 +136,10 @@ end;
 procedure TestSqDemoProxy.WithSql_CustomerOrders;
 var
   aCustOrdersProxy: TCustomerOrdersProxy;
-  aConnection: TFDConnection;
 begin
-  aConnection := TFDConnection.Create(fOwner);
-  aConnection.ConnectionName := TestUsingFireDefinitionName;
   aCustOrdersProxy := TCustomerOrdersProxy.Create(fOwner);
 
-  aCustOrdersProxy.WithFiredacSQL(aConnection,
+  aCustOrdersProxy.WithFiredacSQL(GivenConnection(fOwner),
     {} 'SELECT Orders.OrderID,'#13#10 +
     {} '  Orders.CustomerID, Customers.CompanyName, Orders.EmployeeID,'#13#10 +
     {} '  Employees.FirstName||'' ''||Employees.LastName EmployeeName,'#13#10 +
