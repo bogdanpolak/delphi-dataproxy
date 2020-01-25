@@ -1,4 +1,4 @@
-program TestDataProxyGenerator;
+program TestDataSetProxy;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
