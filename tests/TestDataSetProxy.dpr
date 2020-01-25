@@ -16,7 +16,8 @@ uses
   Comp.Generator.DataProxy in '..\src\Comp.Generator.DataProxy.pas',
   Data.DataProxy in '..\src\Data.DataProxy.pas',
   Helper.DUnitAssert in 'Helper.DUnitAssert.pas',
-  Test.DataSetProxy in 'Test.DataSetProxy.pas';
+  Test.DataSetProxy in 'Test.DataSetProxy.pas',
+  Test.SqlDataSetProxy in 'Test.SqlDataSetProxy.pas';
 
 var
   runner : ITestRunner;
