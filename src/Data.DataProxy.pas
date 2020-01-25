@@ -224,7 +224,7 @@ var
 begin
   aFDQuery := TFDQuery.Create(Self);
   aFDQuery.Connection := aConnection;
-  aFDQuery.Open(aSQL);
+  aFDQuery.Open(aSQL,aParams,aParamTypes);
   fDataSet := aFDQuery;
   Result := Self;
 end;
