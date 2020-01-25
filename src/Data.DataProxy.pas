@@ -226,6 +226,7 @@ begin
   aFDQuery.Connection := aConnection;
   aFDQuery.Open(aSQL,aParams,aParamTypes);
   fDataSet := aFDQuery;
+  ConnectFields;
   Result := Self;
 end;
 
