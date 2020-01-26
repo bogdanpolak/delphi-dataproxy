@@ -14,7 +14,8 @@ uses
   DataModule.Main in 'DataModule.Main.pas' {DataModule1: TDataModule},
   Form.Main in 'Form.Main.pas' {FormMain},
   Dialog.SelectDefinition in 'Dialog.SelectDefinition.pas' {DialogSelectDefinition},
-  Dialog.QueryBuilder in 'Dialog.QueryBuilder.pas' {DialogQueryBuilder};
+  Dialog.QueryBuilder in 'Dialog.QueryBuilder.pas' {DialogQueryBuilder},
+  Utils.Timer.Interval in 'utils\Utils.Timer.Interval.pas';
 
 {$R *.res}
 

@@ -52,7 +52,7 @@ object FormMain: TFormMain
     Top = 58
     Width = 669
     Height = 437
-    ActivePage = tshFakeDataset
+    ActivePage = tshDataSet
     Align = alRight
     TabOrder = 1
     object tshDataSet: TTabSheet
@@ -273,9 +273,9 @@ object FormMain: TFormMain
       ImageIndex = 1
       object mmProxyCode: TMemo
         AlignWithMargins = True
-        Left = 183
+        Left = 199
         Top = 3
-        Width = 475
+        Width = 459
         Height = 403
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
@@ -289,20 +289,20 @@ object FormMain: TFormMain
         ScrollBars = ssVertical
         TabOrder = 0
       end
-      object GroupBox1: TGroupBox
+      object grbxProxyGenOptions: TGroupBox
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 174
+        Width = 190
         Height = 403
         Align = alLeft
-        Caption = 'Proxy parameters'
+        Caption = 'Proxy generator options:'
         TabOrder = 1
         object Label4: TLabel
           AlignWithMargins = True
           Left = 7
           Top = 21
-          Width = 160
+          Width = 176
           Height = 13
           Margins.Left = 5
           Margins.Top = 6
@@ -315,7 +315,7 @@ object FormMain: TFormMain
           AlignWithMargins = True
           Left = 5
           Top = 63
-          Width = 164
+          Width = 180
           Height = 13
           Margins.Top = 0
           Margins.Bottom = 8
@@ -333,7 +333,7 @@ object FormMain: TFormMain
           AlignWithMargins = True
           Left = 7
           Top = 40
-          Width = 160
+          Width = 176
           Height = 21
           Margins.Left = 5
           Margins.Right = 5
@@ -343,26 +343,134 @@ object FormMain: TFormMain
           Text = 'edtProxyName'
           OnKeyPress = edtProxyNameKeyPress
         end
+        object GroupBox5: TGroupBox
+          AlignWithMargins = True
+          Left = 7
+          Top = 97
+          Width = 176
+          Height = 72
+          Margins.Left = 5
+          Margins.Top = 13
+          Margins.Right = 5
+          Align = alTop
+          Caption = 'Field naming convetion:'
+          TabOrder = 1
+          object rbtnProxyOptionFieldLowerCase: TRadioButton
+            AlignWithMargins = True
+            Left = 15
+            Top = 18
+            Width = 156
+            Height = 17
+            Margins.Left = 13
+            Align = alTop
+            Caption = 'Lower case first letter'
+            TabOrder = 0
+            OnClick = rbtnProxyOptionFieldLowerCaseClick
+          end
+          object rbtnProxyOptionFieldUpperCase: TRadioButton
+            AlignWithMargins = True
+            Left = 15
+            Top = 41
+            Width = 156
+            Height = 17
+            Margins.Left = 13
+            Align = alTop
+            Caption = 'Upper case first letter'
+            Checked = True
+            TabOrder = 1
+            TabStop = True
+            OnClick = rbtnProxyOptionFieldUpperCaseClick
+          end
+        end
+        object GroupBox6: TGroupBox
+          AlignWithMargins = True
+          Left = 7
+          Top = 185
+          Width = 176
+          Height = 72
+          Margins.Left = 5
+          Margins.Top = 13
+          Margins.Right = 5
+          Align = alTop
+          Caption = 'Internal DataSet access:'
+          TabOrder = 2
+          object rbtnProxyOptionNoDataSetAccess: TRadioButton
+            AlignWithMargins = True
+            Left = 15
+            Top = 18
+            Width = 156
+            Height = 17
+            Margins.Left = 13
+            Align = alTop
+            Caption = 'No avaliable (sugessted)'
+            Checked = True
+            TabOrder = 0
+            TabStop = True
+            OnClick = rbtnProxyOptionNoDataSetAccessClick
+          end
+          object rbtnProxyOptionCommnetedDataSet: TRadioButton
+            AlignWithMargins = True
+            Left = 15
+            Top = 41
+            Width = 156
+            Height = 17
+            Margins.Left = 13
+            Align = alTop
+            Caption = 'Commneted property'
+            TabOrder = 1
+            OnClick = rbtnProxyOptionCommnetedDataSetClick
+          end
+        end
+        object GroupBox7: TGroupBox
+          AlignWithMargins = True
+          Left = 7
+          Top = 273
+          Width = 176
+          Height = 56
+          Margins.Left = 5
+          Margins.Top = 13
+          Margins.Right = 5
+          Align = alTop
+          Caption = 'Code identation'
+          TabOrder = 3
+          object cbxProxyOptionIdentation: TComboBox
+            AlignWithMargins = True
+            Left = 7
+            Top = 18
+            Width = 162
+            Height = 21
+            Margins.Left = 5
+            Margins.Right = 5
+            Align = alTop
+            Style = csDropDownList
+            ItemIndex = 0
+            TabOrder = 0
+            Text = '2 spaces'
+            OnChange = cbxProxyOptionIdentationChange
+            Items.Strings = (
+              '2 spaces'
+              '4 spaces')
+          end
+        end
       end
     end
     object tshFakeDataset: TTabSheet
       Caption = 'Generated code: Fake DataSet'
       ImageIndex = 2
-      ExplicitLeft = 0
-      object GroupBox2: TGroupBox
+      object gxbxFakeGenOptions: TGroupBox
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 182
+        Width = 190
         Height = 403
         Align = alLeft
-        Caption = 'DataSet parameters'
+        Caption = 'Fake DataSet generator options:'
         TabOrder = 0
         object GroupBox3: TGroupBox
           AlignWithMargins = True
           Left = 7
           Top = 28
-          Width = 168
+          Width = 176
           Height = 69
           Margins.Left = 5
           Margins.Top = 13
@@ -370,29 +478,25 @@ object FormMain: TFormMain
           Align = alTop
           Caption = 'Generated DataSet:'
           TabOrder = 0
-          ExplicitTop = 18
-          ExplicitWidth = 172
-          object rbtnClientDataSet: TRadioButton
+          object rbtnFakeOptionClientDataSet: TRadioButton
             Tag = 12
             AlignWithMargins = True
             Left = 15
             Top = 41
-            Width = 148
+            Width = 156
             Height = 17
             Margins.Left = 13
             Align = alTop
             Caption = 'TClientDataSet'
             TabOrder = 0
-            OnClick = rbtnFakeOptionDataSetTypeClick
-            ExplicitTop = 67
-            ExplicitWidth = 162
+            OnClick = rbtnFakeOptionClientDataSetClick
           end
-          object rbtnFDMemTable: TRadioButton
+          object rbtnFakeOptionFDMemTable: TRadioButton
             Tag = 11
             AlignWithMargins = True
             Left = 15
             Top = 18
-            Width = 148
+            Width = 156
             Height = 17
             Margins.Left = 13
             Align = alTop
@@ -400,17 +504,14 @@ object FormMain: TFormMain
             Checked = True
             TabOrder = 1
             TabStop = True
-            OnClick = rbtnFakeOptionDataSetTypeClick
-            ExplicitLeft = 13
-            ExplicitTop = 3
-            ExplicitWidth = 144
+            OnClick = rbtnFakeOptionFDMemTableClick
           end
         end
         object GroupBox4: TGroupBox
           AlignWithMargins = True
           Left = 7
           Top = 113
-          Width = 168
+          Width = 176
           Height = 69
           Margins.Left = 5
           Margins.Top = 13
@@ -418,14 +519,12 @@ object FormMain: TFormMain
           Align = alTop
           Caption = 'Generated Append code:'
           TabOrder = 1
-          ExplicitTop = 103
-          ExplicitWidth = 172
-          object rbtnMultiline: TRadioButton
+          object rbtnFakeOptionAppendMultiline: TRadioButton
             Tag = 21
             AlignWithMargins = True
             Left = 15
             Top = 18
-            Width = 148
+            Width = 156
             Height = 17
             Margins.Left = 13
             Align = alTop
@@ -433,32 +532,28 @@ object FormMain: TFormMain
             Checked = True
             TabOrder = 0
             TabStop = True
-            OnClick = rbtnFakeOptionAppendClick
-            ExplicitLeft = 17
+            OnClick = rbtnFakeOptionAppendMultilineClick
           end
-          object rbtnSingleline: TRadioButton
+          object rbtnFakeOptionAppendSingleline: TRadioButton
             Tag = 22
             AlignWithMargins = True
             Left = 15
             Top = 41
-            Width = 148
+            Width = 156
             Height = 17
             Margins.Left = 13
             Align = alTop
             Caption = 'Single line AppendRecord'
             TabOrder = 1
-            OnClick = rbtnFakeOptionAppendClick
-            ExplicitLeft = 17
-            ExplicitTop = 18
-            ExplicitWidth = 152
+            OnClick = rbtnFakeOptionAppendSinglelineClick
           end
         end
       end
       object mmFakeDataSetCode: TMemo
         AlignWithMargins = True
-        Left = 191
+        Left = 199
         Top = 3
-        Width = 467
+        Width = 459
         Height = 403
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
@@ -471,8 +566,6 @@ object FormMain: TFormMain
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 1
-        ExplicitLeft = 183
-        ExplicitWidth = 475
       end
     end
   end
@@ -505,10 +598,6 @@ object FormMain: TFormMain
     object actQueryBuilder: TAction
       Caption = 'Build SELECT'
       OnExecute = actQueryBuilderExecute
-    end
-    object actChangeProxyName: TAction
-      Caption = 'Change Proxy Name'
-      OnExecute = actChangeProxyNameExecute
     end
   end
   object DataSource1: TDataSource

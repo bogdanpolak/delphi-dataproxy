@@ -52,8 +52,6 @@ begin
 end;
 
 procedure TDialogSelectDefinition.FormCreate(Sender: TObject);
-var
-  s: String;
 begin
   ListBox1.Clear;
   FDManager.GetConnectionNames (ListBox1.Items);
