@@ -126,7 +126,8 @@ begin
     '    ON Orders.EmployeeID = Employees.EmployeeID ' + sLineBreak +
     '  INNER JOIN {id Customers} Customers ' + sLineBreak +
     '    ON Orders.CustomerID = Customers.CustomerID ' + sLineBreak +
-    'WHERE {year(OrderDate)} = 1997 ' + sLineBreak + 'ORDER BY Orders.OrderID ';
+    'WHERE {year(OrderDate)} = 1997 and {month (OrderDate)} = 09' + sLineBreak +
+    'ORDER BY Orders.OrderID ';
   mmSqlPreview.Text := sql;
   ModalResult := mrOK;
 end;
