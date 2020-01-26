@@ -348,7 +348,6 @@ object FormMain: TFormMain
     object tshFakeDataset: TTabSheet
       Caption = 'Generated code: Fake DataSet'
       ImageIndex = 2
-      ExplicitLeft = 0
       object GroupBox2: TGroupBox
         AlignWithMargins = True
         Left = 3
@@ -370,9 +369,7 @@ object FormMain: TFormMain
           Align = alTop
           Caption = 'Generated DataSet:'
           TabOrder = 0
-          ExplicitTop = 18
-          ExplicitWidth = 172
-          object rbtnClientDataSet: TRadioButton
+          object rbtnFakeOptionClientDataSet: TRadioButton
             Tag = 12
             AlignWithMargins = True
             Left = 15
@@ -383,11 +380,10 @@ object FormMain: TFormMain
             Align = alTop
             Caption = 'TClientDataSet'
             TabOrder = 0
-            OnClick = rbtnFakeOptionDataSetTypeClick
-            ExplicitTop = 67
-            ExplicitWidth = 162
+            OnClick = rbtnFakeOptionClientDataSetClick
+            ExplicitLeft = 17
           end
-          object rbtnFDMemTable: TRadioButton
+          object rbtnFakeOptionFDMemTable: TRadioButton
             Tag = 11
             AlignWithMargins = True
             Left = 15
@@ -400,10 +396,8 @@ object FormMain: TFormMain
             Checked = True
             TabOrder = 1
             TabStop = True
-            OnClick = rbtnFakeOptionDataSetTypeClick
-            ExplicitLeft = 13
-            ExplicitTop = 3
-            ExplicitWidth = 144
+            OnClick = rbtnFakeOptionFDMemTableClick
+            ExplicitLeft = 17
           end
         end
         object GroupBox4: TGroupBox
@@ -418,9 +412,7 @@ object FormMain: TFormMain
           Align = alTop
           Caption = 'Generated Append code:'
           TabOrder = 1
-          ExplicitTop = 103
-          ExplicitWidth = 172
-          object rbtnMultiline: TRadioButton
+          object rbtnFakeOptionAppendMultiline: TRadioButton
             Tag = 21
             AlignWithMargins = True
             Left = 15
@@ -433,10 +425,9 @@ object FormMain: TFormMain
             Checked = True
             TabOrder = 0
             TabStop = True
-            OnClick = rbtnFakeOptionAppendClick
-            ExplicitLeft = 17
+            OnClick = rbtnFakeOptionAppendMultilineClick
           end
-          object rbtnSingleline: TRadioButton
+          object rbtnFakeOptionAppendSingleline: TRadioButton
             Tag = 22
             AlignWithMargins = True
             Left = 15
@@ -447,10 +438,7 @@ object FormMain: TFormMain
             Align = alTop
             Caption = 'Single line AppendRecord'
             TabOrder = 1
-            OnClick = rbtnFakeOptionAppendClick
-            ExplicitLeft = 17
-            ExplicitTop = 18
-            ExplicitWidth = 152
+            OnClick = rbtnFakeOptionAppendSinglelineClick
           end
         end
       end
@@ -471,8 +459,6 @@ object FormMain: TFormMain
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 1
-        ExplicitLeft = 183
-        ExplicitWidth = 475
       end
     end
   end
