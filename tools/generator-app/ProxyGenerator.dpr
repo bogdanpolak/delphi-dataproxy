@@ -13,7 +13,6 @@ uses
   App.AppInfo in 'App.AppInfo.pas',
   DataModule.Main in 'DataModule.Main.pas' {DataModule1: TDataModule},
   Form.Main in 'Form.Main.pas' {FormMain},
-  Command.GenerateProxy in 'Command.GenerateProxy.pas',
   Dialog.SelectDefinition in 'Dialog.SelectDefinition.pas' {DialogSelectDefinition},
   Dialog.QueryBuilder in 'Dialog.QueryBuilder.pas' {DialogQueryBuilder};
 
