@@ -87,8 +87,11 @@ implementation
 
 uses
   System.Win.Registry,
+
   Helper.TDBGrid,
   Helper.TApplication,
+  Helper.TFDConnection,
+
   App.AppInfo,
   DataModule.Main,
   Dialog.SelectDefinition,
@@ -256,7 +259,7 @@ begin
   if Sender is TMenuItem then
   begin
     ConnDefName := Vcl.Menus.StripHotkey((Sender as TMenuItem).Caption);
-    if DataModule1.IsConnected then
+    if DataModule1.GetConnection.IsConnected then
       actConnect.Execute;
     SetCurrentConnectionDefinition(ConnDefName);
   end;
@@ -304,15 +307,10 @@ begin
 end;
 
 procedure TFormMain.UpdateActionEnable();
-var
-  IsConnected: boolean;
-  IsDataSetActive: boolean;
 begin
-  IsConnected := DataModule1.IsConnected;
-  IsDataSetActive := fDataSet.Active;
-  actQueryBuilder.Enabled := IsConnected;
-  actExecSQL.Enabled := IsConnected;
-  actGenerateProxy.Enabled := IsDataSetActive;
+  actQueryBuilder.Enabled := DataModule1.GetConnection.IsConnected;
+  actExecSQL.Enabled := DataModule1.GetConnection.IsConnected;
+  actGenerateProxy.Enabled := fDataSet.Active;
 end;
 
 
@@ -324,7 +322,7 @@ procedure TFormMain.actSelectConnectionDefExecute(Sender: TObject);
 begin
   if TDialogSelectDefinition.Execute then
   begin
-    if DataModule1.IsConnected then
+    if DataModule1.GetConnection.IsConnected then
       actConnect.Execute;
     SetCurrentConnectionDefinition(TDialogSelectDefinition.ConnectionDef);
   end;
@@ -341,9 +339,9 @@ end;
 
 procedure TFormMain.actConnectExecute(Sender: TObject);
 begin
-  if not DataModule1.IsConnected then
+  if not DataModule1.GetConnection.IsConnected then
   begin
-    DataModule1.OpenConnection(fCurrentConnDefName);
+    DataModule1.GetConnection.Open(fCurrentConnDefName);
     // TODO: misleading method name (2 responsibilities)
     // * AddOrUpdateConnection_MruList = UpdateMRUList
     // * WriteConnectionMruList
@@ -353,7 +351,7 @@ begin
   end
   else
   begin
-    DataModule1.CloseConnection;
+    DataModule1.GetConnection.Close;
     actConnect.Caption := 'Connect';
     PageControl1.ActivePageIndex := 0;
     mmProxyCode.Clear;

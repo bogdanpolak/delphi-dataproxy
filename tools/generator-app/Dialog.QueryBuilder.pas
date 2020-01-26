@@ -41,7 +41,7 @@ type
     procedure cbxTablesMainChange(Sender: TObject);
     procedure tmrReadyTimer(Sender: TObject);
   private
-    FTables: System.Types.TStringDynArray;
+    FTables: TArray<String>;
     procedure PaintBox1Paint(Sender: TObject);
     procedure DrawInfoListBoxNotImplemented(APaintBox: TPaintBox);
   public
@@ -54,7 +54,8 @@ implementation
 
 uses
   DataModule.Main,
-  App.AppInfo;
+  App.AppInfo,
+  Helper.TFDConnection;
 
 class function TDialogQueryBuilder.Execute: string;
 var
@@ -76,7 +77,7 @@ procedure TDialogQueryBuilder.FormCreate(Sender: TObject);
 var
   s: String;
 begin
-  FTables := DataModule1.GetTablesAndViewsNames;
+  FTables := DataModule1.GetConnection.GetTableNamesAsArray;
   // -------------------------------------------------------------------
   // Configure dialog controls
   // -------------------------------------------------------------------
@@ -138,7 +139,7 @@ end;
 procedure TDialogQueryBuilder.actMainTableSelectedExecute(Sender: TObject);
 var
   aTableName: String;
-  Fields: System.Types.TStringDynArray;
+  aFields: TArray<String>;
   fldName: String;
   FieldCount: Integer;
   sFieldsList: string;
@@ -146,13 +147,13 @@ begin
   if cbxMainTables.ItemIndex > 0 then
   begin
     aTableName := cbxMainTables.Text;
-    Fields := DataModule1.GetFieldNames(aTableName);
-    FieldCount := Length(Fields);
+    aFields := DataModule1.GetConnection.GetFieldNamesAsArray(aTableName);
+    FieldCount := Length(aFields);
     mmSqlPreview.Clear;
     if FieldCount > 0 then
     begin
       sFieldsList := '';
-      for fldName in Fields do
+      for fldName in aFields do
       begin
         if sFieldsList = '' then
           sFieldsList := fldName

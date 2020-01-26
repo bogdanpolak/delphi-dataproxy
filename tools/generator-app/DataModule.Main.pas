@@ -39,13 +39,9 @@ type
     FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink;
   private
   public
-    function IsConnected: boolean;
-    procedure OpenConnection (const ConnDefName: String);
-    procedure CloseConnection;
     function GetMainDataQuery : TDataSet;
     procedure ExecuteSQL (const TextSQL: String);
-    function GetTablesAndViewsNames: TStringDynArray;
-    function GetFieldNames (const TableName: string): TStringDynArray;
+    function GetConnection: TFDConnection;
   end;
 
 var
@@ -55,26 +51,11 @@ implementation
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
-uses
-  Helper.TStrings,
-  Helper.TFDCustomManager;
-
 {$R *.dfm}
 
-function TDataModule1.IsConnected: boolean;
+function TDataModule1.GetConnection: TFDConnection;
 begin
-  Result := FDConnection1.Connected;
-end;
-
-procedure TDataModule1.OpenConnection(const ConnDefName: String);
-begin
-  FDConnection1.ConnectionDefName := ConnDefName;
-  FDConnection1.Open();
-end;
-
-procedure TDataModule1.CloseConnection;
-begin
-  FDConnection1.Close;
+  Result := FDConnection1;
 end;
 
 function TDataModule1.GetMainDataQuery: TDataSet;
@@ -86,32 +67,6 @@ procedure TDataModule1.ExecuteSQL(const TextSQL: String);
 begin
   FDQuery1.SQL.Text := '';
   FDQuery1.Open(TextSQL);
-end;
-
-function TDataModule1.GetTablesAndViewsNames: TStringDynArray;
-var
-  sl: TStringList;
-begin
-  sl := TStringList.Create;
-  try
-    FDConnection1.GetTableNames('','','',sl);
-    Result := sl.ToStringDynArray;
-  finally
-    sl.Free;
-  end;
-end;
-
-function TDataModule1.GetFieldNames(const TableName: string): TStringDynArray;
-var
-  sl: TStringList;
-begin
-  sl := TStringList.Create;
-  try
-    FDConnection1.GetFieldNames('','',TableName,'',sl);
-    Result := sl.ToStringDynArray;
-  finally
-    sl.Free;
-  end;
 end;
 
 end.
