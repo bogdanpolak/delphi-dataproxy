@@ -66,7 +66,6 @@ type
     rbtnProxyOptionCommnetedDataSet: TRadioButton;
     GroupBox7: TGroupBox;
     cbxProxyOptionIdentation: TComboBox;
-    tmrAnimProxyChange: TTimer;
     // --------------------------------------------------------------------
     // Startup
     procedure FormCreate(Sender: TObject);
@@ -88,7 +87,6 @@ type
     procedure rbtnProxyOptionNoDataSetAccessClick(Sender: TObject);
     procedure rbtnProxyOptionCommnetedDataSetClick(Sender: TObject);
     procedure cbxProxyOptionIdentationChange(Sender: TObject);
-    procedure tmrAnimProxyChangeTimer(Sender: TObject);
   private
     fProxyGenerator: TDataProxyGenerator;
     fDataSetGenerator: TDSGenerator;
@@ -126,7 +124,8 @@ uses
   App.AppInfo,
   DataModule.Main,
   Dialog.SelectDefinition,
-  Dialog.QueryBuilder;
+  Dialog.QueryBuilder,
+  Utils.Timer.Interval;
 
 const
   AppRegistryKey = 'Software\DelphiPower\DataSetProxyGenerator';
@@ -332,23 +331,6 @@ begin
   UpdateActionEnable;
 end;
 
-procedure TFormMain.tmrAnimProxyChangeTimer(Sender: TObject);
-var
-  aProgressBar: TProgressBar;
-begin
-  if mmProxyCode.Color = clWindow then
-  begin
-    mmProxyCode.Color := clBtnFace;
-    tmrAnimProxyChange.Interval := 200;
-  end
-  else begin
-    tmrAnimProxyChange.Enabled := False;
-    fProxyGenerator.Execute;
-    mmProxyCode.Lines.Text := fProxyGenerator.Code.Text;
-    mmProxyCode.Color := clWindow;
-  end;
-end;
-
 procedure TFormMain.tmrReadyTimer(Sender: TObject);
 begin
   tmrReady.Enabled := False;
@@ -447,8 +429,14 @@ procedure TFormMain.UpdateFakeCode_AfterOptionChange;
 begin
   if DataSource1.DataSet.Active then
   begin
-    fDataSetGenerator.Execute;
-    mmFakeDataSetCode.Lines.Text := fDataSetGenerator.Code.Text;
+    mmFakeDataSetCode.Color := clBtnFace;
+    TIntervalTimer.SetTimeout(200,
+      procedure
+      begin
+        fDataSetGenerator.Execute;
+        mmFakeDataSetCode.Lines.Text := fDataSetGenerator.Code.Text;
+        mmFakeDataSetCode.Color := clWindow;
+      end);
   end;
 end;
 
@@ -456,7 +444,14 @@ procedure TFormMain.UpdateProxyCode_AfterOptionChange;
 begin
   if DataSource1.DataSet.Active then
   begin
-    tmrAnimProxyChange.Enabled := True;
+    mmProxyCode.Color := clBtnFace;
+    TIntervalTimer.SetTimeout(200,
+      procedure
+      begin
+        fProxyGenerator.Execute;
+        mmProxyCode.Lines.Text := fProxyGenerator.Code.Text;
+        mmProxyCode.Color := clWindow;
+      end);
   end;
 end;
 
