@@ -391,19 +391,19 @@ begin
   // ----------------------------------------------------
   fProxyGenerator.DataSet := DataSource1.DataSet;
   fProxyGenerator.ObjectName := edtProxyName.Text;
+  fProxyGenerator.DataSetAccess := dsaNoAccess;
+  fProxyGenerator.FieldNamingStyle := fnsLowerCaseF;
+  fProxyGenerator.IdentationText := '  ';
   fProxyGenerator.Execute;
   mmProxyCode.Lines.Text := fProxyGenerator.Code.Text;
   // ----------------------------------------------------
   // DataSet Fake generator
   // ----------------------------------------------------
-  with fDataSetGenerator do
-  begin
-    DataSet := DataSource1.DataSet;
-    GeneratorMode := genUnit;
-    AppendMode := amMultilineAppends;
-    DataSetType := dstFDMemTable;
-    IndentationText := '  ';
-  end;
+  fDataSetGenerator.DataSet := DataSource1.DataSet;
+  fDataSetGenerator.GeneratorMode := genUnit;
+  fDataSetGenerator.AppendMode := amMultilineAppends;
+  fDataSetGenerator.DataSetType := dstFDMemTable;
+  fDataSetGenerator.IndentationText := '  ';
   fDataSetGenerator.Execute;
   mmFakeDataSetCode.Lines.Text := fDataSetGenerator.Code.Text;
   // ----------------------------------------------------
