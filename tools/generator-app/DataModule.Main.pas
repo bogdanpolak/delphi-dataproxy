@@ -2,10 +2,12 @@ unit DataModule.Main;
 
 interface
 
-{--$Define FULL_FIREDAC_ACCESS}
+{--$Define FULL_FIREDAC_ACCESS}  // avaliable only in Delphi Entrprise version
 
 uses
-  System.SysUtils, System.Classes, System.Types,
+  System.SysUtils,
+  System.Classes,
+  System.Types,
   Data.DB,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Stan.Def,
@@ -29,24 +31,19 @@ uses
   FireDAC.Phys.ODBCBase;
 
 type
+  // -----------------------------
+  // TODO: Convert to class accesed by singleton factory method
+  // class: TDatabaseModule
+  // interface: GetDatabaseModule: IDatabaseModule;
+  // -----------------------------
   TDataModule1 = class(TDataModule)
     FDConnection1: TFDConnection;
     FDQuery1: TFDQuery;
-    FDPhysMySQLDriverLink1: TFDPhysMySQLDriverLink;
-    FDPhysFBDriverLink1: TFDPhysFBDriverLink;
-    FDPhysPgDriverLink1: TFDPhysPgDriverLink;
-    FDPhysIBDriverLink1: TFDPhysIBDriverLink;
-    FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink;
   private
   public
-    function GetConnectionDefList: TStringDynArray;
-    function IsConnected: boolean;
-    procedure OpenConnection (const ConnDefName: String);
-    procedure CloseConnection;
     function GetMainDataQuery : TDataSet;
     procedure ExecuteSQL (const TextSQL: String);
-    function GetTablesAndViewsNames: TStringDynArray;
-    function GetFieldNames (const TableName: string): TStringDynArray;
+    function GetConnection: TFDConnection;
   end;
 
 var
@@ -56,39 +53,11 @@ implementation
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
-uses Helper.TStrings;
-
 {$R *.dfm}
 
-{ TDataModule1 }
-
-function TDataModule1.GetConnectionDefList: TStringDynArray;
-var
-  i: Integer;
-  ConnectionDef: IFDStanConnectionDef;
+function TDataModule1.GetConnection: TFDConnection;
 begin
-  SetLength(Result, FDManager.ConnectionDefs.Count);
-  for i := 0 to FDManager.ConnectionDefs.Count-1 do
-  begin
-    ConnectionDef := FDManager.ConnectionDefs.Items[i];
-    Result[i] := ConnectionDef.Name;
-  end;
-end;
-
-function TDataModule1.IsConnected: boolean;
-begin
-  Result := FDConnection1.Connected;
-end;
-
-procedure TDataModule1.OpenConnection(const ConnDefName: String);
-begin
-  FDConnection1.ConnectionDefName := ConnDefName;
-  FDConnection1.Open();
-end;
-
-procedure TDataModule1.CloseConnection;
-begin
-  FDConnection1.Close;
+  Result := FDConnection1;
 end;
 
 function TDataModule1.GetMainDataQuery: TDataSet;
@@ -100,32 +69,6 @@ procedure TDataModule1.ExecuteSQL(const TextSQL: String);
 begin
   FDQuery1.SQL.Text := '';
   FDQuery1.Open(TextSQL);
-end;
-
-function TDataModule1.GetTablesAndViewsNames: TStringDynArray;
-var
-  sl: TStringList;
-begin
-  sl := TStringList.Create;
-  try
-    FDConnection1.GetTableNames('','','',sl);
-    Result := sl.ToStringDynArray;
-  finally
-    sl.Free;
-  end;
-end;
-
-function TDataModule1.GetFieldNames(const TableName: string): TStringDynArray;
-var
-  sl: TStringList;
-begin
-  sl := TStringList.Create;
-  try
-    FDConnection1.GetFieldNames('','',TableName,'',sl);
-    Result := sl.ToStringDynArray;
-  finally
-    sl.Free;
-  end;
 end;
 
 end.

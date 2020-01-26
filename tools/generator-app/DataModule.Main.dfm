@@ -18,24 +18,4 @@ object DataModule1: TDataModule1
     Left = 40
     Top = 80
   end
-  object FDPhysMySQLDriverLink1: TFDPhysMySQLDriverLink
-    Left = 232
-    Top = 136
-  end
-  object FDPhysFBDriverLink1: TFDPhysFBDriverLink
-    Left = 232
-    Top = 56
-  end
-  object FDPhysPgDriverLink1: TFDPhysPgDriverLink
-    Left = 232
-    Top = 256
-  end
-  object FDPhysIBDriverLink1: TFDPhysIBDriverLink
-    Left = 232
-    Top = 96
-  end
-  object FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink
-    Left = 232
-    Top = 296
-  end
 end

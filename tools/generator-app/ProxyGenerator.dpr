@@ -2,18 +2,19 @@ program ProxyGenerator;
 
 uses
   Vcl.Forms,
+  Helper.TApplication in 'helpers\Helper.TApplication.pas',
+  Helper.TDBGrid in 'helpers\Helper.TDBGrid.pas',
+  Helper.TField in 'helpers\Helper.TField.pas',
+  Helper.TStrings in 'helpers\Helper.TStrings.pas',
+  Helper.TFDCustomManager in 'helpers\Helper.TFDCustomManager.pas',
+  Helper.TFDConnection in 'helpers\Helper.TFDConnection.pas',
+  Comp.Generator.DataProxy in '..\..\src\Comp.Generator.DataProxy.pas',
+  Comp.Generator.DataSetCode in 'Comp.Generator.DataSetCode.pas',
+  App.AppInfo in 'App.AppInfo.pas',
+  DataModule.Main in 'DataModule.Main.pas' {DataModule1: TDataModule},
   Form.Main in 'Form.Main.pas' {FormMain},
   Dialog.SelectDefinition in 'Dialog.SelectDefinition.pas' {DialogSelectDefinition},
-  DataModule.Main in 'DataModule.Main.pas' {DataModule1: TDataModule},
-  Helper.TApplication in 'Helper.TApplication.pas',
-  App.AppInfo in 'App.AppInfo.pas',
-  Helper.TDBGrid in 'Helper.TDBGrid.pas',
-  Dialog.QueryBuilder in 'Dialog.QueryBuilder.pas' {DialogQueryBuilder},
-  Helper.TField in 'Helper.TField.pas',
-  Comp.Generator.DataSetCode in 'Comp.Generator.DataSetCode.pas',
-  Helper.TStrings in 'Helper.TStrings.pas',
-  Command.GenerateProxy in 'Command.GenerateProxy.pas',
-  Comp.Generator.DataProxy in '..\..\src\Comp.Generator.DataProxy.pas';
+  Dialog.QueryBuilder in 'Dialog.QueryBuilder.pas' {DialogQueryBuilder};
 
 {$R *.res}
 
