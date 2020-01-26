@@ -76,6 +76,9 @@ end;
 
 function TDataProxyGenerator.Gen_UnitHeader: string;
 begin
+  Result :=
+    {} 'unit Proxy.' + fObjectName + ';'+ sLineBreak +
+    {} sLineBreak;
 end;
 
 function TDataProxyGenerator.Gen_UsesSection: string;
