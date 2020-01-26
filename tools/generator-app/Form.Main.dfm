@@ -52,7 +52,7 @@ object FormMain: TFormMain
     Top = 58
     Width = 669
     Height = 437
-    ActivePage = tshFakeDataset
+    ActivePage = tshProxyCode
     Align = alRight
     TabOrder = 1
     object tshDataSet: TTabSheet
@@ -273,9 +273,9 @@ object FormMain: TFormMain
       ImageIndex = 1
       object mmProxyCode: TMemo
         AlignWithMargins = True
-        Left = 183
+        Left = 191
         Top = 3
-        Width = 475
+        Width = 467
         Height = 403
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
@@ -288,12 +288,14 @@ object FormMain: TFormMain
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
+        ExplicitLeft = 183
+        ExplicitWidth = 475
       end
       object GroupBox1: TGroupBox
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 174
+        Width = 182
         Height = 403
         Align = alLeft
         Caption = 'Proxy parameters'
@@ -302,7 +304,7 @@ object FormMain: TFormMain
           AlignWithMargins = True
           Left = 7
           Top = 21
-          Width = 160
+          Width = 168
           Height = 13
           Margins.Left = 5
           Margins.Top = 6
@@ -315,7 +317,7 @@ object FormMain: TFormMain
           AlignWithMargins = True
           Left = 5
           Top = 63
-          Width = 164
+          Width = 172
           Height = 13
           Margins.Top = 0
           Margins.Bottom = 8
@@ -333,7 +335,7 @@ object FormMain: TFormMain
           AlignWithMargins = True
           Left = 7
           Top = 40
-          Width = 160
+          Width = 168
           Height = 21
           Margins.Left = 5
           Margins.Right = 5
@@ -342,6 +344,123 @@ object FormMain: TFormMain
           TabOrder = 0
           Text = 'edtProxyName'
           OnKeyPress = edtProxyNameKeyPress
+          ExplicitLeft = 9
+        end
+        object GroupBox5: TGroupBox
+          AlignWithMargins = True
+          Left = 7
+          Top = 97
+          Width = 168
+          Height = 72
+          Margins.Left = 5
+          Margins.Top = 13
+          Margins.Right = 5
+          Align = alTop
+          Caption = 'Field naming convetion:'
+          TabOrder = 1
+          object rbtnProxyOptionFieldLowerCase: TRadioButton
+            AlignWithMargins = True
+            Left = 15
+            Top = 18
+            Width = 148
+            Height = 17
+            Margins.Left = 13
+            Align = alTop
+            Caption = 'Lower case first letter'
+            TabOrder = 0
+            OnClick = rbtnProxyOptionFieldLowerCaseClick
+            ExplicitLeft = 13
+          end
+          object rbtnProxyOptionFieldUpperCase: TRadioButton
+            AlignWithMargins = True
+            Left = 15
+            Top = 41
+            Width = 148
+            Height = 17
+            Margins.Left = 13
+            Align = alTop
+            Caption = 'Upper case first letter'
+            Checked = True
+            TabOrder = 1
+            TabStop = True
+            OnClick = rbtnProxyOptionFieldUpperCaseClick
+            ExplicitLeft = 44
+            ExplicitTop = 64
+            ExplicitWidth = 113
+          end
+        end
+        object GroupBox6: TGroupBox
+          AlignWithMargins = True
+          Left = 7
+          Top = 185
+          Width = 168
+          Height = 72
+          Margins.Left = 5
+          Margins.Top = 13
+          Margins.Right = 5
+          Align = alTop
+          Caption = 'Internal DataSet access:'
+          TabOrder = 2
+          object rbtnProxyOptionNoDataSetAccess: TRadioButton
+            AlignWithMargins = True
+            Left = 15
+            Top = 18
+            Width = 148
+            Height = 17
+            Margins.Left = 13
+            Align = alTop
+            Caption = 'No avaliable (sugessted)'
+            Checked = True
+            TabOrder = 0
+            TabStop = True
+            OnClick = rbtnProxyOptionNoDataSetAccessClick
+            ExplicitLeft = 17
+            ExplicitWidth = 140
+          end
+          object rbtnProxyOptionCommnetedDataSet: TRadioButton
+            AlignWithMargins = True
+            Left = 15
+            Top = 41
+            Width = 148
+            Height = 17
+            Margins.Left = 13
+            Align = alTop
+            Caption = 'Commneted property'
+            TabOrder = 1
+            OnClick = rbtnProxyOptionCommnetedDataSetClick
+            ExplicitLeft = 17
+          end
+        end
+        object GroupBox7: TGroupBox
+          AlignWithMargins = True
+          Left = 7
+          Top = 273
+          Width = 168
+          Height = 56
+          Margins.Left = 5
+          Margins.Top = 13
+          Margins.Right = 5
+          Align = alTop
+          Caption = 'Code identation'
+          TabOrder = 3
+          object cbxProxyOptionIdentation: TComboBox
+            AlignWithMargins = True
+            Left = 7
+            Top = 18
+            Width = 154
+            Height = 21
+            Margins.Left = 5
+            Margins.Right = 5
+            Align = alTop
+            Style = csDropDownList
+            ItemIndex = 0
+            TabOrder = 0
+            Text = '2 spaces'
+            OnChange = cbxProxyOptionIdentationChange
+            Items.Strings = (
+              '2 spaces'
+              '4 spaces')
+          end
         end
       end
     end
@@ -491,10 +610,6 @@ object FormMain: TFormMain
     object actQueryBuilder: TAction
       Caption = 'Build SELECT'
       OnExecute = actQueryBuilderExecute
-    end
-    object actChangeProxyName: TAction
-      Caption = 'Change Proxy Name'
-      OnExecute = actChangeProxyNameExecute
     end
   end
   object DataSource1: TDataSource
