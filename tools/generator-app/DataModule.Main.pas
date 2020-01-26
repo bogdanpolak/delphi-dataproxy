@@ -2,10 +2,12 @@ unit DataModule.Main;
 
 interface
 
-{--$Define FULL_FIREDAC_ACCESS}
+{--$Define FULL_FIREDAC_ACCESS}  // avaliable only in Delphi Entrprise version
 
 uses
-  System.SysUtils, System.Classes, System.Types,
+  System.SysUtils,
+  System.Classes,
+  System.Types,
   Data.DB,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Stan.Def,
@@ -29,14 +31,14 @@ uses
   FireDAC.Phys.ODBCBase;
 
 type
+  // -----------------------------
+  // TODO: Convert to class accesed by singleton factory method
+  // class: TDatabaseModule
+  // interface: GetDatabaseModule: IDatabaseModule;
+  // -----------------------------
   TDataModule1 = class(TDataModule)
     FDConnection1: TFDConnection;
     FDQuery1: TFDQuery;
-    FDPhysMySQLDriverLink1: TFDPhysMySQLDriverLink;
-    FDPhysFBDriverLink1: TFDPhysFBDriverLink;
-    FDPhysPgDriverLink1: TFDPhysPgDriverLink;
-    FDPhysIBDriverLink1: TFDPhysIBDriverLink;
-    FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink;
   private
   public
     function GetMainDataQuery : TDataSet;
