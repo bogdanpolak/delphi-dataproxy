@@ -31,7 +31,10 @@ implementation
 
 {$R *.dfm}
 
-uses DataModule.Main;
+uses
+  DataModule.Main,
+  FireDAC.Comp.Client,
+  Helper.TFDCustomManager;
 
 class function TDialogSelectDefinition.Execute: boolean;
 var
@@ -56,10 +59,10 @@ var
   s: String;
 begin
   ListBox1.Clear;
-  DefinitionNames := DataModule1.GetConnectionDefList;
+  DefinitionNames := FDManager.GetConnectionNamesAsArrray;
   for s in DefinitionNames do
     ListBox1.Items.Add(s);
-  FConnectionList := DataModule1.GetConnectionDefList;
+  FConnectionList := FDManager.GetConnectionNamesAsArrray;
   // ------------------------------------------------------------------
   // Configure action: actSelectConnection
   actSelectConnection := TAction.Create(Self);

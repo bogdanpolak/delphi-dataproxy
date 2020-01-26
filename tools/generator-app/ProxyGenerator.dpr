@@ -6,6 +6,7 @@ uses
   Helper.TDBGrid in 'helpers\Helper.TDBGrid.pas',
   Helper.TField in 'helpers\Helper.TField.pas',
   Helper.TStrings in 'helpers\Helper.TStrings.pas',
+  Helper.TFDCustomManager in 'helpers\Helper.TFDCustomManager.pas',
   Comp.Generator.DataProxy in '..\..\src\Comp.Generator.DataProxy.pas',
   Comp.Generator.DataSetCode in 'Comp.Generator.DataSetCode.pas',
   App.AppInfo in 'App.AppInfo.pas',

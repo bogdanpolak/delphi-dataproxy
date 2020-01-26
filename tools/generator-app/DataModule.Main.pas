@@ -39,7 +39,6 @@ type
     FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink;
   private
   public
-    function GetConnectionDefList: TStringDynArray;
     function IsConnected: boolean;
     procedure OpenConnection (const ConnDefName: String);
     procedure CloseConnection;
@@ -56,24 +55,11 @@ implementation
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
-uses Helper.TStrings;
+uses
+  Helper.TStrings,
+  Helper.TFDCustomManager;
 
 {$R *.dfm}
-
-{ TDataModule1 }
-
-function TDataModule1.GetConnectionDefList: TStringDynArray;
-var
-  i: Integer;
-  ConnectionDef: IFDStanConnectionDef;
-begin
-  SetLength(Result, FDManager.ConnectionDefs.Count);
-  for i := 0 to FDManager.ConnectionDefs.Count-1 do
-  begin
-    ConnectionDef := FDManager.ConnectionDefs.Items[i];
-    Result[i] := ConnectionDef.Name;
-  end;
-end;
 
 function TDataModule1.IsConnected: boolean;
 begin
