@@ -45,12 +45,12 @@ type
     Button3: TButton;
     Label3: TLabel;
     Button4: TButton;
-    GroupBox1: TGroupBox;
+    grbxProxyGenOptions: TGroupBox;
     edtProxyName: TEdit;
     Label4: TLabel;
     Label5: TLabel;
     tshFakeDataset: TTabSheet;
-    GroupBox2: TGroupBox;
+    gxbxFakeGenOptions: TGroupBox;
     rbtnFakeOptionFDMemTable: TRadioButton;
     rbtnFakeOptionClientDataSet: TRadioButton;
     rbtnFakeOptionAppendMultiline: TRadioButton;
@@ -66,6 +66,7 @@ type
     rbtnProxyOptionCommnetedDataSet: TRadioButton;
     GroupBox7: TGroupBox;
     cbxProxyOptionIdentation: TComboBox;
+    tmrAnimProxyChange: TTimer;
     // --------------------------------------------------------------------
     // Startup
     procedure FormCreate(Sender: TObject);
@@ -87,6 +88,7 @@ type
     procedure rbtnProxyOptionNoDataSetAccessClick(Sender: TObject);
     procedure rbtnProxyOptionCommnetedDataSetClick(Sender: TObject);
     procedure cbxProxyOptionIdentationChange(Sender: TObject);
+    procedure tmrAnimProxyChangeTimer(Sender: TObject);
   private
     fProxyGenerator: TDataProxyGenerator;
     fDataSetGenerator: TDSGenerator;
@@ -330,6 +332,23 @@ begin
   UpdateActionEnable;
 end;
 
+procedure TFormMain.tmrAnimProxyChangeTimer(Sender: TObject);
+var
+  aProgressBar: TProgressBar;
+begin
+  if mmProxyCode.Color = clWindow then
+  begin
+    mmProxyCode.Color := clBtnFace;
+    tmrAnimProxyChange.Interval := 200;
+  end
+  else begin
+    tmrAnimProxyChange.Enabled := False;
+    fProxyGenerator.Execute;
+    mmProxyCode.Lines.Text := fProxyGenerator.Code.Text;
+    mmProxyCode.Color := clWindow;
+  end;
+end;
+
 procedure TFormMain.tmrReadyTimer(Sender: TObject);
 begin
   tmrReady.Enabled := False;
@@ -437,8 +456,7 @@ procedure TFormMain.UpdateProxyCode_AfterOptionChange;
 begin
   if DataSource1.DataSet.Active then
   begin
-    fProxyGenerator.Execute;
-    mmProxyCode.Lines.Text := fProxyGenerator.Code.Text;
+    tmrAnimProxyChange.Enabled := True;
   end;
 end;
 
