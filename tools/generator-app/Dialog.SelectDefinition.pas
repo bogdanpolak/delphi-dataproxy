@@ -17,7 +17,6 @@ type
     procedure ListBox1DblClick(Sender: TObject);
   private
     actSelectConnection: TAction;
-    FConnectionList: System.Types.TStringDynArray;
     SelectedConnectionDef: string;
     procedure actSelectConnectionExecute (Sender: TObject);
     procedure actSelectConnectionUpdate (Sender: TObject);
@@ -33,8 +32,7 @@ implementation
 
 uses
   DataModule.Main,
-  FireDAC.Comp.Client,
-  Helper.TFDCustomManager;
+  FireDAC.Comp.Client;
 
 class function TDialogSelectDefinition.Execute: boolean;
 var
@@ -55,14 +53,10 @@ end;
 
 procedure TDialogSelectDefinition.FormCreate(Sender: TObject);
 var
-  DefinitionNames: System.Types.TStringDynArray;
   s: String;
 begin
   ListBox1.Clear;
-  DefinitionNames := FDManager.GetConnectionNamesAsArrray;
-  for s in DefinitionNames do
-    ListBox1.Items.Add(s);
-  FConnectionList := FDManager.GetConnectionNamesAsArrray;
+  FDManager.GetConnectionNames (ListBox1.Items);
   // ------------------------------------------------------------------
   // Configure action: actSelectConnection
   actSelectConnection := TAction.Create(Self);
