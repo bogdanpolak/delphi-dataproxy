@@ -3,6 +3,30 @@
 ![ Delphi Support ](https://img.shields.io/badge/Delphi%20Support-%20XE8%20..%2010.3%20Rio-blue.svg)
 ![ version ](https://img.shields.io/badge/version-%200.9-yellow.svg)
 
+-------------------------------------------------------------------
+## TBD in ver. 1.0 (plan)
+
+Tasks:
+1) Remove Generator App from main `README`
+   - move to Generator App documentation to separate document
+   - update diagrams
+2) Merge [Using TProxyDataSet in action](https://github.com/bogdanpolak/delphi-dataproxy/blob/master/doc/using-proxy.md) with main README
+3) Merge [TDataSet vs TDataSetProxy](https://github.com/bogdanpolak/delphi-dataproxy/blob/master/doc/compare-dataset-vs-proxy.md) with main README as introduction
+4) Separate memory dataset generation as separate subject for unit testing
+5) Describe TDataSetProxy as a tool for extracting logic form legacy projects
+6) Separate two sections:
+   * refactoring dataset into `TDataSetProxy`
+   * inserting extracted code into unit test harness
+7) Point [DataSet Generator](https://github.com/bogdanpolak/dataset-generator) as a supportive project
+8) Remove `TDataProxyFactory` use `WithDataSet`
+9) Update docs according to current folder structure:
+   * `proxy` -> `src`
+   * `generator` -> `tools\generator-app`
+10) Expnlain fake datasets generator as supportive project
+   * point source repo: https://github.com/bogdanpolak/dataset-generator
+
+
+-------------------------------------------------------------------
 ## Overview
 
 TDataSetProxy is a wrapper component for the TDataSet component (Delphi). The proxy allows to replace any dataset (TDataSet descendant) with a mock dataset - memory table. Solution can be used to separate a business class from  datasets during unit testing. Another use is to allow easy replacement of one DAC's components with another.
