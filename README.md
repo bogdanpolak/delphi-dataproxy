@@ -24,7 +24,7 @@ Tasks:
 -------------------------------------------------------------------
 ## Overview
 
-TDataSetProxy is a wrapper component for the classic Delphi dataset component. Proxy allows to replace any dataset (TDataSet class descendant) with a fake dataset (in-memory table). Solution can be used to separate a business class from  datasets during unit testing. Another use is to allow easy replacement of one DAC's components with another.
+TDataSetProxy is a wrapper component for the classic Delphi dataset component. Proxy allows to replace any dataset with a fake dataset (in-memory table). Solution can be used to separate a business class from datasets during automated testing.
 
 ![](./doc/resources/datasetproxy-diagram.png)
 
