@@ -35,24 +35,6 @@ TDataSetProxy is a wrapper component for the TDataSet component (Delphi). The pr
 
 **Inspiration**. Idea is based on Proxy GoF pattern and Active Record pattern (from: Martin Fowler - Patterns of Enterprise Application Architecture). See article: [Evolving Toward a Persistence Layer by Patkos Csaba](https://code.tutsplus.com/tutorials/evolving-toward-a-persistence-layer--net-27138)
 
-## Generator Application
-
-The Generator application automatically creates Delphi source code based od sample SQL query (eg. SELECT statement). The project contains its source code (folder `/generator`). In current release the `Generator App` uses FireDAC to connect to RDBMS server and execute query, but it's possible to extend support to other Delphi DAC components (eg. AnyDAC). 
-
-![](./doc/resources/generator-app.png)
-
-Main generator's goals are:
-* Receive a SQL statement 
-  * Connects to RDBMS database with `FireDAC`, paste, enter or edit a SQL statement
-  * Checks a structure and data in the result data set
-* Generate a proxy
-  * Using a SQL statement structure creates a Delphi code with new DAO class based on the TProxyDataSet
-* Generate a dataset mock `MemTable`
-  * Creates a Delphi code which builds a `TFDMemTable` component with the same structure as the input dataset
-  * Creates a Delphi code that clones data using the `Append` procedure
-  
-Supported Delphi versions: XE8, 10 Seattle, 10.1 Berlin, 10.2 Tokyo, 10.3 Rio
-
 ## Samples
 
 Check `samples` subfolder
