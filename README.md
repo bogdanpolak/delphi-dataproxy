@@ -7,28 +7,41 @@
 ## TBD in ver. 1.0 (plan)
 
 Tasks:
-1) Separate memory dataset generation as separate subject for unit testing
-1) Describe TDataSetProxy as a tool for extracting logic form legacy projects
 1) Separate two sections:
    * refactoring dataset into `TDataSetProxy`
    * inserting extracted code into unit test harness
-1) Point [DataSet Generator](https://github.com/bogdanpolak/dataset-generator) as a supportive project
 1) Remove `TDataProxyFactory` use `WithDataSet`
 1) Update docs according to current folder structure:
    * `proxy` -> `src`
    * `generator` -> `tools\generator-app`
-1) Expnlain fake datasets generator as supportive project
-   * point source repo: https://github.com/bogdanpolak/dataset-generator
 
 
 -------------------------------------------------------------------
 ## Overview
 
-TDataSetProxy is a wrapper component for the classic Delphi dataset component. Proxy allows to replace any dataset with a fake dataset (in-memory table). Solution can be used to separate a business class from datasets during automated testing.
+TDataSetProxy is a wrapper component for the classic Delphi dataset component. It allows to replace any dataset with a fake dataset (in-memory table). Proxy can be used to separate a business class from datasets, this separation is helpful when the business code needs to be putted into automated test harness (unit tests).
 
 ![](./doc/resources/datasetproxy-diagram.png)
 
 **Inspiration**. Idea is based on Proxy GoF pattern and Active Record pattern, defined by Martin Fowler in book **Patterns of Enterprise Application Architecture**
+
+## Why using proxy?
+
+DataSet Proxy pattern is helpful during the business logic extraction. This could be especially useful for improving legacy, highly coupled projects. When production code is dependent on a SQL data and SQL connection, it's really difficult to write unit tests for such code.
+
+Replacing dataset with proxies introduce new abstraction level which can facilitate both: SQL datasets in production code and memory datasets in test project. Proxy has very similar interface (methods list) to classic dataset, which help in easy migration. Fake datasets will allow to verify (assert) production code without connecting to database.
+
+DataSet Proxy together with two companion projects (DataSet Generator, Delphi Command Pattern) gives developers opportunity to introduce unit tests with with safe refactorings. 
+
+Dataset proxy is a temporary solution and after covering code with the tests engineers can apply more advanced refactorings: decoupling code or make it more composable and reusable. As one of these refactorings proxy can be safely replaced by the DAO object or by the model data structures.
+
+Together with code and quality improvement developers will learn how to write cleaner code or how to use test first approach and work better.
+
+Supportive projects
+| Project | GitHub Repo |
+| --- | --- |
+| Command Pattern for Delphi | https://github.com/bogdanpolak/command-delphi |
+| DataSet Generator | https://github.com/bogdanpolak/dataset-generator |
 
 ## Proxy generation
 
@@ -82,17 +95,9 @@ Using simple Visual pattern developer can expose and modify SQL server data. Wha
    - Stagnation and team demotivation - developers aren’t motivated to learn, improve and change
    - No or minimalistic unit test coverage
 
-## Why using proxy?
+## Using dataset proxy in action
 
 Replacing classic dataset with proxy requires some time to learn and validate in action. This approach looks a little strange for many Delphi Developers, but is easy to adopt. Proper management support and team coaching will allow team faster adopt proxy technique.
-
-Dataset proxy should be a temporary solution and real target is to refactor application according to well known OOP principles and patterns and  better organize whole project.
-
-Main target of proxy is to introduce unit tests for production code with safe and limited numbers of refactorings. Fake datasets will allow to assert test code without connecting to database.
-
-Using this technique developers will learn how to write cleaner code, using test first approach, and TDD technique. Extracted business code will less dependent and less coupled. As supportive solution teams can use supportive Command Pattern (described in supporting repository)
-
-## Using dataset proxy in action
 
 Proxy dataset is a simple and safe tool to refactor a classic VCL application builded using EDP (Event Driven Programming) technique. Using this solution some small, but important portions of business code can be extracted and covered with unit tests and after that with better safety net protection code can be improved using more advanced refactoring techniques.
 
