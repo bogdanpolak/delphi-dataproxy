@@ -133,8 +133,6 @@ The modernization process includes following steps:
 
 ### Step 1. The proxy generation
 
-Using the generator application it's possible to create automatically proxy unit. Sample unit `Data.Proxy.Book.pas` can looks like that:
-
 ```pas
 unit Data.Proxy.Book;
 
@@ -302,59 +300,10 @@ end;
 ```
 ## More proxy samples
 
-1) Books sample
+1) Books sample demo application
     1) see the setup documentation: [Samples README](./samples/README.md)
-    1) `TDatasetProxy` class source code is in the `/samples/base` folder
     1) Generated proxy = `TBookProxy` in (`Data.Proxy.Book.pas` unit)
     1) Generated mock factory = `function CreateMockTableBook` in (`Data.Mock.Book.pas` unit)
-
-[... more code - Gist sample (Data.Proxy.Book.pas)](https://gist.github.com/bogdanpolak/b13f0c5a677c3401734918dbfa7ae755)
-
-```pas
-unit Data.Mock.Book;
-
-interface
-
-uses
-  System.Classes, System.SysUtils,
-  Data.DB,
-  FireDAC.Comp.Client;
-
-function CreateMemDataSet_Book(AOwner: TComponent): TDataSet;
-
-implementation
-
-function CreateMemDataSet_Book(AOwner: TComponent): TDataSet;
-var
-  ds: TFDMemTable;
-begin
-  ds := TFDMemTable.Create(AOwner);
-  with ds do
-  begin
-    FieldDefs.Add('ISBN', ftWideString, 20);
-    FieldDefs.Add('Title', ftWideString, 100);
-    FieldDefs.Add('ReleseDate', ftDate);
-    FieldDefs.Add('Pages', ftInteger);
-    with FieldDefs.AddFieldDef do begin
-      Name := 'Price';  DataType := ftBCD;  Precision := 12;  Size := 2;
-    end;
-    CreateDataSet;
-  end;
-  with ds do
-  begin
-    Append;
-    FieldByName('ISBN').Value := '978-0131177055';
-    FieldByName('Title').Value := 'Working Effectively with Legacy Code';
-    FieldByName('ReleseDate').Value := EncodeDate(2004,10,1);
-    FieldByName('Pages').Value := 464;
-    FieldByName('Price').Value := 52.69;
-    Post;
-  end;
-  // ... more rows appended here ...
-  Result := ds;
-end;
-```
-[... more code - Gist sample (Data.Mock.Book.pas)](https://gist.github.com/bogdanpolak/1622fcc3e4f1185fb4ead8263c9b8b31)
 
 ## Additional documentation
 
