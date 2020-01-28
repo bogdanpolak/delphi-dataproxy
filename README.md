@@ -44,7 +44,30 @@ Supportive projects
 
 ## Proxy generation
 
-TBD
+Project includes source code of base class `TDataSetProxy` and two different types of proxy generators:
+
+1) **Component TDataProxyGenerator**
+   - unit `src/Comp.Generator.DataProxy.pas`
+   - As an input receives dataset and as an output generates text/code: unit containing proxy class inherited from `TDataSetProxy`
+2) Tool: **Generator App for FireDAC**
+   - tool source: `tools/generator-app`
+   - VCL Forms application written in Delphi which is able to connect to SQL server via FireDAC, then prepare SQL command, fetch result dataset and generate proxy class together with dataset fake
+
+Component is useful when engineer wants to generate proxy for exiting dataset in production code. This is two steps easy task: (1) add component unit to uses section, (2) find code using dataset and call generator execute method:
+
+```pas
+// --------------------------------
+// curent production code:
+dbgridBooks.DataSource.Dataset := fDBConnection.
+  ConstructSQLSataSet(aOwner, APPSQL_SelectBooks);
+// --------------------------------
+// injected generator code:
+proxy := TDataProxyGenerator.Create(aOwner);
+proxy.ObjectName := 'Books';
+proxy.DataSet := dbgridBooks.DataSource.Dataset;
+proxy.Execute;
+proxy.Code.SaveToFile('Proxy.Books.pas');
+```
 
 ## TDataSetProxy class
 
