@@ -73,7 +73,7 @@ proxy.Code.SaveToFile('Proxy.Books.pas');
 
 TBD
 
-## Sample proxy class (component)
+Sample proxy class created by generator:
 
 ```pas
 type
@@ -93,22 +93,23 @@ type
     property Pages :TIntegerField read FPages;
     property Price :TBCDField read FPrice;
   end;
-  ...
 ```
 
-## Classic Delphi event based approach
+## Why engineers need to change?
 
-Working with RDBMS (SQL servers) in Delphi looks to be very productive and simple. Developer drops a `Query` component, enters SQL command, sets Active property connects all DB UI controls and you are done ... almost done ... actually far form being from customer perspective. 
+This project is effect of many years and multiple teams experience. This teams found that classic event based Delphi approach is not only less productive, but even dangerous for the developers, the managers and for the customers.
 
-Using simple Visual pattern developer can expose and modify SQL server data. What looks simple at the begging becomes challenging during the development process. Developers create more and more events, code becomes more and more messy and coupled. After some years managers and developers lose control over such projects: plans and deadlines are not possible to quantify, customers are struggling with unexpected and strange bugs, simple changes require many hours of work.
+Working with RDBMS (SQL servers) in Delphi looks to be very productive and simple. Developer drops a `Query` component, enters SQL command, sets Active property, connects all DB-aware controls to query and you are done ... almost done, almost but actually far from being ready to deliver application. 
 
-- **Pros**:
+Using this simple visual pattern developer can expose and modify SQL server data extremely quickly. In reality what looks simple at the begging, latter becomes challenging. Within time engineers create more and more datasets and events, defragmenting business flow and mixing presentation, configuration and domain code. Project becomes more and more messy and coupled. After some years managers and developers lose control over such project: plans and deadlines are not possible to quantify, customers are struggling with unexpected and strange bugs, simple changes require many hours of work.
+
+- **Pros of classic even approach**:
    - Intuitive
    - Easy to learn
    - Productive (in initial phases)
    - Easy prototyping
    - Easy to debug
-- **Cons**:
+- **Cons of classic approach**:
    - Messy code
    - Almost no architectural design
    - Massive copy-paste development - difficult to reuse code
