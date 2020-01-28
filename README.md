@@ -4,9 +4,8 @@
 ![ version ](https://img.shields.io/badge/version-%200.9-yellow.svg)
 
 -------------------------------------------------------------------
-## TBD in ver. 1.0 (plan)
+TBD in ver. 1.0 (plan)
 
-Tasks:
 1) Separate two sections:
    * refactoring dataset into `TDataSetProxy`
    * inserting extracted code into unit test harness
