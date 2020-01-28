@@ -19,7 +19,7 @@ Generator App goals are:
 
 ## Build notes
 
-To compile `Generator App` modern Delphi IDE with FireDAC is required. Officially supported version are: Delphi XE8, 10 Seattle, 10.1 Berlin, 10.2 Tokyo, 10.3 Rio. FireDAC components are accessible in all Delphi tiers including Professional and Community edition. Project should be working in older versions without any or with some minor changes (please register any problems).
+To compile `Generator App` this tool developer requires any modern Delphi IDE (XE8 or newer) with FireDAC. FireDAC components are avaliable in all Delphi tiers including Professional and Community edition, check the Embarcadero documentation for version limitations. Project should be able to compile in older versions without any or with some minor changes - please register any problems or inform about success.
 
 ## Setup
 
