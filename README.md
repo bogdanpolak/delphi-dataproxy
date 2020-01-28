@@ -6,14 +6,7 @@
 -------------------------------------------------------------------
 TBD in ver. 1.0 (plan)
 
-1) Separate two sections:
-   * refactoring dataset into `TDataSetProxy`
-   * inserting extracted code into unit test harness
-1) Remove `TDataProxyFactory` use `WithDataSet`
-1) Update docs according to current folder structure:
-   * `proxy` -> `src`
-   * `generator` -> `tools\generator-app`
-
+1) Remove `TDataProxyFactory` use `TDataProxy.WithDataSet`
 
 -------------------------------------------------------------------
 ## Overview
@@ -118,186 +111,21 @@ Using this simple visual pattern developer can expose and modify SQL server data
    - Stagnation and team demotivation - developers aren’t motivated to learn, improve and change
    - No or minimalistic unit test coverage
 
-## Using dataset proxy in action
+## Modernizing VCL projects in action
 
-Replacing classic dataset with proxy requires some time to learn and validate in action. This approach looks a little strange for many Delphi Developers, but is easy to adopt. Proper management support and team coaching will allow team faster adopt proxy technique.
+Replacing classic dataset with proxy requires some time to learn and validate in action. This approach could looks a little strange for Delphi developers, but is easy to adopt and learn. With management motivation and senior engineer coaching team will faster adopt code extraction and replacing datasets with proxies technique.
 
-Proxy dataset is a simple and safe tool to refactor a classic VCL application builded using EDP (Event Driven Programming) technique. Using this solution some small, but important portions of business code can be extracted and covered with unit tests and after that with better safety net protection code can be improved using more advanced refactoring techniques.
+Defined here proxy approach is a simple and safe refactoring technique dedicated for classic VCL application builded in EDP (Event Driven Programming) way. Using this solution in evolution way small, but important parts of business code can be extracted and covered with unit tests. After some time, with a better safety net (unit tests coverage), engineers can swap proxies with OOP DAOs and improve code more using advanced refactorings and architectural patterns.
 
 The modernization process includes following steps: 
-1. The proxy generation
-2. Moving the behavior to the proxy (optional)
-3. Create the proxy
-4. Replace `TDataSet` with the proxy
-5. Replace static DataSet with dynamic
+1. Business code extraction
+1. Proxy generation
+1. Dataset replacement with the proxy
+1. Unit test introduction
+1. Decomposition (big methods into smaller once) with unit test coverage
+1. New composable classes creation (unit tests)
+1. Proxy retirement (to replace with DAO)
 
-### Step 1. The proxy generation
-
-```pas
-unit Data.Proxy.Book;
-
-interface
-uses
-  Data.DB,
-  Data.DataProxy;
-
-type
-  TBookProxy = class(TDatasetProxy)
-  private
-    FISBN :TWideStringField;
-    FTitle :TWideStringField;
-    FAuthors :TWideStringField;
-    FPrice :TBCDField;
-    FCurrency :TWideStringField;
-  protected
-    procedure ConnectFields; override;
-  public
-    property ISBN :TWideStringField read FISBN;
-    property Title :TWideStringField read FTitle;
-    property Authors :TWideStringField read FAuthors;
-    property Price :TBCDField read FPrice;
-    property Currency :TWideStringField read FCurrency;
-    // this property should be hidden, but during migration can be usefull
-    // property DataSet: TDataSet read FDataSet;
-  end;
-
-implementation
-
-uses
-  System.SysUtils;
-
-procedure TBookProxy.ConnectFields;
-const
-  ExpectedFieldCount = 5;
-begin
-  FISBN := FDataSet.FieldByName('ISBN') as TWideStringField;
-  FTitle := FDataSet.FieldByName('Title') as TWideStringField;
-  FAuthors := FDataSet.FieldByName('Authors') as TWideStringField;
-  FStatus := FDataSet.FieldByName('Status') as TWideStringField;
-  FPrice := FDataSet.FieldByName('Price') as TBCDField;
-  FCurrency := FDataSet.FieldByName('Currency') as TWideStringField;
-  Assert(FDataSet.Fields.Count = ExpectedFieldCount);
-end;
-
-end.
-```
-
-### Step 2. Moving the behavior to the proxy (optional)
-
-You can immediately replace the classic `TDataSet` with the generated object, but the recommended previous step is to transfer the domain code to the proxy object (behavior). Thanks to this step, you can write some simple unit tests from the very beginning - even using the TDD. Sample behavior for the book data:
-
-```pas
-function TBookProxy.ToString: String;
-begin
-  Result := Format('%s %s (%.2f %s)',[ISBN.Value,Title.Value,
-    Price.Value,Currency.Value]);
-end;
-
-function TBookProxy.LocateISBN(const ISBN: string): boolean;
-begin
-  Result := FDataSet.Locate('ISBN',ISBN,[]);
-end;
-
-function TBookProxy.CountMoreExpensiveBooks: integer;
-var
-  CurrentPrice: Extended;
-  Count: Integer;
-begin
-  Count := 0;
-  CurrentPrice := Price.Value;
-  self.ForEach(
-    procedure
-    begin
-      if Self.Price.Value > CurrentPrice then
-        Count := Count + 1;
-    end);
-  Result := Count;
-end;
-```
-
-### Step 3. Create the proxy
-
-```pas
-uses
-  Data.Proxy.Book;
-
-type
-  TDataModule1 = class(TDataModule)
-    procedure TDataModule1.DataModuleCreate(Sender: TObject);
-  public
-    BookProxy: TBookProxy;
-  end;
-
-procedure TDataModule1.DataModuleCreate(Sender: TObject);
-var
-begin
-  BookProxy := TDataProxyFactory.CreateProxy<TBookProxy>(Self,FDQueryBooks);
-end;
-```
-
-### Step 4. Replace `TDataSet` with the proxy
-
-
-```pas
-procedure TForm1.Button1Click(Sender: TObject);
-begin
-  ListBox1.ItemIndex := -1;
-  ListBox1.Clear;
-   DataModule1.BookProxy.ForEach(
-    procedure
-    begin
-      ListBox1.Items.Add(DataModule1.BookProxy.ToString);
-    end);
-end;
-```
-
-```pas
-procedure TForm1.ListBox1Click(Sender: TObject);
-begin
-  if (ListBox1.ItemIndex >= 0) then
-  begin
-    DataModule1.BookProxy.LocateISBN(
-      GetBookISBN_From_ListBoxCurrentItem(ListBox1) );
-    Self.Caption := DataModule1.BookProxy.Title.Value;
-  end;
-end;
-```
-
-```pas
-procedure TForm1.Button2Click(Sender: TObject);
-begin
-  Button2.Caption := Format('More expensive books = %d',
-    [DataModule1.BookProxy.CountMoreExpensiveBooks]);
-end;
-```
-
-### Step 5. Replace static DataSet with dynamic
-
-```pas
-// private method
-function TDataModule1.CreateSQLDataSet_Book(AOwner: TComponent; 
-  AConnection: TFDConnection): TDataSet;
-var
-  fdq: TFDQuery;
-begin
-  fdq := TFDQuery.Create(AOwner);
-  with fdq do
-  begin
-    Connection := AConnection;
-    SQL.Text := 'SELECT ISBN, Title, Authors, Status, ReleseDate,' +
-      ' Pages, Price, Currency, Imported, Description FROM Books';
-    Open;
-  end;
-  Result := fdq;
-end;
-
-procedure TDataModule1.DataModuleCreate(Sender: TObject);
-var
-begin
-  BookProxy := TDataProxyFactory.CreateProxy<TBookProxy>(Self,
-    CreateSQLDataSet_Book(Self, FDConnection1));
-end;
-```
 ## More proxy samples
 
 1) Books sample demo application
