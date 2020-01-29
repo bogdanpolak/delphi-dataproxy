@@ -3,12 +3,6 @@
 ![ Delphi Support ](https://img.shields.io/badge/Delphi%20Support-%20XE8%20..%2010.3%20Rio-blue.svg)
 ![ version ](https://img.shields.io/badge/version-%200.9-yellow.svg)
 
--------------------------------------------------------------------
-TBD in ver. 1.0 (plan)
-
-1) Remove `TDataProxyFactory` use `TDataProxy.WithDataSet`
-
--------------------------------------------------------------------
 ## Overview
 
 TDataSetProxy is a wrapper component for the classic Delphi dataset component. It allows to replace any dataset with a fake dataset (in-memory table). Proxy can be used to separate a business class from datasets, this separation is helpful when the business code needs to be putted into automated test harness (unit tests).
