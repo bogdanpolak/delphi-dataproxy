@@ -62,6 +62,8 @@ proxy.Execute;
 proxy.Code.SaveToFile('Proxy.Books.pas');
 ```
 
+**Generator App for FireDAC** is alternative tool created mostly for demo purposes. In practice it can be less useful then component generator, but can be used for coaching and training the team. For more information check: [Generator App for FireDAC - User Guide](doc/generator-app-guide.md).
+  
 ## TDataSetProxy class
 
 TBD
