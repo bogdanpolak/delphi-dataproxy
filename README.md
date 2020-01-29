@@ -24,6 +24,7 @@ Dataset proxy is a temporary solution and after covering code with the tests eng
 Together with code and quality improvement developers will learn how to write cleaner code or how to use test first approach and work better.
 
 Supportive projects
+
 | Project | GitHub Repo |
 | --- | --- |
 | Command Pattern for Delphi | https://github.com/bogdanpolak/command-delphi |
