@@ -3,6 +3,7 @@ unit Wrapper.TProxyGenerator;
 interface
 
 uses
+  Data.DB,
   Comp.Generator.DataProxy;
 
 type
@@ -11,10 +12,10 @@ type
     function Generate_UnitHeader: string;
     function Generate_UsesSection: string;
     function Generate_ClassDeclaration: string;
-    procedure Generate_PrivateFieldList;
-    procedure Generate_PublicPropertyList;
-    procedure Generate_FieldAssigments;
-    procedure Generate_MethodConnectFields;
+    function Generate_PrivateField(fld: TField): string;
+    function Generate_PublicProperty(fld: TField): string;
+    function Generate_FieldAssigment(fld: TField): string;
+    function Generate_MethodConnectFields: string;
   end;
 
 implementation
@@ -34,24 +35,24 @@ begin
   Result := Gen_ClassDeclaration;
 end;
 
-procedure TTestProxyDataGenerator.Generate_PrivateFieldList;
+function TTestProxyDataGenerator.Generate_PrivateField(fld: TField): string;
 begin
-  Code.Text := Gen_PrivateFieldList;
+  Result := Gen_PrivateField(fld);
 end;
 
-procedure TTestProxyDataGenerator.Generate_PublicPropertyList;
+function TTestProxyDataGenerator.Generate_PublicProperty(fld: TField): string;
 begin
-  Code.Text := Gen_PublicPropertyList;
+  Result := Gen_PublicProperty(fld);
 end;
 
-procedure TTestProxyDataGenerator.Generate_FieldAssigments;
+function TTestProxyDataGenerator.Generate_FieldAssigment(fld: TField): string;
 begin
-  Code.Text := Gen_FieldAssigments;
+  Result := Gen_FieldAssigment(fld);
 end;
 
-procedure TTestProxyDataGenerator.Generate_MethodConnectFields;
+function TTestProxyDataGenerator.Generate_MethodConnectFields: string;
 begin
-  Code.Text := Gen_MethodConnectFields;
+  Result := Gen_MethodConnectFields;
 end;
 
 end.

@@ -5,7 +5,7 @@ uses
   Form.Main in 'Form.Main.pas' {Form1},
   Data.Proxy.Book in 'Data.Proxy.Book.pas',
   Data.Mock.Book in 'Data.Mock.Book.pas',
-  Data.DataProxy in '..\..\proxy\Data.DataProxy.pas';
+  Data.DataProxy in '..\..\src\Data.DataProxy.pas';
 
 {$R *.res}
 

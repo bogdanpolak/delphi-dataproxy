@@ -9,7 +9,9 @@ uses
   Data.DB,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Grids,
   Vcl.DBGrids, Vcl.ComCtrls, Vcl.ActnList, Vcl.StdCtrls, Vcl.Menus,
-  Command.GenerateProxy;
+
+  Comp.Generator.DataProxy,
+  Comp.Generator.DataSetCode;
 
 type
   TFormMain = class(TForm)
@@ -34,7 +36,6 @@ type
     actSelectConnectionDef: TAction;
     actExecSQL: TAction;
     actQueryBuilder: TAction;
-    actChangeProxyName: TAction;
     // --------------------------------------------------------------------
     Panel1: TPanel;
     Label2: TLabel;
@@ -44,10 +45,27 @@ type
     Button3: TButton;
     Label3: TLabel;
     Button4: TButton;
-    GroupBox1: TGroupBox;
+    grbxProxyGenOptions: TGroupBox;
     edtProxyName: TEdit;
     Label4: TLabel;
     Label5: TLabel;
+    tshFakeDataset: TTabSheet;
+    gxbxFakeGenOptions: TGroupBox;
+    rbtnFakeOptionFDMemTable: TRadioButton;
+    rbtnFakeOptionClientDataSet: TRadioButton;
+    rbtnFakeOptionAppendMultiline: TRadioButton;
+    rbtnFakeOptionAppendSingleline: TRadioButton;
+    GroupBox3: TGroupBox;
+    GroupBox4: TGroupBox;
+    mmFakeDataSetCode: TMemo;
+    GroupBox5: TGroupBox;
+    GroupBox6: TGroupBox;
+    rbtnProxyOptionFieldLowerCase: TRadioButton;
+    rbtnProxyOptionFieldUpperCase: TRadioButton;
+    rbtnProxyOptionNoDataSetAccess: TRadioButton;
+    rbtnProxyOptionCommnetedDataSet: TRadioButton;
+    GroupBox7: TGroupBox;
+    cbxProxyOptionIdentation: TComboBox;
     // --------------------------------------------------------------------
     // Startup
     procedure FormCreate(Sender: TObject);
@@ -59,10 +77,19 @@ type
     procedure actExecSQLExecute(Sender: TObject);
     procedure actGenerateProxyExecute(Sender: TObject);
     procedure actQueryBuilderExecute(Sender: TObject);
-    procedure actChangeProxyNameExecute(Sender: TObject);
     procedure edtProxyNameKeyPress(Sender: TObject; var Key: Char);
+    procedure rbtnFakeOptionFDMemTableClick(Sender: TObject);
+    procedure rbtnFakeOptionClientDataSetClick(Sender: TObject);
+    procedure rbtnFakeOptionAppendMultilineClick(Sender: TObject);
+    procedure rbtnFakeOptionAppendSinglelineClick(Sender: TObject);
+    procedure rbtnProxyOptionFieldLowerCaseClick(Sender: TObject);
+    procedure rbtnProxyOptionFieldUpperCaseClick(Sender: TObject);
+    procedure rbtnProxyOptionNoDataSetAccessClick(Sender: TObject);
+    procedure rbtnProxyOptionCommnetedDataSetClick(Sender: TObject);
+    procedure cbxProxyOptionIdentationChange(Sender: TObject);
   private
-    cmdProxyGenerator: TProxyGeneratorCommand;
+    fProxyGenerator: TDataProxyGenerator;
+    fDataSetGenerator: TDSGenerator;
     fCurrentConnDefName: string;
     fDataSet: TDataSet;
     fConnectionMruList: string;
@@ -75,6 +102,8 @@ type
     function UpdateMRUList(const ConnDefName: string): boolean;
     procedure SetCurrentConnectionDefinition(ConnDefName: string);
     procedure AutomateMainForm;
+    procedure UpdateFakeCode_AfterOptionChange;
+    procedure UpdateProxyCode_AfterOptionChange;
   public
   end;
 
@@ -87,12 +116,16 @@ implementation
 
 uses
   System.Win.Registry,
+
   Helper.TDBGrid,
   Helper.TApplication,
+  Helper.TFDConnection,
+
   App.AppInfo,
   DataModule.Main,
   Dialog.SelectDefinition,
-  Dialog.QueryBuilder;
+  Dialog.QueryBuilder,
+  Utils.Timer.Interval;
 
 const
   AppRegistryKey = 'Software\DelphiPower\DataSetProxyGenerator';
@@ -256,7 +289,7 @@ begin
   if Sender is TMenuItem then
   begin
     ConnDefName := Vcl.Menus.StripHotkey((Sender as TMenuItem).Caption);
-    if DataModule1.IsConnected then
+    if DataModule1.GetConnection.IsConnected then
       actConnect.Execute;
     SetCurrentConnectionDefinition(ConnDefName);
   end;
@@ -274,17 +307,20 @@ begin
   mmProxyCode.Align := alClient;
   mmSqlStatement.Clear;
   mmProxyCode.Clear;
+  mmFakeDataSetCode.Clear;
   Self.Caption := TAppInfo.AppName + ' - ' + TAppInfo.Version;
 end;
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
   // -------------------------------------------------------
-  cmdProxyGenerator := TProxyGeneratorCommand.Create(Self);
+  fProxyGenerator := TDataProxyGenerator.Create(Self);
+  fDataSetGenerator := TDSGenerator.Create(Self);
+  // -------------------------------------------------------
   fDataSet := DataModule1.GetMainDataQuery;
   DataSource1.DataSet := fDataSet;
-  cmdProxyGenerator.ObjectName := 'Something';
-  edtProxyName.Text := cmdProxyGenerator.ObjectName;
+  fProxyGenerator.ObjectName := 'Something';
+  edtProxyName.Text := fProxyGenerator.ObjectName;
   InitializeControls;
   // -------------------------------------------------------
   // Inititialize actions
@@ -304,15 +340,10 @@ begin
 end;
 
 procedure TFormMain.UpdateActionEnable();
-var
-  IsConnected: boolean;
-  IsDataSetActive: boolean;
 begin
-  IsConnected := DataModule1.IsConnected;
-  IsDataSetActive := fDataSet.Active;
-  actQueryBuilder.Enabled := IsConnected;
-  actExecSQL.Enabled := IsConnected;
-  actGenerateProxy.Enabled := IsDataSetActive;
+  actQueryBuilder.Enabled := DataModule1.GetConnection.IsConnected;
+  actExecSQL.Enabled := DataModule1.GetConnection.IsConnected;
+  actGenerateProxy.Enabled := fDataSet.Active;
 end;
 
 
@@ -324,26 +355,17 @@ procedure TFormMain.actSelectConnectionDefExecute(Sender: TObject);
 begin
   if TDialogSelectDefinition.Execute then
   begin
-    if DataModule1.IsConnected then
+    if DataModule1.GetConnection.IsConnected then
       actConnect.Execute;
     SetCurrentConnectionDefinition(TDialogSelectDefinition.ConnectionDef);
   end;
 end;
 
-procedure TFormMain.edtProxyNameKeyPress(Sender: TObject; var Key: Char);
-begin
-  if (Key=#13) then
-  begin
-    actChangeProxyName.Execute;
-    Key := #0;
-  end;
-end;
-
 procedure TFormMain.actConnectExecute(Sender: TObject);
 begin
-  if not DataModule1.IsConnected then
+  if not DataModule1.GetConnection.IsConnected then
   begin
-    DataModule1.OpenConnection(fCurrentConnDefName);
+    DataModule1.GetConnection.Open(fCurrentConnDefName);
     // TODO: misleading method name (2 responsibilities)
     // * AddOrUpdateConnection_MruList = UpdateMRUList
     // * WriteConnectionMruList
@@ -353,7 +375,7 @@ begin
   end
   else
   begin
-    DataModule1.CloseConnection;
+    DataModule1.GetConnection.Close;
     actConnect.Caption := 'Connect';
     PageControl1.ActivePageIndex := 0;
     mmProxyCode.Clear;
@@ -371,7 +393,27 @@ end;
 procedure TFormMain.actGenerateProxyExecute(Sender: TObject);
 begin
   PageControl1.ActivePage := tshProxyCode;
-  mmProxyCode.Lines.Text := cmdProxyGenerator.Execute(DataSource1.DataSet);
+  // ----------------------------------------------------
+  // DataSet Fake generator
+  // ----------------------------------------------------
+  fProxyGenerator.DataSet := DataSource1.DataSet;
+  fProxyGenerator.ObjectName := edtProxyName.Text;
+  fProxyGenerator.DataSetAccess := dsaNoAccess;
+  fProxyGenerator.FieldNamingStyle := fnsUpperCaseF;
+  fProxyGenerator.IdentationText := '  ';
+  fProxyGenerator.Execute;
+  mmProxyCode.Lines.Text := fProxyGenerator.Code.Text;
+  // ----------------------------------------------------
+  // DataSet Fake generator
+  // ----------------------------------------------------
+  fDataSetGenerator.DataSet := DataSource1.DataSet;
+  fDataSetGenerator.GeneratorMode := genUnit;
+  fDataSetGenerator.AppendMode := amMultilineAppends;
+  fDataSetGenerator.DataSetType := dstFDMemTable;
+  fDataSetGenerator.IndentationText := '  ';
+  fDataSetGenerator.Execute;
+  mmFakeDataSetCode.Lines.Text := fDataSetGenerator.Code.Text;
+  // ----------------------------------------------------
 end;
 
 procedure TFormMain.actQueryBuilderExecute(Sender: TObject);
@@ -383,11 +425,103 @@ begin
     mmSqlStatement.Text := sql;
 end;
 
-procedure TFormMain.actChangeProxyNameExecute(Sender: TObject);
+procedure TFormMain.UpdateFakeCode_AfterOptionChange;
 begin
-  cmdProxyGenerator.ObjectName := edtProxyName.Text;
   if DataSource1.DataSet.Active then
-    mmProxyCode.Lines.Text := cmdProxyGenerator.Execute(DataSource1.DataSet);
+  begin
+    mmFakeDataSetCode.Color := clBtnFace;
+    TIntervalTimer.SetTimeout(200,
+      procedure
+      begin
+        fDataSetGenerator.Execute;
+        mmFakeDataSetCode.Lines.Text := fDataSetGenerator.Code.Text;
+        mmFakeDataSetCode.Color := clWindow;
+      end);
+  end;
+end;
+
+procedure TFormMain.UpdateProxyCode_AfterOptionChange;
+begin
+  if DataSource1.DataSet.Active then
+  begin
+    mmProxyCode.Color := clBtnFace;
+    TIntervalTimer.SetTimeout(200,
+      procedure
+      begin
+        fProxyGenerator.Execute;
+        mmProxyCode.Lines.Text := fProxyGenerator.Code.Text;
+        mmProxyCode.Color := clWindow;
+      end);
+  end;
+end;
+
+procedure TFormMain.edtProxyNameKeyPress(Sender: TObject; var Key: Char);
+begin
+  if (Key = #13) then
+  begin
+    fProxyGenerator.ObjectName := edtProxyName.Text;
+    UpdateProxyCode_AfterOptionChange;
+    Key := #0;
+  end;
+end;
+
+procedure TFormMain.cbxProxyOptionIdentationChange(Sender: TObject);
+begin
+  case cbxProxyOptionIdentation.ItemIndex of
+    0:
+      fProxyGenerator.IdentationText := '  ';
+    1:
+      fProxyGenerator.IdentationText := '    ';
+  end;
+  UpdateProxyCode_AfterOptionChange;
+end;
+
+procedure TFormMain.rbtnProxyOptionCommnetedDataSetClick(Sender: TObject);
+begin
+  fProxyGenerator.DataSetAccess := dsaGenComment;
+  UpdateProxyCode_AfterOptionChange;
+end;
+
+procedure TFormMain.rbtnProxyOptionNoDataSetAccessClick(Sender: TObject);
+begin
+  fProxyGenerator.DataSetAccess := dsaNoAccess;
+  UpdateProxyCode_AfterOptionChange;
+end;
+
+procedure TFormMain.rbtnProxyOptionFieldLowerCaseClick(Sender: TObject);
+begin
+  fProxyGenerator.FieldNamingStyle := fnsLowerCaseF;
+  UpdateProxyCode_AfterOptionChange;
+end;
+
+procedure TFormMain.rbtnProxyOptionFieldUpperCaseClick(Sender: TObject);
+begin
+  fProxyGenerator.FieldNamingStyle := fnsUpperCaseF;
+  UpdateProxyCode_AfterOptionChange;
+end;
+
+procedure TFormMain.rbtnFakeOptionAppendMultilineClick(Sender: TObject);
+begin
+  fDataSetGenerator.AppendMode := amMultilineAppends;
+  UpdateFakeCode_AfterOptionChange;
+end;
+
+procedure TFormMain.rbtnFakeOptionAppendSinglelineClick(Sender: TObject);
+begin
+  fDataSetGenerator.AppendMode := amSinglelineAppends;
+  UpdateFakeCode_AfterOptionChange;
+end;
+
+procedure TFormMain.rbtnFakeOptionFDMemTableClick(Sender: TObject);
+begin
+  fDataSetGenerator.DataSetType := dstFDMemTable;
+  UpdateFakeCode_AfterOptionChange;
+end;
+
+procedure TFormMain.rbtnFakeOptionClientDataSetClick(Sender: TObject);
+begin
+  fDataSetGenerator.DataSetType := dstClientDataSet;
+  UpdateFakeCode_AfterOptionChange;
 end;
 
 // --------------------------------------------------------------------------

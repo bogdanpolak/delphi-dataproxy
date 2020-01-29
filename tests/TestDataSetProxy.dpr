@@ -1,4 +1,4 @@
-program TestDataProxyGenerator;
+program TestDataSetProxy;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
@@ -13,7 +13,11 @@ uses
   DUnitX.TestFramework,
   Test.ProxyGenerator in 'Test.ProxyGenerator.pas',
   Wrapper.TProxyGenerator in 'Wrapper.TProxyGenerator.pas',
-  Comp.Generator.DataProxy in '..\proxy\Comp.Generator.DataProxy.pas';
+  Comp.Generator.DataProxy in '..\src\Comp.Generator.DataProxy.pas',
+  Data.DataProxy in '..\src\Data.DataProxy.pas',
+  Helper.DUnitAssert in 'Helper.DUnitAssert.pas',
+  Test.DataSetProxy in 'Test.DataSetProxy.pas',
+  Test.SqlDataSetProxy in 'Test.SqlDataSetProxy.pas';
 
 var
   runner : ITestRunner;

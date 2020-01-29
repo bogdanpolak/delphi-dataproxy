@@ -1,51 +1,72 @@
 ﻿# DataProxy Pattern for Delphi
 
+![ Delphi Support ](https://img.shields.io/badge/Delphi%20Support-%20XE8%20..%2010.3%20Rio-blue.svg)
+![ version ](https://img.shields.io/badge/version-%201.0-yellow.svg)
+
 ## Overview
 
-TDataSetProxy is a wrapper component for the TDataSet component (Delphi). The proxy allows to replace any dataset (TDataSet descendant) with a mock dataset - memory table. Solution can be used to separate a business class from  datasets during unit testing. Another use is to allow easy replacement of one DAC's components with another.
+TDataSetProxy is a wrapper component for the classic Delphi dataset component. It allows to replace any dataset with a fake dataset (in-memory table). Proxy can be used to separate a business class from datasets, this separation is helpful when the business code needs to be putted into automated test harness (unit tests).
 
-![](./doc/resources/datasetproxy-01.png)
+![](./doc/resources/datasetproxy-diagram.png)
 
-**Inspiration**. Idea is based on Proxy GoF pattern and Active Record pattern (from: Martin Fowler - Patterns of Enterprise Application Architecture). See article: [Evolving Toward a Persistence Layer by Patkos Csaba](https://code.tutsplus.com/tutorials/evolving-toward-a-persistence-layer--net-27138)
+**Inspiration**. Idea is based on Proxy GoF pattern and Active Record pattern, defined by Martin Fowler in book **Patterns of Enterprise Application Architecture**
 
-## Generator Application
+## Why using proxy?
 
-The Generator application automatically creates Delphi source code based od sample SQL query (eg. SELECT statement). The project contains its source code (folder `/generator`). In current release the `Generator App` uses FireDAC to connect to RDBMS server and execute query, but it's possible to extend support to other Delphi DAC components (eg. AnyDAC). 
+DataSet Proxy pattern is helpful during the business logic extraction. This could be especially useful for improving legacy, highly coupled projects. When production code is dependent on a SQL data and SQL connection, it's really difficult to write unit tests for such code.
 
-![](./doc/resources/generator-app.png)
+Replacing dataset with proxies introduce new abstraction level which can facilitate both: SQL datasets in production code and memory datasets in test project. Proxy has very similar interface (methods list) to classic dataset, which help in easy migration. Fake datasets will allow to verify (assert) production code without connecting to database.
 
-Main generator's goals are:
-* Receive a SQL statement 
-  * Connects to RDBMS database with `FireDAC`, paste, enter or edit a SQL statement
-  * Checks a structure and data in the result data set
-* Generate a proxy
-  * Using a SQL statement structure creates a Delphi code with new DAO class based on the TProxyDataSet
-* Generate a dataset mock `MemTable`
-  * Creates a Delphi code which builds a `TFDMemTable` component with the same structure as the input dataset
-  * Creates a Delphi code that clones data using the `Append` procedure
-  
-Supported Delphi versions: XE8, 10 Seattle, 10.1 Berlin, 10.2 Tokyo, 10.3 Rio
+DataSet Proxy together with two companion projects (DataSet Generator, Delphi Command Pattern) gives developers opportunity to introduce unit tests with with safe refactorings. 
 
-## Samples
+Dataset proxy is a temporary solution and after covering code with the tests engineers can apply more advanced refactorings: decoupling code or make it more composable and reusable. As one of these refactorings proxy can be safely replaced by the DAO object or by the model data structures.
 
-Check `samples` subfolder
+Together with code and quality improvement developers will learn how to write cleaner code or how to use test first approach and work better.
 
-1) Books sample
-    1) see the setup documentation: [Samples README](./samples/README.md)
-    1) `TDatasetProxy` class source code is in the `/samples/base` folder
-    1) Generated proxy = `TBookProxy` in (`Data.Proxy.Book.pas` unit)
-    1) Generated mock factory = `function CreateMockTableBook` in (`Data.Mock.Book.pas` unit)
+Supportive projects
+| Project | GitHub Repo |
+| --- | --- |
+| Command Pattern for Delphi | https://github.com/bogdanpolak/command-delphi |
+| DataSet Generator | https://github.com/bogdanpolak/dataset-generator |
+
+## Proxy generation
+
+Project includes source code of base class `TDataSetProxy` and two different types of proxy generators:
+
+1) **Component TDataProxyGenerator**
+   - unit `src/Comp.Generator.DataProxy.pas`
+   - As an input receives dataset and as an output generates text/code: unit containing proxy class inherited from `TDataSetProxy`
+2) Tool: **Generator App for FireDAC**
+   - tool source: `tools/generator-app`
+   - VCL Forms application written in Delphi which is able to connect to SQL server via FireDAC, then prepare SQL command, fetch result dataset and generate proxy class together with dataset fake
+
+Component is useful when engineer wants to generate proxy for exiting dataset in production code. This is two steps easy task: (1) add component unit to uses section, (2) find code using dataset and call generator execute method:
 
 ```pas
-unit Data.Proxy.Book;
+// --------------------------------
+// curent production code:
+dbgridBooks.DataSource.Dataset := fDBConnection.
+  ConstructSQLSataSet(aOwner, APPSQL_SelectBooks);
+// --------------------------------
+// injected generator code:
+proxy := TDataProxyGenerator.Create(aOwner);
+proxy.ObjectName := 'Books';
+proxy.DataSet := dbgridBooks.DataSource.Dataset;
+proxy.Execute;
+proxy.Code.SaveToFile('Proxy.Books.pas');
+```
 
-interface
-uses
-  Data.DB,
-  Data.DataProxy;
+**Generator App for FireDAC** is alternative tool created mostly for demo purposes. In practice it can be less useful then component generator, but can be used for coaching and training the team. For more information check: [Generator App for FireDAC - User Guide](doc/generator-app-guide.md).
+  
+## TDataSetProxy class
 
+TBD
+
+Sample proxy class created by generator:
+
+```pas
 type
-  TBookProxy = class(Data.DataProxy.TDatasetProxy)
+  TBookProxy = class(TDatasetProxy)
   private
     FISBN :TWideStringField;
     FTitle :TWideStringField;
@@ -61,58 +82,203 @@ type
     property Pages :TIntegerField read FPages;
     property Price :TBCDField read FPrice;
   end;
-  ...
 ```
-[... more code - Gist sample (Data.Proxy.Book.pas)](https://gist.github.com/bogdanpolak/b13f0c5a677c3401734918dbfa7ae755)
+
+## Why engineers need to change?
+
+This project is effect of many years and multiple teams experience. This teams found that classic event based Delphi approach is not only less productive, but even dangerous for the developers, the managers and for the customers.
+
+Working with RDBMS (SQL servers) in Delphi looks to be very productive and simple. Developer drops a `Query` component, enters SQL command, sets Active property, connects all DB-aware controls to query and you are done ... almost done, almost but actually far from being ready to deliver application. 
+
+Using this simple visual pattern developer can expose and modify SQL server data extremely quickly. In reality what looks simple at the begging, latter becomes challenging. Within time engineers create more and more datasets and events, defragmenting business flow and mixing presentation, configuration and domain code. Project becomes more and more messy and coupled. After some years managers and developers lose control over such project: plans and deadlines are not possible to quantify, customers are struggling with unexpected and strange bugs, simple changes require many hours of work.
+
+- **Pros of classic even approach**:
+   - Intuitive
+   - Easy to learn
+   - Productive (in initial phases)
+   - Easy prototyping
+   - Easy to debug
+- **Cons of classic approach**:
+   - Messy code
+   - Almost no architectural design
+   - Massive copy-paste development - difficult to reuse code
+   - Mixing layers - manipulation of user controls along with business logic and data in a single class or even in a single method
+   - High technical debt
+   - Stagnation and team demotivation - developers aren’t motivated to learn, improve and change
+   - No or minimalistic unit test coverage
+
+## Modernizing VCL projects in action
+
+Replacing classic dataset with proxy requires some time to learn and validate in action. This approach could looks a little strange for Delphi developers, but is easy to adopt and learn. With management motivation and senior engineer coaching team will faster adopt code extraction and replacing datasets with proxies technique.
+
+Defined here proxy approach is a simple and safe refactoring technique dedicated for classic VCL application builded in EDP (Event Driven Programming) way. Using this solution in evolution way small, but important parts of business code can be extracted and covered with unit tests. After some time, with a better safety net (unit tests coverage), engineers can swap proxies with OOP DAOs and improve code more using advanced refactorings and architectural patterns.
+
+The modernization process includes following steps: 
+1. Business code extraction
+1. Proxy generation
+1. Dataset replacement with the proxy
+1. Unit test introduction
+1. Decomposition (big methods into smaller once) with unit test coverage
+1. New composable classes creation (unit tests)
+1. Proxy retirement (to replace with DAO)
+
+## Code evolution with proxy
+
+TBD
+
+### Original code - before modernization
 
 ```pas
-unit Data.Mock.Book;
-
-interface
-
-uses
-  System.Classes, System.SysUtils,
-  Data.DB,
-  FireDAC.Comp.Client;
-
-function CreateMemDataSet_Book(AOwner: TComponent): TDataSet;
-
-implementation
-
-function CreateMemDataSet_Book(AOwner: TComponent): TDataSet;
+procedure TForm1.LoadDataToListBox( aBookDataSet: TFDQuery );
 var
-  ds: TFDMemTable;
+  aIndex: integer;
+  aBookDataSet: TBookmark;
+  aBook: TBook;
+  aBookText: string;
 begin
-  ds := TFDMemTable.Create(AOwner);
-  with ds do
-  begin
-    FieldDefs.Add('ISBN', ftWideString, 20);
-    FieldDefs.Add('Title', ftWideString, 100);
-    FieldDefs.Add('ReleseDate', ftDate);
-    FieldDefs.Add('Pages', ftInteger);
-    with FieldDefs.AddFieldDef do begin
-      Name := 'Price';  DataType := ftBCD;  Precision := 12;  Size := 2;
-    end;
-    CreateDataSet;
+  ListBox1.ItemIndex := -1;
+  for aIndex := 0 to ListBox1.Items.Count
+    ListBox1.Objects[aIndex].Free;
+  ListBox1.Clear;
+  aBookmark := aBookDataSet.GetBoomark;
+  try
+    aBookDataSet.DiableControls;
+    try
+      while not aBookDataSet.Eof do
+      begin
+        aBook := TBook.Create;
+        aBook.ISBN := aBookDataSet.FieldByName('ISBN').AsString;
+        aBook.Auhtor := aBookDataSet.FieldByName('Auhtor').AsString;
+        aBook.Title := aBookDataSet.FieldByName('Title').AsString;
+        aBook.ReleseDate := aBookDataSet.FieldByName('ReleseDate').AsString;
+        aBookText := aBookDataSet.FieldByName('Auhtor').AsString + 
+          ' - ' + aBookDataSet.FieldByName('Title').AsString;
+        ListBox1.AddItem( aBookText, aBook );
+        aBookDataSet.Next;
+      end;
+    finally
+      aBookDataSet.EnableControls;
+    end
+  finally
+    aBookDataSet.FreeBoomark( aBookmark );
   end;
-  with ds do
-  begin
-    Append;
-    FieldByName('ISBN').Value := '978-0131177055';
-    FieldByName('Title').Value := 'Working Effectively with Legacy Code';
-    FieldByName('ReleseDate').Value := EncodeDate(2004,10,1);
-    FieldByName('Pages').Value := 464;
-    FieldByName('Price').Value := 52.69;
-    Post;
-  end;
-  // ... more rows appended here ...
-  Result := ds;
 end;
 ```
-[... more code - Gist sample (Data.Mock.Book.pas)](https://gist.github.com/bogdanpolak/1622fcc3e4f1185fb4ead8263c9b8b31)
 
-## Documentation
+### Modernization - Stage 1 (replacement)
 
-1. [Proxy Generator User Guide](doc/generator-guide.md)
-1. [Using TProxyDataSet in the project](doc/using-proxy.md) *(in progress)*
-1. [Why using TDataSetProxy](./doc/compare-dataset-vs-proxy.md)
+```pas
+procedure TForm1.LoadDataToListBox( aBookProxy: TBookProxy );
+var
+  aIndex: integer;
+  aBookDataSet: TBookmark;
+  aBookText: string;
+begin
+  ListBox1.ItemIndex := -1;
+  for aIndex := 0 to ListBox1.Items.Count
+    ListBox1.Objects[aIndex].Free;
+  ListBox1.Clear;
+  aBookProxy.ForEach(
+    procedure
+    begin
+      aBook := TBook.Create;
+      aBook.ISBN := aBookProxy.ISBN.AsString;
+      aBook.Auhtor := aBookProxy.Auhtor.AsString;
+      aBook.Title := aBookProxy.Title.AsString;
+      aBook.ReleseDate := aBookProxy.ReleseDate.AsString;
+      aBookText := aBookProxy.Auhtor.AsString + ' - ' +
+        aBookProxy.Title.AsString;
+      ListBox1.AddItem( aBookText, aBook );
+    end);
+end;
+```
+
+### Modernization - Stage 2 (decomposition)
+
+```pas
+procedure TForm1.LoadDataToListBox( aBookProxy: TBookProxy );
+begin
+  fBookContainer.LoadFromProxy( aBookProxy );
+  fBookContainer.PopulateStringList ( ListBox1 );
+end;
+
+// -----------------------------------------
+// unit: Model.BookContainer.pas
+
+procedure TBookContainer.LoadFromProxy ( aBookProxy: TBookProxy);
+begin
+  fBooks := aBookProxy.LoadAll;
+end;
+
+procedure TBookContainer.PopulateStringList ( aGuiList: TStrings);
+var
+  aBook: TBook;
+begin
+  for aBook in fBooks do
+    aGuiList.AddItem( aBook.GetAuthorAndTtile, aBook );
+end;
+
+// -----------------------------------------
+// unit: BookProxy.Book.pas
+
+function TBookProxy.LoadAll: IList<TBook>;
+var
+  aBook: TBook;
+begin
+  Result := TCollections.CreateList<TBook>;
+  Self.ForEach(
+    procedure
+    begin
+      aBook := TBook.Create;
+      aBook.ISBN := Self.ISBN.AsString;
+      aBook.Auhtor := Self.Auhtor.AsString;
+      aBook.Title := Self.Title.AsString;
+      aBook.ReleseDate := Self.ReleseDate.AsString;
+      Result.Add( aBook );
+    end;
+  )
+end;
+```
+
+### Modernization - Stage 3 (DAO)
+
+```pas
+procedure TForm1.LoadDataToListBox;
+begin
+  fBookContainer.PopulateStringList ( ListBox1 );
+end;
+
+// -----------------------------------------
+// unit: Model.BookContainer.pas
+
+constructor TBookContainer.Create (aBookDAO: IBookDAO);
+begin
+  fBookDAO := aBookDAO;
+end;
+
+procedure TBookContainer.LoadFromDAO;
+begin
+  fBooks := fBookDAO.LoadAll;
+end;
+
+procedure TBookContainer.PopulateStringList ( aStrList: TStrings);
+var
+  aBook: TBook;
+begin
+  LoadFromDAO;
+  for aBook in fBooks do
+    aStrList.AddItem( aBook.GetAuthorAndTtile, aBook );
+end;
+```
+
+
+## More proxy samples
+
+1) Books sample demo application
+    1) see the setup documentation: [Samples README](./samples/README.md)
+    1) Generated proxy = `TBookProxy` in (`Data.Proxy.Book.pas` unit)
+    1) Generated mock factory = `function CreateMockTableBook` in (`Data.Mock.Book.pas` unit)
+
+## Additional documentation
+
+1. [Generator App for FireDAC - User Guide](doc/generator-app-guide.md)
