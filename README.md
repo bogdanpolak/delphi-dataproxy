@@ -126,6 +126,156 @@ The modernization process includes following steps:
 1. New composable classes creation (unit tests)
 1. Proxy retirement (to replace with DAO)
 
+## Code evolution with proxy
+
+TBD
+
+### Original code - before modernization
+
+```pas
+procedure TForm1.LoadDataToListBox( aBookDataSet: TFDQuery );
+var
+  aIndex: integer;
+  aBookDataSet: TBookmark;
+  aBook: TBook;
+  aBookText: string;
+begin
+  ListBox1.ItemIndex := -1;
+  for aIndex := 0 to ListBox1.Items.Count
+    ListBox1.Objects[aIndex].Free;
+  ListBox1.Clear;
+  aBookmark := aBookDataSet.GetBoomark;
+  try
+    aBookDataSet.DiableControls;
+    try
+      while not aBookDataSet.Eof do
+      begin
+        aBook := TBook.Create;
+        aBook.ISBN := aBookDataSet.FieldByName('ISBN').AsString;
+        aBook.Auhtor := aBookDataSet.FieldByName('Auhtor').AsString;
+        aBook.Title := aBookDataSet.FieldByName('Title').AsString;
+        aBook.ReleseDate := aBookDataSet.FieldByName('ReleseDate').AsString;
+        aBookText := aBookDataSet.FieldByName('Auhtor').AsString + 
+          ' - ' + aBookDataSet.FieldByName('Title').AsString;
+        ListBox1.AddItem( aBookText, aBook );
+        aBookDataSet.Next;
+      end;
+    finally
+      aBookDataSet.EnableControls;
+    end
+  finally
+    aBookDataSet.FreeBoomark( aBookmark );
+  end;
+end;
+```
+
+### Modernization - Stage 1 (replacement)
+
+```pas
+procedure TForm1.LoadDataToListBox( aBookProxy: TBookProxy );
+var
+  aIndex: integer;
+  aBookDataSet: TBookmark;
+  aBookText: string;
+begin
+  ListBox1.ItemIndex := -1;
+  for aIndex := 0 to ListBox1.Items.Count
+    ListBox1.Objects[aIndex].Free;
+  ListBox1.Clear;
+  aBookProxy.ForEach(
+    procedure
+    begin
+      aBook := TBook.Create;
+      aBook.ISBN := aBookProxy.ISBN.AsString;
+      aBook.Auhtor := aBookProxy.Auhtor.AsString;
+      aBook.Title := aBookProxy.Title.AsString;
+      aBook.ReleseDate := aBookProxy.ReleseDate.AsString;
+      aBookText := aBookProxy.Auhtor.AsString + ' - ' +
+        aBookProxy.Title.AsString;
+      ListBox1.AddItem( aBookText, aBook );
+    end);
+end;
+```
+
+### Modernization - Stage 2 (decomposition)
+
+```pas
+procedure TForm1.LoadDataToListBox( aBookProxy: TBookProxy );
+begin
+  fBookContainer.LoadFromProxy( aBookProxy );
+  fBookContainer.PopulateStringList ( ListBox1 );
+end;
+
+// -----------------------------------------
+// unit: Model.BookContainer.pas
+
+procedure TBookContainer.LoadFromProxy ( aBookProxy: TBookProxy);
+begin
+  fBooks := aBookProxy.LoadAll;
+end;
+
+procedure TBookContainer.PopulateStringList ( aGuiList: TStrings);
+var
+  aBook: TBook;
+begin
+  for aBook in fBooks do
+    aGuiList.AddItem( aBook.GetAuthorAndTtile, aBook );
+end;
+
+// -----------------------------------------
+// unit: BookProxy.Book.pas
+
+function TBookProxy.LoadAll: IList<TBook>;
+var
+  aBook: TBook;
+begin
+  Result := TCollections.CreateList<TBook>;
+  Self.ForEach(
+    procedure
+    begin
+      aBook := TBook.Create;
+      aBook.ISBN := Self.ISBN.AsString;
+      aBook.Auhtor := Self.Auhtor.AsString;
+      aBook.Title := Self.Title.AsString;
+      aBook.ReleseDate := Self.ReleseDate.AsString;
+      Result.Add( aBook );
+    end;
+  )
+end;
+```
+
+### Modernization - Stage 3 (DAO)
+
+```pas
+procedure TForm1.LoadDataToListBox;
+begin
+  fBookContainer.PopulateStringList ( ListBox1 );
+end;
+
+// -----------------------------------------
+// unit: Model.BookContainer.pas
+
+constructor TBookContainer.Create (aBookDAO: IBookDAO);
+begin
+  fBookDAO := aBookDAO;
+end;
+
+procedure TBookContainer.LoadFromDAO;
+begin
+  fBooks := fBookDAO.LoadAll;
+end;
+
+procedure TBookContainer.PopulateStringList ( aStrList: TStrings);
+var
+  aBook: TBook;
+begin
+  LoadFromDAO;
+  for aBook in fBooks do
+    aStrList.AddItem( aBook.GetAuthorAndTtile, aBook );
+end;
+```
+
+
 ## More proxy samples
 
 1) Books sample demo application
