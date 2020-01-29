@@ -1,4 +1,4 @@
-unit Comp.Generator.DataProxy;
+﻿unit Comp.Generator.DataProxy;
 
 interface
 
@@ -16,7 +16,7 @@ type
 
   TDataProxyGenerator = class(TComponent)
   private const
-    Version = '0.9';
+    Version = '1.0';
   private
     fDataSet: TDataSet;
     fCode: TStringList;

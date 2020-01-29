@@ -22,7 +22,7 @@ uses
 type
   TDataSetProxy = class(TComponent)
   private const
-    Version = '0.9';
+    Version = '1.0';
   protected
     fDataSet: TDataSet;
     procedure ConnectFields; virtual; abstract;
