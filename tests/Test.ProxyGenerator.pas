@@ -470,7 +470,9 @@ begin
   fGenerator.Execute;
 
   Assert.AreMemosEqual(
-    {} 'uses'#13#10
+    {} 'unit Proxy.Books;'#13#10
+    {} + sLineBreak
+    {} + 'uses'#13#10
     {} + '  Data.DB,'#13#10
     {} + '  Data.DataProxy,'#13#10
     {} + '  System.SysUtils,'#13#10
@@ -496,9 +498,9 @@ begin
     {} + '    property Pages :TIntegerField read FPages;'#13#10
     {} + '    property Price :TBCDField read FPrice;'#13#10
     {} + '  end;'#13#10
-    {} + ''#13#10
+    {} + sLineBreak
     {} + 'implementation'#13#10
-    {} + ''#13#10
+    {} + sLineBreak
     {} + 'procedure TBooksProxy.ConnectFields;'#13#10
     {} + 'const'#13#10
     {} + '  ExpectedFieldCount = 6;'#13#10
