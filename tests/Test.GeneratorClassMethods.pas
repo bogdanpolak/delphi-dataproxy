@@ -11,7 +11,6 @@ uses
   FireDAC.Comp.Client,
 
   Comp.Generator.DataProxy,
-  Wrapper.TProxyGenerator,
   Helper.DUnitAssert;
 
 {$TYPEINFO ON}
@@ -31,6 +30,8 @@ type
     // ---
     procedure Test_01;
   end;
+
+{$TYPEINFO OFF}
 
 implementation
 
@@ -53,7 +54,7 @@ begin
 end;
 
 // -----------------------------------------------------------------------
-// Tests: Unit Header / Uses Section
+// Tests: --
 // -----------------------------------------------------------------------
 
 procedure TestGeneratorClassMethods.Test_01;
