@@ -22,6 +22,7 @@ type
   private
     fOwner: TComponent;
     fTemporaryFileName: string;
+    fStringList: TStringList;
   public
     [Setup]
     procedure Setup;
@@ -30,6 +31,7 @@ type
   published
     // ---
     procedure SavetToFile_IsFileExists;
+    procedure SavetToFile_CheckUnitName;
   end;
 
 {$TYPEINFO OFF}
@@ -90,11 +92,13 @@ end;
 procedure TestGeneratorClassMethods.Setup;
 begin
   fOwner := TComponent.Create(nil);
+  fStringList := TStringList.Create;
   fTemporaryFileName := '';
 end;
 
 procedure TestGeneratorClassMethods.TearDown;
 begin
+  fStringList.Free;
   fOwner.Free;
   if (fTemporaryFileName <> '') and FileExists(fTemporaryFileName) then
     DeleteFile(fTemporaryFileName);
@@ -116,5 +120,20 @@ begin
   Assert.IsTrue(FileExists(fTemporaryFileName),
     Format('Expected temporary file is not exist (%s)', [fTemporaryFileName]));
 end;
+
+procedure TestGeneratorClassMethods.SavetToFile_CheckUnitName;
+begin
+  fTemporaryFileName := TPath.GetTempPath + 'Proxy.HistoricalEvents.pas';
+
+  TDataProxyGenerator.SaveToFile(
+    {} fTemporaryFileName,
+    {} GivenDataSet_MiniHistoricalEvents(fOwner),
+    {} 'HistoricalEvents');
+
+  fStringList.LoadFromFile(fTemporaryFileName);
+
+  Assert.AreEqual('unit Proxy.HistoricalEvents;', fStringList[0]);
+end;
+
 
 end.
