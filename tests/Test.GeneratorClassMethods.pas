@@ -21,6 +21,7 @@ type
   TestGeneratorClassMethods = class(TObject)
   private
     fOwner: TComponent;
+    fTemporaryFileName: string;
   public
     [Setup]
     procedure Setup;
@@ -34,6 +35,9 @@ type
 {$TYPEINFO OFF}
 
 implementation
+
+uses
+  System.IOUtils;
 
 // -----------------------------------------------------------------------
 // Dataset factories
@@ -91,20 +95,30 @@ end;
 procedure TestGeneratorClassMethods.Setup;
 begin
   fOwner := TComponent.Create(nil);
+  fTemporaryFileName := '';
 end;
 
 procedure TestGeneratorClassMethods.TearDown;
 begin
   fOwner.Free;
+  if (fTemporaryFileName <> '') and FileExists(fTemporaryFileName) then
+    DeleteFile(fTemporaryFileName);
 end;
 
 // -----------------------------------------------------------------------
-// Tests: --
+// Tests: SaveToFile
 // -----------------------------------------------------------------------
 
 procedure TestGeneratorClassMethods.Test_01;
 begin
-  Assert.Fail();
+  fTemporaryFileName := Format(GetUniqueFileName,['HistoricalEvents']);
+  TDataProxyGenerator.SavetToFile(
+    {} fTemporaryFileName,
+    {} GivenDataSet_MiniHistoricalEvents(fOwner),
+    {} 'HistoricalEvents');
+
+  Assert.IsTrue(FileExists(fTemporaryFileName),
+    Format('Expected temporary file is not exist (%s)', [fTemporaryFileName]));
 end;
 
 end.
