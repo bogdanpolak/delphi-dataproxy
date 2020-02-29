@@ -83,11 +83,6 @@ begin
   Result := memTable;
 end;
 
-function GetUniqueFileName: string;
-begin
-  Result := TPath.GetTempPath + Copy(TPath.GetGUIDFileName(), 1, 6) + '-%s.pas';
-end;
-
 // -----------------------------------------------------------------------
 // Setup and TearDown section
 // -----------------------------------------------------------------------
@@ -111,7 +106,7 @@ end;
 
 procedure TestGeneratorClassMethods.SavetToFile_IsFileExists;
 begin
-  fTemporaryFileName := Format(GetUniqueFileName, ['HistoricalEvents']);
+  fTemporaryFileName := TPath.GetTempPath + 'HistoricalEvents1.pas';
 
   TDataProxyGenerator.SaveToFile(
     {} fTemporaryFileName,
