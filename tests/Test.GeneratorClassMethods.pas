@@ -29,7 +29,7 @@ type
     procedure TearDown;
   published
     // ---
-    procedure Test_01;
+    procedure SavetToFile_IsFileExists;
   end;
 
 {$TYPEINFO OFF}
@@ -40,7 +40,7 @@ uses
   System.IOUtils;
 
 // -----------------------------------------------------------------------
-// Dataset factories
+// Utulities
 // -----------------------------------------------------------------------
 
 function GivenDataSet_HistoricalEvents(aOwner: TComponent): TDataSet;
@@ -109,9 +109,10 @@ end;
 // Tests: SaveToFile
 // -----------------------------------------------------------------------
 
-procedure TestGeneratorClassMethods.Test_01;
+procedure TestGeneratorClassMethods.SavetToFile_IsFileExists;
 begin
-  fTemporaryFileName := Format(GetUniqueFileName,['HistoricalEvents']);
+  fTemporaryFileName := Format(GetUniqueFileName, ['HistoricalEvents']);
+
   TDataProxyGenerator.SavetToFile(
     {} fTemporaryFileName,
     {} GivenDataSet_MiniHistoricalEvents(fOwner),
