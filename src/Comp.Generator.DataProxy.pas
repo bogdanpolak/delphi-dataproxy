@@ -222,28 +222,37 @@ begin
   (* *) Gen_MethodConnectFields;
 end;
 
+function ExtractNameFromFullPath(const aFullPath: string): string;
+var
+  sFileName: string;
+  aExtLength: Integer;
+begin
+  sFileName := ExtractFileName(aFullPath);
+  aExtLength := Length(ExtractFileExt(aFullPath));
+  Result := sFileName.Substring(0, Length(sFileName) - aExtLength);
+end;
+
 class procedure TDataProxyGenerator.SaveToFile(const aFileName: string;
   aDataSet: TDataSet; const aSubjectName: string; const aIdentationText: string;
   aNamingStyle: TFieldNamingStyle);
 var
-  ss: TStringStream;
   aGenerator: TDataProxyGenerator;
   aUnitName: string;
-  sCode: string;
-  aExtLength: Integer;
+  aStringStream: TStringStream;
 begin
   aGenerator := TDataProxyGenerator.Create(nil);
   try
-    aExtLength := Length(ExtractFileExt(aFileName));
-    aUnitName := ExtractFileName(aFileName);
-    aUnitName := aUnitName.Substring(0,Length(aUNitName)-aExtLength);
-    sCode := 'unit ' + aUnitName + ';' + sLineBreak + 'interface' + sLineBreak +
-      sLineBreak + 'implementation' + sLineBreak + sLineBreak + 'end.';
-    ss := TStringStream.Create(sCode, TEncoding.UTF8);
+    aGenerator.DataSet := aDataSet;
+    aGenerator.ObjectName := aSubjectName;
+    aGenerator.IdentationText := aIdentationText;
+    aGenerator.FieldNamingStyle := aNamingStyle;
+    aGenerator.Execute;
+    aUnitName := ExtractNameFromFullPath(aFileName);
+    aStringStream := TStringStream.Create(aGenerator.Code.Text, TEncoding.UTF8);
     try
-      ss.SaveToFile(aFileName);
+      aStringStream.SaveToFile(aFileName);
     finally
-      ss.Free;
+      aStringStream.Free;
     end;
   finally
     aGenerator.Free;
