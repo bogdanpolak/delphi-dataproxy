@@ -38,7 +38,7 @@ type
     constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
     procedure Execute;
-    class procedure SavetToFile(const aFileName: string; aDataSet: TDataSet;
+    class procedure SaveToFile(const aFileName: string; aDataSet: TDataSet;
       const aSubjectName: string; const aIdentationText: string = '  ';
       aNamingStyle: TFieldNamingStyle = fnsUpperCaseF);
   published
@@ -222,8 +222,8 @@ begin
   (* *) Gen_MethodConnectFields;
 end;
 
-class procedure TDataProxyGenerator.SavetToFile(const aFileName: string;
-  aDataSet: TDataSet; const aSubjectName, aIdentationText: string;
+class procedure TDataProxyGenerator.SaveToFile(const aFileName: string;
+  aDataSet: TDataSet; const aSubjectName: string; const aIdentationText: string;
   aNamingStyle: TFieldNamingStyle);
 var
   ss: TStringStream;

@@ -113,7 +113,7 @@ procedure TestGeneratorClassMethods.SavetToFile_IsFileExists;
 begin
   fTemporaryFileName := Format(GetUniqueFileName, ['HistoricalEvents']);
 
-  TDataProxyGenerator.SavetToFile(
+  TDataProxyGenerator.SaveToFile(
     {} fTemporaryFileName,
     {} GivenDataSet_MiniHistoricalEvents(fOwner),
     {} 'HistoricalEvents');
