@@ -38,7 +38,7 @@ type
     constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
     procedure Execute;
-    class procedure SavetToFile (const aFileName: string; aDataSet: TDataSet;
+    class procedure SavetToFile(const aFileName: string; aDataSet: TDataSet;
       const aSubjectName: string; const aIdentationText: string = '  ';
       aNamingStyle: TFieldNamingStyle = fnsUpperCaseF);
   published
@@ -80,7 +80,7 @@ end;
 function TDataProxyGenerator.Gen_UnitHeader: string;
 begin
   Result :=
-    {} 'unit Proxy.' + fObjectName + ';'+ sLineBreak +
+    {} 'unit Proxy.' + fObjectName + ';' + sLineBreak +
     {} sLineBreak;
 end;
 
