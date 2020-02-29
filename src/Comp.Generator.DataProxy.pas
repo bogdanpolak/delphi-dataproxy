@@ -225,7 +225,29 @@ end;
 class procedure TDataProxyGenerator.SavetToFile(const aFileName: string;
   aDataSet: TDataSet; const aSubjectName, aIdentationText: string;
   aNamingStyle: TFieldNamingStyle);
+var
+  ss: TStringStream;
+  aGenerator: TDataProxyGenerator;
+  aUnitName: string;
+  sCode: string;
+  aExtLength: Integer;
 begin
+  aGenerator := TDataProxyGenerator.Create(nil);
+  try
+    aExtLength := Length(ExtractFileExt(aFileName));
+    aUnitName := ExtractFileName(aFileName);
+    aUnitName := aUnitName.Substring(0,Length(aUNitName)-aExtLength);
+    sCode := 'unit ' + aUnitName + ';' + sLineBreak + 'interface' + sLineBreak +
+      sLineBreak + 'implementation' + sLineBreak + sLineBreak + 'end.';
+    ss := TStringStream.Create(sCode, TEncoding.UTF8);
+    try
+      ss.SaveToFile(aFileName);
+    finally
+      ss.Free;
+    end;
+  finally
+    aGenerator.Free;
+  end;
 end;
 
 end.
