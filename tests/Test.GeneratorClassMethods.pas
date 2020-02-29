@@ -39,6 +39,51 @@ implementation
 // Dataset factories
 // -----------------------------------------------------------------------
 
+function GivenDataSet_HistoricalEvents(aOwner: TComponent): TDataSet;
+var
+  memTable: TFDMemTable;
+begin
+  memTable := TFDMemTable.Create(aOwner);
+  with memTable do
+  begin
+    FieldDefs.Add('EventID', ftInteger);
+    FieldDefs.Add('Event', ftWideString, 50);
+    FieldDefs.Add('Date', ftDate);
+    FieldDefs.Add('Expirence', ftFloat);
+    FieldDefs.Add('Income', ftCurrency);
+    CreateDataSet;
+    AppendRecord([1, 'Liberation of Poland', EncodeDate(1989, 06, 04),
+      1.2, 120]);
+    AppendRecord([2, 'Battle of Vienna', EncodeDate(1683, 09, 12),
+      System.Variants.Null, Null]);
+    First;
+  end;
+  Result := memTable;
+end;
+
+function GivenDataSet_MiniHistoricalEvents(aOwner: TComponent): TDataSet;
+var
+  memTable: TFDMemTable;
+begin
+  memTable := TFDMemTable.Create(aOwner);
+  with memTable do
+  begin
+    FieldDefs.Add('EventID', ftInteger);
+    FieldDefs.Add('Event', ftWideString, 50);
+    FieldDefs.Add('Date', ftDate);
+    CreateDataSet;
+    AppendRecord([1, 'Liberation of Poland', EncodeDate(1989, 06, 04)]);
+    AppendRecord([2, 'Battle of Vienna', EncodeDate(1683, 09, 12)]);
+    First;
+  end;
+  Result := memTable;
+end;
+
+function GetUniqueFileName: string;
+begin
+  Result := TPath.GetTempPath + Copy(TPath.GetGUIDFileName(), 1, 6) + '-%s.pas';
+end;
+
 // -----------------------------------------------------------------------
 // Setup and TearDown section
 // -----------------------------------------------------------------------
