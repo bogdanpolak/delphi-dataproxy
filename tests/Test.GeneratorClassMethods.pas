@@ -30,10 +30,10 @@ type
     procedure TearDown;
   published
     // ---
-    procedure SavetToFile_IsFileExists;
-    procedure SavetToFile_CheckUnitName;
-    procedure SavetToFile_CheckAllUnit;
-    procedure SavetToFile_CheckIndetnationAndNamingStyle;
+    procedure SaveToFile_IsFileExists;
+    procedure SaveToFile_CheckUnitName;
+    procedure SaveToFile_CheckAllUnit;
+    procedure SaveToFile_CheckIndetnationAndNamingStyle;
     // ---
     procedure SaveToClipboard_ClipboardNotEmpty;
     procedure SaveToClipboard_CheckClipboardText;
@@ -115,7 +115,7 @@ end;
 // Tests: SaveToFile
 // -----------------------------------------------------------------------
 
-procedure TestGeneratorClassMethods.SavetToFile_IsFileExists;
+procedure TestGeneratorClassMethods.SaveToFile_IsFileExists;
 begin
   fTemporaryFileName := TPath.GetTempPath + 'HistoricalEvents1.pas';
 
@@ -128,7 +128,7 @@ begin
     Format('Expected temporary file is not exist (%s)', [fTemporaryFileName]));
 end;
 
-procedure TestGeneratorClassMethods.SavetToFile_CheckUnitName;
+procedure TestGeneratorClassMethods.SaveToFile_CheckUnitName;
 begin
   fTemporaryFileName := TPath.GetTempPath + 'Proxy.HistoricalEvents.pas';
 
@@ -142,7 +142,7 @@ begin
   Assert.AreEqual('unit Proxy.HistoricalEvents;', fStringList[0]);
 end;
 
-procedure TestGeneratorClassMethods.SavetToFile_CheckAllUnit;
+procedure TestGeneratorClassMethods.SaveToFile_CheckAllUnit;
 begin
   fTemporaryFileName := TPath.GetTempPath + 'Proxy.HistoricalEvents.pas';
 
@@ -190,7 +190,7 @@ begin
   {} 'end;'#13, fStringList.Text);
 end;
 
-procedure TestGeneratorClassMethods.SavetToFile_CheckIndetnationAndNamingStyle;
+procedure TestGeneratorClassMethods.SaveToFile_CheckIndetnationAndNamingStyle;
 begin
   fTemporaryFileName := TPath.GetTempPath + 'Proxy.HistoricalEvents.pas';
 
