@@ -194,14 +194,12 @@ end;
 
 procedure TestGeneratorClassMethods.SaveToClipboard_ClipboardNotEmpty;
 begin
-  fTemporaryFileName := TPath.GetTempPath + 'HistoricalEvents1.pas';
-
   TDataProxyGenerator.SaveToClipboard(
     {} GivenDataSet_MiniHistoricalEvents(fOwner),
     {} 'HistoricalEvents');
 
   Assert.IsTrue(Clipboard.AsText.Length > 0,
-    'Expectex proxy class in the Cliboard, but actual is empty');
+    'Expected proxy code, but the clipboard content is empty');
 end;
 
 end.
