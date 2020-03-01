@@ -35,6 +35,7 @@ type
     procedure SavetToFile_CheckAllUnit;
     // ---
     procedure SaveToClipboard_ClipboardNotEmpty;
+    procedure SaveToClipboard_CheckClipboardText;
   end;
 
 {$TYPEINFO OFF}
@@ -200,6 +201,39 @@ begin
 
   Assert.IsTrue(Clipboard.AsText.Length > 0,
     'Expected proxy code, but the clipboard content is empty');
+end;
+
+procedure TestGeneratorClassMethods.SaveToClipboard_CheckClipboardText;
+begin
+  TDataProxyGenerator.SaveToClipboard(
+    {} GivenDataSet_MiniHistoricalEvents(fOwner),
+    {} 'HistoricalEvents');
+
+  Assert.AreMemosEqual(
+  {} 'type'#13 +
+  {} '  THistoricalEventsProxy = class(TDatasetProxy)'#13 +
+  {} '  private'#13 +
+  {} '    FEventID :TIntegerField;'#13 +
+  {} '    FEvent :TWideStringField;'#13 +
+  {} '    FDate :TDateField;'#13 +
+  {} '  protected'#13 +
+  {} '    procedure ConnectFields; override;'#13 +
+  {} '  public'#13 +
+  {} '    property EventID :TIntegerField read FEventID;'#13 +
+  {} '    property Event :TWideStringField read FEvent;'#13 +
+  {} '    property Date :TDateField read FDate;'#13 +
+  {} '  end;'#13 +
+  {} sLineBreak +
+  {} 'procedure THistoricalEventsProxy.ConnectFields;'#13 +
+  {} 'const'#13 +
+  {} '  ExpectedFieldCount = 3;'#13 +
+  {} 'begin'#13 +
+  {} '  FEventID := FDataSet.FieldByName(''EventID'') as TIntegerField;'#13 +
+  {} '  FEvent := FDataSet.FieldByName(''Event'') as TWideStringField;'#13 +
+  {} '  FDate := FDataSet.FieldByName(''Date'') as TDateField;'#13 +
+  {} '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13 +
+  {} 'end;'#13, Clipboard.AsText);
+
 end;
 
 end.
