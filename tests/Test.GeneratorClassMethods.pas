@@ -37,6 +37,7 @@ type
     // ---
     procedure SaveToClipboard_ClipboardNotEmpty;
     procedure SaveToClipboard_CheckClipboardText;
+    procedure SaveToClipboard_IndetationAndNamingStyle;
   end;
 
 {$TYPEINFO OFF}
@@ -253,7 +254,24 @@ begin
   {} '  FDate := FDataSet.FieldByName(''Date'') as TDateField;'#13 +
   {} '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13 +
   {} 'end;'#13, Clipboard.AsText);
+end;
 
+procedure TestGeneratorClassMethods.SaveToClipboard_IndetationAndNamingStyle;
+begin
+  TDataProxyGenerator.SaveToClipboard(
+    {} GivenDataSet_MiniHistoricalEvents(fOwner),
+    {} 'HistoricalEvents',
+    {} '    ',
+    {} fnsLowerCaseF);
+
+  fStringList.Text := Clipboard.AsText;
+
+  Assert.AreEqual('    private', fStringList[2]);
+  Assert.AreEqual('        FDate :TDateField;', fStringList[5]);
+  Assert.AreEqual('        property Date :TDateField read FDate;',
+    fStringList[11]);
+  Assert.AreEqual('    FDate := FDataSet.FieldByName(''Date'') as TDateField;',
+    fStringList[20]);
 end;
 
 end.
