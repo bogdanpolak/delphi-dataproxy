@@ -8,7 +8,8 @@ uses
   System.StrUtils,
   System.Math,
   Data.DB,
-  System.Generics.Collections;
+  System.Generics.Collections,
+  Vcl.Clipbrd;  // required for TDataProxyGenerator.SaveToClipboard
 
 type
   TFieldNamingStyle = (fnsUpperCaseF, fnsLowerCaseF);
@@ -38,6 +39,12 @@ type
     constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
     procedure Execute;
+    class procedure SaveToFile(const aFileName: string; aDataSet: TDataSet;
+      const aSubjectName: string; const aIndentationText: string = '  ';
+      aNamingStyle: TFieldNamingStyle = fnsUpperCaseF); static;
+    class procedure SaveToClipboard(aDataSet: TDataSet;
+      const aProxyClassName: string; const aIndentationText: string = '  ';
+      aNamingStyle: TFieldNamingStyle = fnsUpperCaseF); static;
   published
     property Code: TStringList read fCode;
     property DataSet: TDataSet read fDataSet write fDataSet;
@@ -77,7 +84,7 @@ end;
 function TDataProxyGenerator.Gen_UnitHeader: string;
 begin
   Result :=
-    {} 'unit Proxy.' + fObjectName + ';'+ sLineBreak +
+    {} 'unit Proxy.' + fObjectName + ';' + sLineBreak +
     {} sLineBreak;
 end;
 
@@ -217,6 +224,67 @@ begin
   (* *) 'implementation' + sLineBreak +
   (* *) sLineBreak +
   (* *) Gen_MethodConnectFields;
+end;
+
+function ExtractNameFromFullPath(const aFullPath: string): string;
+var
+  sFileName: string;
+  aExtLength: Integer;
+begin
+  sFileName := ExtractFileName(aFullPath);
+  aExtLength := Length(ExtractFileExt(aFullPath));
+  Result := sFileName.Substring(0, Length(sFileName) - aExtLength);
+end;
+
+class procedure TDataProxyGenerator.SaveToFile(const aFileName: string;
+  aDataSet: TDataSet; const aSubjectName: string; const aIndentationText: string;
+  aNamingStyle: TFieldNamingStyle);
+var
+  aGenerator: TDataProxyGenerator;
+  aUnitName: string;
+  aStringStream: TStringStream;
+begin
+  aGenerator := TDataProxyGenerator.Create(nil);
+  try
+    aGenerator.DataSet := aDataSet;
+    aGenerator.ObjectName := aSubjectName;
+    aGenerator.IdentationText := aIndentationText;
+    aGenerator.FieldNamingStyle := aNamingStyle;
+    aGenerator.Execute;
+    aUnitName := ExtractNameFromFullPath(aFileName);
+    aStringStream := TStringStream.Create(aGenerator.Code.Text, TEncoding.UTF8);
+    try
+      aStringStream.SaveToFile(aFileName);
+    finally
+      aStringStream.Free;
+    end;
+  finally
+    aGenerator.Free;
+  end;
+end;
+
+class procedure TDataProxyGenerator.SaveToClipboard(aDataSet: TDataSet;
+  const aProxyClassName: string; const aIndentationText: string;
+  aNamingStyle: TFieldNamingStyle);
+var
+  aGenerator: TDataProxyGenerator;
+  aCode: string;
+begin
+  aGenerator := TDataProxyGenerator.Create(nil);
+  try
+    aGenerator.DataSet := aDataSet;
+    aGenerator.ObjectName := aProxyClassName;
+    aGenerator.IdentationText := aIndentationText;
+    aGenerator.FieldNamingStyle := aNamingStyle;
+    aGenerator.Execute;
+    //
+    aCode := aGenerator.Code.Text;
+    aCode := aCode.Substring(aCode.IndexOf('type'#13#10), 999);
+    aCode := aCode.Remove(aCode.IndexOf(#13#10'implementation'#13#10),18);
+    Clipboard.AsText := aCode;
+  finally
+    aGenerator.Free;
+  end;
 end;
 
 end.
