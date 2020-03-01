@@ -40,10 +40,10 @@ type
     destructor Destroy; override;
     procedure Execute;
     class procedure SaveToFile(const aFileName: string; aDataSet: TDataSet;
-      const aSubjectName: string; const aIdentationText: string = '  ';
+      const aSubjectName: string; const aIndentationText: string = '  ';
       aNamingStyle: TFieldNamingStyle = fnsUpperCaseF); static;
     class procedure SaveToClipboard(aDataSet: TDataSet;
-      const aProxyClassName: string; const aIdentationText: string = '  ';
+      const aProxyClassName: string; const aIndentationText: string = '  ';
       aNamingStyle: TFieldNamingStyle = fnsUpperCaseF); static;
   published
     property Code: TStringList read fCode;
@@ -237,7 +237,7 @@ begin
 end;
 
 class procedure TDataProxyGenerator.SaveToFile(const aFileName: string;
-  aDataSet: TDataSet; const aSubjectName: string; const aIdentationText: string;
+  aDataSet: TDataSet; const aSubjectName: string; const aIndentationText: string;
   aNamingStyle: TFieldNamingStyle);
 var
   aGenerator: TDataProxyGenerator;
@@ -248,7 +248,7 @@ begin
   try
     aGenerator.DataSet := aDataSet;
     aGenerator.ObjectName := aSubjectName;
-    aGenerator.IdentationText := aIdentationText;
+    aGenerator.IdentationText := aIndentationText;
     aGenerator.FieldNamingStyle := aNamingStyle;
     aGenerator.Execute;
     aUnitName := ExtractNameFromFullPath(aFileName);
@@ -264,7 +264,7 @@ begin
 end;
 
 class procedure TDataProxyGenerator.SaveToClipboard(aDataSet: TDataSet;
-  const aProxyClassName: string; const aIdentationText: string;
+  const aProxyClassName: string; const aIndentationText: string;
   aNamingStyle: TFieldNamingStyle);
 var
   aGenerator: TDataProxyGenerator;
@@ -274,7 +274,7 @@ begin
   try
     aGenerator.DataSet := aDataSet;
     aGenerator.ObjectName := aProxyClassName;
-    aGenerator.IdentationText := aIdentationText;
+    aGenerator.IdentationText := aIndentationText;
     aGenerator.FieldNamingStyle := aNamingStyle;
     aGenerator.Execute;
     //
