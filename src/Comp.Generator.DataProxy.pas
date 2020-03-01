@@ -8,7 +8,8 @@ uses
   System.StrUtils,
   System.Math,
   Data.DB,
-  System.Generics.Collections;
+  System.Generics.Collections,
+  Vcl.Clipbrd;  // required for TDataProxyGenerator.SaveToClipboard
 
 type
   TFieldNamingStyle = (fnsUpperCaseF, fnsLowerCaseF);
@@ -265,7 +266,25 @@ end;
 class procedure TDataProxyGenerator.SaveToClipboard(aDataSet: TDataSet;
   const aProxyClassName: string; const aIdentationText: string;
   aNamingStyle: TFieldNamingStyle);
+var
+  aGenerator: TDataProxyGenerator;
+  aCode: string;
 begin
+  aGenerator := TDataProxyGenerator.Create(nil);
+  try
+    aGenerator.DataSet := aDataSet;
+    aGenerator.ObjectName := aProxyClassName;
+    aGenerator.IdentationText := aIdentationText;
+    aGenerator.FieldNamingStyle := aNamingStyle;
+    aGenerator.Execute;
+    //
+    aCode := aGenerator.Code.Text;
+    aCode := aCode.Substring(aCode.IndexOf('type'#13#10), 999);
+    aCode := aCode.Remove(aCode.IndexOf(#13#10'implementation'#13#10),18);
+    Clipboard.AsText := aCode;
+  finally
+    aGenerator.Free;
+  end;
 end;
 
 end.
