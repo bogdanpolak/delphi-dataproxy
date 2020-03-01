@@ -40,7 +40,10 @@ type
     procedure Execute;
     class procedure SaveToFile(const aFileName: string; aDataSet: TDataSet;
       const aSubjectName: string; const aIdentationText: string = '  ';
-      aNamingStyle: TFieldNamingStyle = fnsUpperCaseF);
+      aNamingStyle: TFieldNamingStyle = fnsUpperCaseF); static;
+    class procedure SaveToClipboard(aDataSet: TDataSet;
+      const aProxyClassName: string; const aIdentationText: string = '  ';
+      aNamingStyle: TFieldNamingStyle = fnsUpperCaseF); static;
   published
     property Code: TStringList read fCode;
     property DataSet: TDataSet read fDataSet write fDataSet;
@@ -257,6 +260,12 @@ begin
   finally
     aGenerator.Free;
   end;
+end;
+
+class procedure TDataProxyGenerator.SaveToClipboard(aDataSet: TDataSet;
+  const aProxyClassName: string; const aIdentationText: string;
+  aNamingStyle: TFieldNamingStyle);
+begin
 end;
 
 end.

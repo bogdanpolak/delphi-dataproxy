@@ -33,6 +33,8 @@ type
     procedure SavetToFile_IsFileExists;
     procedure SavetToFile_CheckUnitName;
     procedure SavetToFile_CheckAllUnit;
+    // ---
+    procedure SaveToClipboard_ClipboardNotEmpty;
   end;
 
 {$TYPEINFO OFF}
@@ -40,7 +42,8 @@ type
 implementation
 
 uses
-  System.IOUtils;
+  System.IOUtils,
+  Vcl.Clipbrd;
 
 // -----------------------------------------------------------------------
 // Utulities
@@ -95,6 +98,7 @@ begin
   fOwner := TComponent.Create(nil);
   fStringList := TStringList.Create;
   fTemporaryFileName := '';
+  Clipboard.Clear;
 end;
 
 procedure TestGeneratorClassMethods.TearDown;
@@ -182,6 +186,22 @@ begin
   {} '  FDate := FDataSet.FieldByName(''Date'') as TDateField;'#13 +
   {} '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13 +
   {} 'end;'#13, fStringList.Text);
+end;
+
+// -----------------------------------------------------------------------
+// Tests: SaveToClipboard
+// -----------------------------------------------------------------------
+
+procedure TestGeneratorClassMethods.SaveToClipboard_ClipboardNotEmpty;
+begin
+  fTemporaryFileName := TPath.GetTempPath + 'HistoricalEvents1.pas';
+
+  TDataProxyGenerator.SaveToClipboard(
+    {} GivenDataSet_MiniHistoricalEvents(fOwner),
+    {} 'HistoricalEvents');
+
+  Assert.IsTrue(Clipboard.AsText.Length > 0,
+    'Expectex proxy class in the Cliboard, but actual is empty');
 end;
 
 end.
