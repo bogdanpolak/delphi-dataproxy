@@ -33,6 +33,7 @@ type
     procedure SavetToFile_IsFileExists;
     procedure SavetToFile_CheckUnitName;
     procedure SavetToFile_CheckAllUnit;
+    procedure SavetToFile_CheckIndetnationAndNamingStyle;
     // ---
     procedure SaveToClipboard_ClipboardNotEmpty;
     procedure SaveToClipboard_CheckClipboardText;
@@ -187,6 +188,25 @@ begin
   {} '  FDate := FDataSet.FieldByName(''Date'') as TDateField;'#13 +
   {} '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13 +
   {} 'end;'#13, fStringList.Text);
+end;
+
+procedure TestGeneratorClassMethods.SavetToFile_CheckIndetnationAndNamingStyle;
+begin
+  fTemporaryFileName := TPath.GetTempPath + 'Proxy.HistoricalEvents.pas';
+
+  TDataProxyGenerator.SaveToFile(
+    {} fTemporaryFileName,
+    {} GivenDataSet_MiniHistoricalEvents(fOwner),
+    {} 'HistoricalEvents',
+    {} ' ',
+    {} fnsLowerCaseF);
+
+  fStringList.LoadFromFile(fTemporaryFileName);
+
+  Assert.AreEqual(' Data.DB,', fStringList[3]);
+  Assert.AreEqual('  fEventID :TIntegerField;', fStringList[12]);
+  Assert.AreEqual('  property EventID :TIntegerField read fEventID;',
+    fStringList[18]);
 end;
 
 // -----------------------------------------------------------------------
