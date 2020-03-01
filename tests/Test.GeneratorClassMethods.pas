@@ -32,6 +32,7 @@ type
     // ---
     procedure SavetToFile_IsFileExists;
     procedure SavetToFile_CheckUnitName;
+    procedure SavetToFile_CheckAllUnit;
   end;
 
 {$TYPEINFO OFF}
@@ -135,5 +136,52 @@ begin
   Assert.AreEqual('unit Proxy.HistoricalEvents;', fStringList[0]);
 end;
 
+procedure TestGeneratorClassMethods.SavetToFile_CheckAllUnit;
+begin
+  fTemporaryFileName := TPath.GetTempPath + 'Proxy.HistoricalEvents.pas';
+
+  TDataProxyGenerator.SaveToFile(
+    {} fTemporaryFileName,
+    {} GivenDataSet_MiniHistoricalEvents(fOwner),
+    {} 'HistoricalEvents');
+
+  fStringList.LoadFromFile(fTemporaryFileName);
+
+  Assert.AreMemosEqual(
+  {} 'unit Proxy.HistoricalEvents;'#13 +
+  {} sLineBreak +
+  {} 'uses'#13 +
+  {} '  Data.DB,'#13 +
+  {} '  Data.DataProxy,'#13 +
+  {} '  System.SysUtils,'#13 +
+  {} '  System.Classes,'#13 +
+  {} '  FireDAC.Comp.Client;'#13 +
+  {} sLineBreak +
+  {} 'type'#13 +
+  {} '  THistoricalEventsProxy = class(TDatasetProxy)'#13 +
+  {} '  private'#13 +
+  {} '    FEventID :TIntegerField;'#13 +
+  {} '    FEvent :TWideStringField;'#13 +
+  {} '    FDate :TDateField;'#13 +
+  {} '  protected'#13 +
+  {} '    procedure ConnectFields; override;'#13 +
+  {} '  public'#13 +
+  {} '    property EventID :TIntegerField read FEventID;'#13 +
+  {} '    property Event :TWideStringField read FEvent;'#13 +
+  {} '    property Date :TDateField read FDate;'#13 +
+  {} '  end;'#13 +
+  {} sLineBreak +
+  {} 'implementation'#13 +
+  {} sLineBreak +
+  {} 'procedure THistoricalEventsProxy.ConnectFields;'#13 +
+  {} 'const'#13 +
+  {} '  ExpectedFieldCount = 3;'#13 +
+  {} 'begin'#13 +
+  {} '  FEventID := FDataSet.FieldByName(''EventID'') as TIntegerField;'#13 +
+  {} '  FEvent := FDataSet.FieldByName(''Event'') as TWideStringField;'#13 +
+  {} '  FDate := FDataSet.FieldByName(''Date'') as TDateField;'#13 +
+  {} '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13 +
+  {} 'end;'#13, fStringList.Text);
+end;
 
 end.
