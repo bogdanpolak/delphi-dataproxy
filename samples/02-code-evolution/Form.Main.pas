@@ -55,6 +55,7 @@ implementation
 {$R *.dfm}
 
 uses
+  System.StrUtils,
   System.DateUtils;
 
 procedure TFormMain.FormCreate(Sender: TObject);
@@ -83,6 +84,17 @@ end;
 const
   MonthToRoman: array [1 .. 12] of string = ('I', 'II', 'III', 'IV', 'V', 'VI',
     'VII', 'VIII', 'IX', 'X', 'XI', 'XII');
+
+function BuildAuhtorsList(const aAuthorList: string): TArray<String>;
+var
+  aAuthors: TArray<String>;
+  idx: Integer;
+begin
+  aAuthors := SplitString(aAuthorList,',');
+  SetLength(Result,Length(aAuthors));
+  for idx := 0 to High(aAuthors) do
+    Result[idx] := aAuthors[idx].Trim;
+end;
 
 function ConvertReleaseDate(const aReleseDate: string;
   out isDatePrecise: boolean): TDateTime;
@@ -141,6 +153,8 @@ begin
         aBook := TBook.Create;
         ListBox1.AddItem(aBookCaption, aBook);
         aBook.ISBN := fdqBook.FieldByName('ISBN').AsString;
+        aBook.Authors.AddRange(BuildAuhtorsList(fdqBook.FieldByName('Authors')
+          .AsString));
         aBook.Title := fdqBook.FieldByName('Title').AsString;
         aBook.ReleaseDate := ConvertReleaseDate
           (fdqBook.FieldByName('ReleaseDate').AsString, isDatePrecise);
@@ -176,6 +190,7 @@ begin
       ListBox1.AddItem(fProxyBooks.ISBN.Value + ' - ' +
         fProxyBooks.Title.Value, aBook);
       aBook.ISBN := fProxyBooks.ISBN.Value;
+      aBook.Authors.AddRange(BuildAuhtorsList(fProxyBooks.Authors.Value));
       aBook.Title := fProxyBooks.Title.Value;
       aBook.ReleaseDate := ConvertReleaseDate(fProxyBooks.ReleaseDate.Value,
         isDatePrecise);
