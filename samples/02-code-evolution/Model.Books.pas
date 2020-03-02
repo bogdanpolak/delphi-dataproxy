@@ -9,6 +9,12 @@ uses
   System.Generics.Collections;
 
 type
+  TCurrencyRate = record
+    Code: String;
+    Rate: Currency;
+  end;
+
+type
   TBook = class
   strict private
     FISBN: string;
@@ -26,6 +32,8 @@ type
     // ---
     function GetAuthorsList: string;
     function GetReleaseDate: string;
+    function GetPrice(const aCurrencyCode: string;
+      const aCurrencyTable: TArray<TCurrencyRate>): double;
     // ---
     property ISBN: string read FISBN write FISBN;
     property Title: String read FTitle write FTitle;
@@ -60,6 +68,29 @@ begin
   Result := FAuthors[0];
   for idx := 1 to FAuthors.Count - 1 do
     Result := Result + ', ' + FAuthors[idx];
+end;
+
+function LocateRate(const aCurrencyCode: string;
+  const aCurrencyTable: TArray<TCurrencyRate>): integer;
+var
+  idx: integer;
+begin
+  for idx := 0 to High(aCurrencyTable) do
+    if aCurrencyTable[idx].Code = aCurrencyCode then
+      Exit(idx);
+  Result := -1;
+end;
+
+function TBook.GetPrice(const aCurrencyCode: string;
+  const aCurrencyTable: TArray<TCurrencyRate>): double;
+var
+  idxFrom: integer;
+  idxTo: integer;
+begin
+  idxFrom := LocateRate(FPriceCurrency, aCurrencyTable);
+  idxTo := LocateRate(aCurrencyCode, aCurrencyTable);
+  Result := Round(FPrice / aCurrencyTable[idxFrom].Rate * aCurrencyTable
+    [idxTo].Rate);
 end;
 
 function TBook.GetReleaseDate: string;
