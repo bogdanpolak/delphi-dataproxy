@@ -17,17 +17,20 @@ uses
   FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt,
   FireDAC.Comp.DataSet,
 
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls;
 
 type
   TForm1 = class(TForm)
     ListBox1: TListBox;
     FDConnection1: TFDConnection;
-    fdqBooks: TFDQuery;
     Splitter1: TSplitter;
     Memo1: TMemo;
+    FlowPanel1: TFlowPanel;
+    btnPhase1: TButton;
+    btnPhase2: TButton;
     procedure FormCreate(Sender: TObject);
-    procedure FormShow(Sender: TObject);
+    procedure btnPhase1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -41,14 +44,17 @@ implementation
 
 {$R *.dfm}
 
+uses
+  System.DateUtils;
+
 type
   TBook = class
   strict private
     FISBN: string;
     FTitle: String;
     FAuthors: TList<string>;
-    FReleseDate: TDateTime;
-    FIsPreciseReleseDate: boolean;
+    FReleaseDate: TDateTime;
+    FIsPreciseReleaseDate: boolean;
     FPrice: Currency;
     FPriceCurrency: string;
     FPages: integer;
@@ -60,9 +66,9 @@ type
     property ISBN: string read FISBN write FISBN;
     property Title: String read FTitle write FTitle;
     property Authors: TList<string> read FAuthors write FAuthors;
-    property ReleseDate: TDateTime read FReleseDate write FReleseDate;
-    property IsPreciseReleseDate: boolean read FIsPreciseReleseDate
-      write FIsPreciseReleseDate;
+    property ReleaseDate: TDateTime read FReleaseDate write FReleaseDate;
+    property IsPreciseReleaseDate: boolean read FIsPreciseReleaseDate
+      write FIsPreciseReleaseDate;
     property Price: Currency read FPrice write FPrice;
     property PriceCurrency: string read FPriceCurrency write FPriceCurrency;
     property Pages: integer read FPages write FPages;
@@ -83,10 +89,43 @@ procedure TBook.BuildAuhtorsList(const aAutlorsList: string);
 begin
 end;
 
+const
+  MonthToRoman: array [1 .. 12] of string = ('I', 'II', 'III', 'IV', 'V', 'VI',
+    'VII', 'VIII', 'IX', 'X', 'XI', 'XII');
+
 function ConvertReleaseDate(const aReleseDate: string;
   out isDatePrecise: boolean): TDateTime;
+var
+  idxSeparator: integer;
+  yy: word;
+  i: integer;
+  sMonth: string;
+  mm: word;
 begin
+  isDatePrecise := false;
+  if aReleseDate = '' then
+    Exit(0);
+  idxSeparator := aReleseDate.IndexOf(' ');
+  if idxSeparator = -1 then
+  begin
+    Result := ISO8601ToDate(aReleseDate);
+    isDatePrecise := true;
+  end
+  else
+  begin
+    yy := StrToInt(aReleseDate.Substring(idxSeparator + 1));
+    sMonth := aReleseDate.Substring(0, idxSeparator);
+    mm := 0;
+    for i := 1 to 12 do
+      if sMonth = MonthToRoman[i] then
+        mm := i;
+    Result := EncodeDate(yy, mm, 1);
+  end;
   Result := 0;
+end;
+
+procedure ValidateCurrency(aPriceCurrency: string);
+begin
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -94,21 +133,21 @@ begin
   ListBox1.Clear;
 end;
 
-procedure TForm1.FormShow(Sender: TObject);
+procedure TForm1.btnPhase1Click(Sender: TObject);
 var
   aIndex: integer;
   aBookmark: TBookmark;
-  aBookDataSet: TFDQuery;
+  aBookDataSet: TDataSet;
   aBook: TBook;
   isDatePrecise: boolean;
   aBookCaption: string;
 begin
   ListBox1.ItemIndex := -1;
-  for aIndex := 0 to ListBox1.Items.Count-1 do
+  for aIndex := 0 to ListBox1.Items.Count - 1 do
     ListBox1.Items.Objects[aIndex].Free;
   ListBox1.Clear;
-  fdqBooks.Open();
-  aBookDataSet := fdqBooks;
+  FDConnection1.ExecSQL('SELECT ISBN, Title, Authors, Status, ReleaseDate,' +
+    '  Pages, Price, Currency FROM {id Books}', aBookDataSet);
   aBookmark := aBookDataSet.GetBookmark;
   try
     aBookDataSet.DisableControls;
@@ -122,11 +161,12 @@ begin
         aBook.ISBN := aBookDataSet.FieldByName('ISBN').AsString;
         aBook.BuildAuhtorsList(aBookDataSet.FieldByName('Authors').AsString);
         aBook.Title := aBookDataSet.FieldByName('Title').AsString;
-        aBook.ReleseDate := ConvertReleaseDate
-          (aBookDataSet.FieldByName('ReleseDate').AsString, isDatePrecise);
-        aBook.IsPreciseReleseDate := isDatePrecise;
+        aBook.ReleaseDate := ConvertReleaseDate
+          (aBookDataSet.FieldByName('ReleaseDate').AsString, isDatePrecise);
+        aBook.IsPreciseReleaseDate := isDatePrecise;
         aBook.Price := aBookDataSet.FieldByName('Price').AsCurrency;
         aBook.PriceCurrency := aBookDataSet.FieldByName('Currency').AsString;
+        ValidateCurrency(aBook.PriceCurrency);
         aBookDataSet.Next;
       end;
     finally
