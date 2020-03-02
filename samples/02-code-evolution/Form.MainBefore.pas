@@ -45,7 +45,8 @@ implementation
 {$R *.dfm}
 
 uses
-  System.DateUtils;
+  System.DateUtils,
+  Comp.Generator.DataProxy;
 
 type
   TBook = class
@@ -150,6 +151,7 @@ begin
     '  Pages, Price, Currency FROM {id Books}', aBookDataSet);
   aBookmark := aBookDataSet.GetBookmark;
   try
+    TDataProxyGenerator.SaveToFile('Proxy.Books.pas',aBookDataSet,'Books');
     aBookDataSet.DisableControls;
     try
       while not aBookDataSet.Eof do
