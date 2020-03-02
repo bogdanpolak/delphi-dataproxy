@@ -81,6 +81,7 @@ object Form1: TForm1
       HelpType = htKeyword
       Caption = 'Phase 2'
       TabOrder = 1
+      OnClick = btnPhase2Click
     end
   end
   object FDConnection1: TFDConnection

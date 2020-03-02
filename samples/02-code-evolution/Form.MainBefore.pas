@@ -31,6 +31,7 @@ type
     btnPhase2: TButton;
     procedure FormCreate(Sender: TObject);
     procedure btnPhase1Click(Sender: TObject);
+    procedure btnPhase2Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -46,7 +47,8 @@ implementation
 
 uses
   System.DateUtils,
-  Comp.Generator.DataProxy;
+  Proxy.Books,
+  Data.DataProxy;
 
 type
   TBook = class
@@ -176,6 +178,43 @@ begin
   finally
     aBookDataSet.FreeBookmark(aBookmark);
   end;
+end;
+
+procedure TForm1.btnPhase2Click(Sender: TObject);
+var
+  aIndex: integer;
+  aDataSet: TDataSet;
+  aBook: TBook;
+  isDatePrecise: boolean;
+  aProxyBooks: TBooksProxy;
+begin
+  ListBox1.ItemIndex := -1;
+  for aIndex := 0 to ListBox1.Items.Count - 1 do
+    ListBox1.Items.Objects[aIndex].Free;
+  ListBox1.Clear;
+
+  FDConnection1.ExecSQL('SELECT ISBN, Title, Authors, Status, ReleaseDate,' +
+    '  Pages, Price, Currency FROM {id Books}', aDataSet);
+
+  aProxyBooks := TBooksProxy.Create(Self);
+  aProxyBooks.WithDataSet(aDataSet);
+
+  aProxyBooks.ForEach(
+    procedure
+    begin
+      aBook := TBook.Create;
+      ListBox1.AddItem(aProxyBooks.ISBN.Value + ' - ' +
+        aProxyBooks.Title.Value, aBook);
+      aBook.ISBN := aProxyBooks.ISBN.Value;
+      aBook.BuildAuhtorsList(aProxyBooks.Authors.Value);
+      aBook.Title := aProxyBooks.Title.Value;
+      aBook.ReleaseDate := ConvertReleaseDate(aProxyBooks.ReleaseDate.Value,
+        isDatePrecise);
+      aBook.IsPreciseReleaseDate := isDatePrecise;
+      aBook.Price := aProxyBooks.Price.AsCurrency;
+      aBook.PriceCurrency := aProxyBooks.Currency.Value;
+      ValidateCurrency(aBook.PriceCurrency);
+    end);
 end;
 
 end.
