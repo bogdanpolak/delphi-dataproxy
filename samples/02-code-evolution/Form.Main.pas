@@ -1,4 +1,4 @@
-unit Form.MainBefore;
+unit Form.Main;
 
 interface
 
@@ -18,37 +18,53 @@ uses
   FireDAC.Comp.DataSet,
 
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ExtCtrls;
+  Vcl.ExtCtrls,
+
+  Proxy.Books,
+  Data.DataProxy;
 
 type
-  TForm1 = class(TForm)
+  TFormMain = class(TForm)
     ListBox1: TListBox;
     FDConnection1: TFDConnection;
     Splitter1: TSplitter;
     Memo1: TMemo;
     FlowPanel1: TFlowPanel;
+    btnBeforeModernization: TButton;
     btnPhase1: TButton;
     btnPhase2: TButton;
     procedure FormCreate(Sender: TObject);
+    procedure btnBeforeModernizationClick(Sender: TObject);
     procedure btnPhase1Click(Sender: TObject);
     procedure btnPhase2Click(Sender: TObject);
   private
+    fdqBook: TFDQuery;
+    fProxyBooks: TBooksProxy;
     { Private declarations }
   public
     { Public declarations }
   end;
 
 var
-  Form1: TForm1;
+  FormMain: TFormMain;
 
 implementation
 
 {$R *.dfm}
 
 uses
-  System.DateUtils,
-  Proxy.Books,
-  Data.DataProxy;
+  System.DateUtils;
+
+procedure TFormMain.FormCreate(Sender: TObject);
+begin
+  ListBox1.Clear;
+  fdqBook := TFDQuery.Create(Self);
+  fdqBook.Connection := FDConnection1;
+  fdqBook.Open('SELECT ISBN, Title, Authors, Status, ReleaseDate,' +
+    '  Pages, Price, Currency FROM {id Books}');
+  fProxyBooks := TBooksProxy.Create(Self);
+  fProxyBooks.WithDataSet(fdqBook);
+end;
 
 type
   TBook = class
@@ -131,16 +147,10 @@ procedure ValidateCurrency(aPriceCurrency: string);
 begin
 end;
 
-procedure TForm1.FormCreate(Sender: TObject);
-begin
-  ListBox1.Clear;
-end;
-
-procedure TForm1.btnPhase1Click(Sender: TObject);
+procedure TFormMain.btnBeforeModernizationClick(Sender: TObject);
 var
   aIndex: integer;
   aBookmark: TBookmark;
-  aBookDataSet: TDataSet;
   aBook: TBook;
   isDatePrecise: boolean;
   aBookCaption: string;
@@ -149,72 +159,68 @@ begin
   for aIndex := 0 to ListBox1.Items.Count - 1 do
     ListBox1.Items.Objects[aIndex].Free;
   ListBox1.Clear;
-  FDConnection1.ExecSQL('SELECT ISBN, Title, Authors, Status, ReleaseDate,' +
-    '  Pages, Price, Currency FROM {id Books}', aBookDataSet);
-  aBookmark := aBookDataSet.GetBookmark;
+  aBookmark := fdqBook.GetBookmark;
   try
-    aBookDataSet.DisableControls;
+    fdqBook.DisableControls;
     try
-      while not aBookDataSet.Eof do
+      while not fdqBook.Eof do
       begin
-        aBookCaption := aBookDataSet.FieldByName('ISBN').AsString + ' - ' +
-          aBookDataSet.FieldByName('Title').AsString;
+        aBookCaption := fdqBook.FieldByName('ISBN').AsString + ' - ' +
+          fdqBook.FieldByName('Title').AsString;
         aBook := TBook.Create;
         ListBox1.AddItem(aBookCaption, aBook);
-        aBook.ISBN := aBookDataSet.FieldByName('ISBN').AsString;
-        aBook.BuildAuhtorsList(aBookDataSet.FieldByName('Authors').AsString);
-        aBook.Title := aBookDataSet.FieldByName('Title').AsString;
+        aBook.ISBN := fdqBook.FieldByName('ISBN').AsString;
+        aBook.BuildAuhtorsList(fdqBook.FieldByName('Authors').AsString);
+        aBook.Title := fdqBook.FieldByName('Title').AsString;
         aBook.ReleaseDate := ConvertReleaseDate
-          (aBookDataSet.FieldByName('ReleaseDate').AsString, isDatePrecise);
+          (fdqBook.FieldByName('ReleaseDate').AsString, isDatePrecise);
         aBook.IsPreciseReleaseDate := isDatePrecise;
-        aBook.Price := aBookDataSet.FieldByName('Price').AsCurrency;
-        aBook.PriceCurrency := aBookDataSet.FieldByName('Currency').AsString;
+        aBook.Price := fdqBook.FieldByName('Price').AsCurrency;
+        aBook.PriceCurrency := fdqBook.FieldByName('Currency').AsString;
         ValidateCurrency(aBook.PriceCurrency);
-        aBookDataSet.Next;
+        fdqBook.Next;
       end;
     finally
-      aBookDataSet.EnableControls;
+      fdqBook.EnableControls;
     end
   finally
-    aBookDataSet.FreeBookmark(aBookmark);
+    fdqBook.FreeBookmark(aBookmark);
   end;
 end;
 
-procedure TForm1.btnPhase2Click(Sender: TObject);
+procedure TFormMain.btnPhase1Click(Sender: TObject);
 var
   aIndex: integer;
   aDataSet: TDataSet;
   aBook: TBook;
   isDatePrecise: boolean;
-  aProxyBooks: TBooksProxy;
 begin
   ListBox1.ItemIndex := -1;
   for aIndex := 0 to ListBox1.Items.Count - 1 do
     ListBox1.Items.Objects[aIndex].Free;
   ListBox1.Clear;
 
-  FDConnection1.ExecSQL('SELECT ISBN, Title, Authors, Status, ReleaseDate,' +
-    '  Pages, Price, Currency FROM {id Books}', aDataSet);
-
-  aProxyBooks := TBooksProxy.Create(Self);
-  aProxyBooks.WithDataSet(aDataSet);
-
-  aProxyBooks.ForEach(
+  fProxyBooks.ForEach(
     procedure
     begin
       aBook := TBook.Create;
-      ListBox1.AddItem(aProxyBooks.ISBN.Value + ' - ' +
-        aProxyBooks.Title.Value, aBook);
-      aBook.ISBN := aProxyBooks.ISBN.Value;
-      aBook.BuildAuhtorsList(aProxyBooks.Authors.Value);
-      aBook.Title := aProxyBooks.Title.Value;
-      aBook.ReleaseDate := ConvertReleaseDate(aProxyBooks.ReleaseDate.Value,
+      ListBox1.AddItem(fProxyBooks.ISBN.Value + ' - ' +
+        fProxyBooks.Title.Value, aBook);
+      aBook.ISBN := fProxyBooks.ISBN.Value;
+      aBook.BuildAuhtorsList(fProxyBooks.Authors.Value);
+      aBook.Title := fProxyBooks.Title.Value;
+      aBook.ReleaseDate := ConvertReleaseDate(fProxyBooks.ReleaseDate.Value,
         isDatePrecise);
       aBook.IsPreciseReleaseDate := isDatePrecise;
-      aBook.Price := aProxyBooks.Price.AsCurrency;
-      aBook.PriceCurrency := aProxyBooks.Currency.Value;
+      aBook.Price := fProxyBooks.Price.AsCurrency;
+      aBook.PriceCurrency := fProxyBooks.Currency.Value;
       ValidateCurrency(aBook.PriceCurrency);
     end);
+end;
+
+procedure TFormMain.btnPhase2Click(Sender: TObject);
+begin
+  // TODO: Phase 2
 end;
 
 end.

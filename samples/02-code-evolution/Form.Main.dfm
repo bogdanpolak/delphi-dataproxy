@@ -1,7 +1,7 @@
-object Form1: TForm1
+object FormMain: TFormMain
   Left = 0
   Top = 0
-  Caption = 'Form1'
+  Caption = 'Code Evolution Demo'
   ClientHeight = 455
   ClientWidth = 781
   Color = clBtnFace
@@ -61,26 +61,37 @@ object Form1: TForm1
     AutoSize = True
     Caption = ' '
     TabOrder = 2
-    object btnPhase1: TButton
+    object btnBeforeModernization: TButton
       AlignWithMargins = True
       Left = 4
       Top = 4
-      Width = 101
+      Width = 165
       Height = 30
       Align = alLeft
-      Caption = 'Phase 1'
+      Caption = 'Before Modernization'
       TabOrder = 0
+      OnClick = btnBeforeModernizationClick
+    end
+    object btnPhase1: TButton
+      AlignWithMargins = True
+      Left = 175
+      Top = 4
+      Width = 90
+      Height = 30
+      HelpType = htKeyword
+      Caption = 'Phase 1'
+      TabOrder = 1
       OnClick = btnPhase1Click
     end
     object btnPhase2: TButton
       AlignWithMargins = True
-      Left = 111
+      Left = 271
       Top = 4
-      Width = 101
+      Width = 90
       Height = 30
       HelpType = htKeyword
       Caption = 'Phase 2'
-      TabOrder = 1
+      TabOrder = 2
       OnClick = btnPhase2Click
     end
   end
@@ -88,7 +99,7 @@ object Form1: TForm1
     Params.Strings = (
       'Database=./books.sdb'
       'DriverID=SQLite')
-    Left = 304
-    Top = 24
+    Left = 232
+    Top = 96
   end
 end
