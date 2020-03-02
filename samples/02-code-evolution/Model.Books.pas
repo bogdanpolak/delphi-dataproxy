@@ -5,6 +5,7 @@ interface
 uses
   System.SysUtils,
   System.Classes,
+  System.StrUtils,
   System.Generics.Collections;
 
 type
@@ -22,7 +23,10 @@ type
   public
     constructor Create; virtual;
     destructor Destroy; override;
-    procedure BuildAuhtorsList(const aAutlorsList: string);
+    // ---
+    function GetAuthorsList: string;
+    function GetReleaseDate: string;
+    // ---
     property ISBN: string read FISBN write FISBN;
     property Title: String read FTitle write FTitle;
     property Authors: TList<string> read FAuthors write FAuthors;
@@ -47,8 +51,25 @@ begin
   inherited;
 end;
 
-procedure TBook.BuildAuhtorsList(const aAutlorsList: string);
+function TBook.GetAuthorsList: string;
+var
+  idx: integer;
 begin
+  if FAuthors.Count = 0 then
+    Exit('');
+  Result := FAuthors[0];
+  for idx := 1 to FAuthors.Count - 1 do
+    Result := Result + ', ' + FAuthors[idx];
+end;
+
+function TBook.GetReleaseDate: string;
+begin
+  if FReleaseDate = 0 then
+    Result := '---'
+  else if FIsPreciseReleaseDate then
+    Result := DateToStr(FReleaseDate)
+  else
+    Result := FormatDateTime('mm yyyy', FReleaseDate);
 end;
 
 end.

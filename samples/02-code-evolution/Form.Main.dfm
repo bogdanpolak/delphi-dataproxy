@@ -36,6 +36,7 @@ object FormMain: TFormMain
     TabOrder = 0
     ExplicitTop = 3
     ExplicitHeight = 449
+    OnClick = ListBox1Click
   end
   object Memo1: TMemo
     AlignWithMargins = True

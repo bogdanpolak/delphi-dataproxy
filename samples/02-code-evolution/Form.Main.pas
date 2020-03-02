@@ -38,6 +38,7 @@ type
     procedure btnBeforeModernizationClick(Sender: TObject);
     procedure btnPhase1Click(Sender: TObject);
     procedure btnPhase2Click(Sender: TObject);
+    procedure ListBox1Click(Sender: TObject);
   private
     fdqBook: TFDQuery;
     fProxyBooks: TBooksProxy;
@@ -65,6 +66,18 @@ begin
     '  Pages, Price, Currency FROM {id Books}');
   fProxyBooks := TBooksProxy.Create(Self);
   fProxyBooks.WithDataSet(fdqBook);
+end;
+
+procedure TFormMain.ListBox1Click(Sender: TObject);
+var
+  aBook: TBook;
+begin
+  aBook := ListBox1.Items.Objects[ListBox1.ItemIndex] as TBook;
+  Memo1.Lines.Clear;
+  Memo1.Lines.Add('ISBN: ' + aBook.ISBN);
+  Memo1.Lines.Add('Title: ' + aBook.Title);
+  Memo1.Lines.Add('Authors: ' + aBook.GetAuthorsList);
+  Memo1.Lines.Add('ReleaseDate: ' + aBook.GetReleaseDate);
 end;
 
 const
@@ -99,7 +112,6 @@ begin
         mm := i;
     Result := EncodeDate(yy, mm, 1);
   end;
-  Result := 0;
 end;
 
 procedure ValidateCurrency(aPriceCurrency: string);
@@ -129,7 +141,6 @@ begin
         aBook := TBook.Create;
         ListBox1.AddItem(aBookCaption, aBook);
         aBook.ISBN := fdqBook.FieldByName('ISBN').AsString;
-        aBook.BuildAuhtorsList(fdqBook.FieldByName('Authors').AsString);
         aBook.Title := fdqBook.FieldByName('Title').AsString;
         aBook.ReleaseDate := ConvertReleaseDate
           (fdqBook.FieldByName('ReleaseDate').AsString, isDatePrecise);
@@ -150,7 +161,6 @@ end;
 procedure TFormMain.btnPhase1Click(Sender: TObject);
 var
   aIndex: integer;
-  aDataSet: TDataSet;
   aBook: TBook;
   isDatePrecise: boolean;
 begin
@@ -166,7 +176,6 @@ begin
       ListBox1.AddItem(fProxyBooks.ISBN.Value + ' - ' +
         fProxyBooks.Title.Value, aBook);
       aBook.ISBN := fProxyBooks.ISBN.Value;
-      aBook.BuildAuhtorsList(fProxyBooks.Authors.Value);
       aBook.Title := fProxyBooks.Title.Value;
       aBook.ReleaseDate := ConvertReleaseDate(fProxyBooks.ReleaseDate.Value,
         isDatePrecise);
