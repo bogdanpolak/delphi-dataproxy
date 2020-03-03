@@ -24,7 +24,8 @@ uses
 
   Model.Books,
   Proxy.Books,
-  Data.DataProxy;
+  Data.DataProxy,
+  Procesor.Currency.Intf;
 
 type
   EInvalidCurrency = class(Exception);
@@ -46,7 +47,10 @@ type
   private
     fdqBook: TFDQuery;
     fProxyBooks: TBooksProxy;
+
     fCurrencyRates: TArray<TCurrencyRate>;
+    fCurrencyProcessor: ICurrencyProcessor;
+
     function BuildAuhtorsList(const aAuthorList: string): TArray<String>;
     function ConvertReleaseDate(const aReleseDate: string;
       out isDatePrecise: boolean): TDateTime;
@@ -67,11 +71,17 @@ implementation
 
 uses
   System.StrUtils,
-  System.DateUtils;
+  System.DateUtils,
+
+  Procesor.Currency;
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
+  // ---- ver 1 ----
   fCurrencyRates := nil;
+  // ---- ver 2 ----
+  fCurrencyProcessor := TCurrencyProcessor.Create;
+
   ListBox1.Clear;
   fdqBook := TFDQuery.Create(Self);
   fdqBook.Connection := FDConnection1;
@@ -92,9 +102,12 @@ begin
   Memo1.Lines.Add('Authors: ' + aBook.GetAuthorsList);
   Memo1.Lines.Add('ReleaseDate: ' + aBook.GetReleaseDate);
   Memo1.Lines.Add('Local Price: ' + FormatFloat('###,###,###.00',
-    aBook.GetPrice('PLN', fCurrencyRates)) + ' PLN zloty');
+    {
+    aBook.GetPrice1('PLN', fCurrencyRates)) + ' PLN zloty');
+    }
+    aBook.GetPrice2('PLN', fCurrencyProcessor)) + ' PLN zloty');
   Memo1.Lines.Add('Original Price: ' + FormatFloat('###,###,###.00',
-    aBook.Price) + ' '+aBook.PriceCurrency);
+    aBook.Price) + ' ' + aBook.PriceCurrency);
 end;
 
 const
@@ -146,7 +159,6 @@ procedure TFormMain.DownloadCurrencyRates;
 var
   aStringStream: TStringStream;
   aHTTPClient: THTTPClient;
-  sResponse: string;
   jsResult: TJSONObject;
   jsRates: TJSONObject;
   idx: integer;
@@ -190,13 +202,24 @@ begin
   Result := -1;
 end;
 
-procedure TFormMain.ValidateCurrency(aPriceCurrency: string);
+procedure TFormMain.ValidateCurrency(const aPriceCurrency: string);
 begin
-  if fCurrencyRates = nil then
-    DownloadCurrencyRates;
-  if LocateRate(aPriceCurrency) = -1 then
-    raise EInvalidCurrency.Create('Invalid currency in book price: ' +
-      aPriceCurrency);
+  if fCurrencyProcessor <> nil then
+  begin
+    if not fCurrencyProcessor.IsInitialiased then
+      fCurrencyProcessor.Download('https://api.exchangeratesapi.io/latest');
+    if not fCurrencyProcessor.IsCurrencySupported(aPriceCurrency) then
+      raise EInvalidCurrency.Create('Invalid currency in book price: ' +
+        aPriceCurrency);
+  end
+  else
+  begin
+    if fCurrencyRates = nil then
+      DownloadCurrencyRates;
+    if LocateRate(aPriceCurrency) = -1 then
+      raise EInvalidCurrency.Create('Invalid currency in book price: ' +
+        aPriceCurrency);
+  end;
 end;
 
 procedure TFormMain.btnBeforeModernizationClick(Sender: TObject);

@@ -6,13 +6,9 @@ uses
   System.SysUtils,
   System.Classes,
   System.StrUtils,
-  System.Generics.Collections;
+  System.Generics.Collections,
 
-type
-  TCurrencyRate = record
-    Code: String;
-    Rate: Currency;
-  end;
+  Procesor.Currency.Intf;
 
 type
   TBook = class
@@ -32,8 +28,10 @@ type
     // ---
     function GetAuthorsList: string;
     function GetReleaseDate: string;
-    function GetPrice(const aCurrencyCode: string;
+    function GetPrice1(const aCurrencyCode: string;
       const aCurrencyTable: TArray<TCurrencyRate>): double;
+    function GetPrice2(const aCurrencyCode: string;
+      aCurrencyProcessor: ICurrencyProcessor): double;
     // ---
     property ISBN: string read FISBN write FISBN;
     property Title: String read FTitle write FTitle;
@@ -81,7 +79,7 @@ begin
   Result := -1;
 end;
 
-function TBook.GetPrice(const aCurrencyCode: string;
+function TBook.GetPrice1(const aCurrencyCode: string;
   const aCurrencyTable: TArray<TCurrencyRate>): double;
 var
   idxFrom: integer;
@@ -91,6 +89,13 @@ begin
   idxTo := LocateRate(aCurrencyCode, aCurrencyTable);
   Result := Round(FPrice / aCurrencyTable[idxFrom].Rate * aCurrencyTable
     [idxTo].Rate);
+end;
+
+function TBook.GetPrice2(const aCurrencyCode: string;
+  aCurrencyProcessor: ICurrencyProcessor): double;
+begin
+  Result := Round(aCurrencyProcessor.Convert(FPrice, FPriceCurrency,
+    aCurrencyCode));
 end;
 
 function TBook.GetReleaseDate: string;
