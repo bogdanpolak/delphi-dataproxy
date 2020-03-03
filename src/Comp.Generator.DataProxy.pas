@@ -12,6 +12,9 @@ uses
   Vcl.Clipbrd; // required for TDataProxyGenerator.SaveToClipboard
 
 type
+  // pgmClass - generates only class (no unit items: unit, interface, implementation
+  // pgmUnit - generate full unt (add end.)
+  TProxyGeneratorMode = (pgmClass, pgmUnit);
   TFieldNamingStyle = (fnsUpperCaseF, fnsLowerCaseF);
   TDataSetAccess = (dsaNoAccess, dsaGenComment, dsaFullAccess);
 
@@ -21,6 +24,7 @@ type
   private
     fDataSet: TDataSet;
     fCode: TStringList;
+    fGeneratorMode: TProxyGeneratorMode;
     fDataSetAccess: TDataSetAccess;
     fFieldNamingStyle: TFieldNamingStyle;
     fObjectName: string;
@@ -49,6 +53,8 @@ type
     property Code: TStringList read fCode;
     property DataSet: TDataSet read fDataSet write fDataSet;
     // ---- options ----
+    property GeneratorMode: TProxyGeneratorMode read fGeneratorMode
+      write fGeneratorMode;
     property DataSetAccess: TDataSetAccess read fDataSetAccess
       write fDataSetAccess;
     property FieldNamingStyle: TFieldNamingStyle read fFieldNamingStyle
