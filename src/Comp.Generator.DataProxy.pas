@@ -9,7 +9,7 @@ uses
   System.Math,
   Data.DB,
   System.Generics.Collections,
-  Vcl.Clipbrd;  // required for TDataProxyGenerator.SaveToClipboard
+  Vcl.Clipbrd; // required for TDataProxyGenerator.SaveToClipboard
 
 type
   TFieldNamingStyle = (fnsUpperCaseF, fnsLowerCaseF);
@@ -237,8 +237,8 @@ begin
 end;
 
 class procedure TDataProxyGenerator.SaveToFile(const aFileName: string;
-  aDataSet: TDataSet; const aSubjectName: string; const aIndentationText: string;
-  aNamingStyle: TFieldNamingStyle);
+  aDataSet: TDataSet; const aSubjectName: string;
+  const aIndentationText: string; aNamingStyle: TFieldNamingStyle);
 var
   aGenerator: TDataProxyGenerator;
   aUnitName: string;
@@ -280,7 +280,7 @@ begin
     //
     aCode := aGenerator.Code.Text;
     aCode := aCode.Substring(aCode.IndexOf('type'#13#10), 999);
-    aCode := aCode.Remove(aCode.IndexOf(#13#10'implementation'#13#10),18);
+    aCode := aCode.Remove(aCode.IndexOf(#13#10'implementation'#13#10), 18);
     Clipboard.AsText := aCode;
   finally
     aGenerator.Free;
