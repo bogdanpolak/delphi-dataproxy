@@ -54,7 +54,8 @@ type
     procedure GenMethod_ConnectFields_TwoFields_LowerCaseStyle;
     procedure GenMethod_ConnectFields_Identation4;
     // ---
-    procedure Generate_BooksProxy;
+    procedure Generate_BooksProxy_Unit;
+    procedure Generate_BooksProxy_Class;
   end;
 
 implementation
@@ -456,7 +457,7 @@ end;
 // Tests: Generate books proxy
 // -----------------------------------------------------------------------
 
-procedure TestGenerator.Generate_BooksProxy;
+procedure TestGenerator.Generate_BooksProxy_Unit;
 begin
   fGenerator.DataSet := GivenDataset([
     {} ['ISBN', ftWideString, 20],
@@ -511,6 +512,39 @@ begin
     {} + '  FReleseDate := FDataSet.FieldByName(''ReleseDate'') as TDateField;'#13#10
     {} + '  FPages := FDataSet.FieldByName(''Pages'') as TIntegerField;'#13#10
     {} + '  FPrice := FDataSet.FieldByName(''Price'') as TBCDField;'#13#10
+    {} + '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13#10
+    {} + 'end;'#13#10, fGenerator.Code.Text);
+end;
+
+procedure TestGenerator.Generate_BooksProxy_Class;
+begin
+  fGenerator.DataSet := GivenDataset([
+    {} ['ISBN', ftWideString, 20],
+    {} ['Pages', ftInteger]]);
+  fGenerator.ObjectName := 'Books2';
+
+  fGenerator.GeneratorMode := pgmClass;
+  fGenerator.Execute;
+
+  Assert.AreMemosEqual(
+    {} 'type'#13#10
+    {} + '  TBooks2Proxy = class(TDatasetProxy)'#13#10
+    {} + '  private'#13#10
+    {} + '    FISBN :TWideStringField;'#13#10
+    {} + '    FPages :TIntegerField;'#13#10
+    {} + '  protected'#13#10
+    {} + '    procedure ConnectFields; override;'#13#10
+    {} + '  public'#13#10
+    {} + '    property ISBN :TWideStringField read FISBN;'#13#10
+    {} + '    property Pages :TIntegerField read FPages;'#13#10
+    {} + '  end;'#13#10
+    {} + sLineBreak
+    {} + 'procedure TBooks2Proxy.ConnectFields;'#13#10
+    {} + 'const'#13#10
+    {} + '  ExpectedFieldCount = 2;'#13#10
+    {} + 'begin'#13#10
+    {} + '  FISBN := FDataSet.FieldByName(''ISBN'') as TWideStringField;'#13#10
+    {} + '  FPages := FDataSet.FieldByName(''Pages'') as TIntegerField;'#13#10
     {} + '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13#10
     {} + 'end;'#13#10, fGenerator.Code.Text);
 end;
