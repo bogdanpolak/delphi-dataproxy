@@ -28,9 +28,7 @@ type
     // ---
     function GetAuthorsList: string;
     function GetReleaseDate: string;
-    function GetPrice1(const aCurrencyCode: string;
-      const aCurrencyTable: TArray<TCurrencyRate>): double;
-    function GetPrice2(const aCurrencyCode: string;
+    function GetPrice(const aCurrencyCode: string;
       aCurrencyProcessor: ICurrencyProcessor): double;
     // ---
     property ISBN: string read FISBN write FISBN;
@@ -79,21 +77,16 @@ begin
   Result := -1;
 end;
 
-function TBook.GetPrice1(const aCurrencyCode: string;
-  const aCurrencyTable: TArray<TCurrencyRate>): double;
-var
-  idxFrom: integer;
-  idxTo: integer;
+function TBook.GetPrice(const aCurrencyCode: string;
+  aCurrencyProcessor: ICurrencyProcessor): double;
 begin
+  // OLD:
+  {
   idxFrom := LocateRate(FPriceCurrency, aCurrencyTable);
   idxTo := LocateRate(aCurrencyCode, aCurrencyTable);
   Result := Round(FPrice / aCurrencyTable[idxFrom].Rate * aCurrencyTable
     [idxTo].Rate);
-end;
-
-function TBook.GetPrice2(const aCurrencyCode: string;
-  aCurrencyProcessor: ICurrencyProcessor): double;
-begin
+  }
   Result := Round(aCurrencyProcessor.Convert(FPrice, FPriceCurrency,
     aCurrencyCode));
 end;
