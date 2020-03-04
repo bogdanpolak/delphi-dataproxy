@@ -180,7 +180,7 @@ begin
   // ----
   Result :=
   {} 'type' + sLineBreak +
-  {} fIdentationText + fNameOfClass + 'Proxy = class(TDatasetProxy)' +
+  {} fIdentationText + fNameOfClass + ' = class(TDatasetProxy)' +
     sLineBreak +
   {} fIdentationText + 'private' + sLineBreak +
   {} aPrivateFields +
@@ -212,7 +212,7 @@ begin
     aFieldAssigments := '';
   end;
   Result :=
-  {} 'procedure ' + fNameOfClass + 'Proxy.ConnectFields;' + sLineBreak +
+  {} 'procedure ' + fNameOfClass + '.ConnectFields;' + sLineBreak +
   {} 'const' + sLineBreak +
   {} fIdentationText + 'ExpectedFieldCount = ' + aFieldCount.ToString + ';' +
     sLineBreak +
