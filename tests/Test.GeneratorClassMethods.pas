@@ -136,7 +136,7 @@ begin
   TDataProxyGenerator.SaveToFile(
     {} fTemporaryFileName,
     {} GivenDataSet_MiniHistoricalEvents(fOwner),
-    {} 'HistoricalEvents');
+    {} 'TEventsProxy');
 
   fStringList.LoadFromFile(fTemporaryFileName);
 
@@ -150,7 +150,7 @@ begin
   TDataProxyGenerator.SaveToFile(
     {} fTemporaryFileName,
     {} GivenDataSet_MiniHistoricalEvents(fOwner),
-    {} 'HistoricalEvents');
+    {} 'THistoricalEventsProxy');
 
   fStringList.LoadFromFile(fTemporaryFileName);
 
