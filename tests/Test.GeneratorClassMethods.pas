@@ -218,7 +218,7 @@ procedure TestGeneratorClassMethods.SaveToClipboard_ClipboardNotEmpty;
 begin
   TDataProxyGenerator.SaveToClipboard(
     {} GivenDataSet_MiniHistoricalEvents(fOwner),
-    {} 'HistoricalEvents');
+    {} 'TEventsProxy');
 
   Assert.IsTrue(Clipboard.AsText.Length > 0,
     'Expected proxy code, but the clipboard content is empty');
@@ -228,7 +228,7 @@ procedure TestGeneratorClassMethods.SaveToClipboard_CheckClipboardText;
 begin
   TDataProxyGenerator.SaveToClipboard(
     {} GivenDataSet_MiniHistoricalEvents(fOwner),
-    {} 'HistoricalEvents');
+    {} 'THistoricalEventsProxy');
 
   Assert.AreMemosEqual(
   {} 'type'#13 +
@@ -260,7 +260,7 @@ procedure TestGeneratorClassMethods.SaveToClipboard_IndetationAndNamingStyle;
 begin
   TDataProxyGenerator.SaveToClipboard(
     {} GivenDataSet_MiniHistoricalEvents(fOwner),
-    {} 'HistoricalEvents',
+    {} 'THistoricalEventsProxy',
     {} '    ',
     {} fnsLowerCaseF);
 
