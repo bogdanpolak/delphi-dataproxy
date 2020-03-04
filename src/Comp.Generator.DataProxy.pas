@@ -9,9 +9,12 @@ uses
   System.Math,
   Data.DB,
   System.Generics.Collections,
-  Vcl.Clipbrd;  // required for TDataProxyGenerator.SaveToClipboard
+  Vcl.Clipbrd; // required for TDataProxyGenerator.SaveToClipboard
 
 type
+  // pgmClass - generates only class (no unit items: unit, interface, implementation
+  // pgmUnit - generate full unt (add end.)
+  TProxyGeneratorMode = (pgmClass, pgmUnit);
   TFieldNamingStyle = (fnsUpperCaseF, fnsLowerCaseF);
   TDataSetAccess = (dsaNoAccess, dsaGenComment, dsaFullAccess);
 
@@ -21,6 +24,7 @@ type
   private
     fDataSet: TDataSet;
     fCode: TStringList;
+    fGeneratorMode: TProxyGeneratorMode;
     fDataSetAccess: TDataSetAccess;
     fFieldNamingStyle: TFieldNamingStyle;
     fObjectName: string;
@@ -49,6 +53,8 @@ type
     property Code: TStringList read fCode;
     property DataSet: TDataSet read fDataSet write fDataSet;
     // ---- options ----
+    property GeneratorMode: TProxyGeneratorMode read fGeneratorMode
+      write fGeneratorMode;
     property DataSetAccess: TDataSetAccess read fDataSetAccess
       write fDataSetAccess;
     property FieldNamingStyle: TFieldNamingStyle read fFieldNamingStyle
@@ -67,6 +73,7 @@ begin
   fObjectName := 'Something';
   fDataSetAccess := dsaNoAccess;
   fIdentationText := '  ';
+  fGeneratorMode := pgmUnit;
 end;
 
 destructor TDataProxyGenerator.Destroy;
@@ -215,15 +222,21 @@ end;
 procedure TDataProxyGenerator.Execute;
 begin
   Guard;
-  fCode.Text :=
-  (* *) Gen_UnitHeader +
-  (* *) Gen_UsesSection +
-  (* *) sLineBreak +
-  (* *) Gen_ClassDeclaration +
-  (* *) sLineBreak +
-  (* *) 'implementation' + sLineBreak +
-  (* *) sLineBreak +
-  (* *) Gen_MethodConnectFields;
+  if fGeneratorMode = pgmClass then
+    fCode.Text :=
+      {} Gen_ClassDeclaration +
+      {} sLineBreak +
+      {} Gen_MethodConnectFields
+  else
+    fCode.Text :=
+      {} Gen_UnitHeader +
+      {} Gen_UsesSection +
+      {} sLineBreak +
+      {} Gen_ClassDeclaration +
+      {} sLineBreak +
+      {} 'implementation' + sLineBreak +
+      {} sLineBreak +
+      {} Gen_MethodConnectFields;
 end;
 
 function ExtractNameFromFullPath(const aFullPath: string): string;
@@ -237,8 +250,8 @@ begin
 end;
 
 class procedure TDataProxyGenerator.SaveToFile(const aFileName: string;
-  aDataSet: TDataSet; const aSubjectName: string; const aIndentationText: string;
-  aNamingStyle: TFieldNamingStyle);
+  aDataSet: TDataSet; const aSubjectName: string;
+  const aIndentationText: string; aNamingStyle: TFieldNamingStyle);
 var
   aGenerator: TDataProxyGenerator;
   aUnitName: string;
@@ -268,7 +281,6 @@ class procedure TDataProxyGenerator.SaveToClipboard(aDataSet: TDataSet;
   aNamingStyle: TFieldNamingStyle);
 var
   aGenerator: TDataProxyGenerator;
-  aCode: string;
 begin
   aGenerator := TDataProxyGenerator.Create(nil);
   try
@@ -276,12 +288,10 @@ begin
     aGenerator.ObjectName := aProxyClassName;
     aGenerator.IdentationText := aIndentationText;
     aGenerator.FieldNamingStyle := aNamingStyle;
+    aGenerator.GeneratorMode := pgmClass;
     aGenerator.Execute;
     //
-    aCode := aGenerator.Code.Text;
-    aCode := aCode.Substring(aCode.IndexOf('type'#13#10), 999);
-    aCode := aCode.Remove(aCode.IndexOf(#13#10'implementation'#13#10),18);
-    Clipboard.AsText := aCode;
+    Clipboard.AsText := aGenerator.Code.Text;
   finally
     aGenerator.Free;
   end;
