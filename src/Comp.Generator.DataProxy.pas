@@ -27,7 +27,8 @@ type
     fGeneratorMode: TProxyGeneratorMode;
     fDataSetAccess: TDataSetAccess;
     fFieldNamingStyle: TFieldNamingStyle;
-    fObjectName: string;
+    fUnitName: string;
+    fNameOfClass: string;
     fIdentationText: string;
     procedure Guard;
     function GetFieldPrefix: string;
@@ -44,10 +45,10 @@ type
     destructor Destroy; override;
     procedure Execute;
     class procedure SaveToFile(const aFileName: string; aDataSet: TDataSet;
-      const aSubjectName: string; const aIndentationText: string = '  ';
+      const aNameOfClass: string; const aIndentationText: string = '  ';
       aNamingStyle: TFieldNamingStyle = fnsUpperCaseF); static;
     class procedure SaveToClipboard(aDataSet: TDataSet;
-      const aProxyClassName: string; const aIndentationText: string = '  ';
+      const aNameOfClass: string; const aIndentationText: string = '  ';
       aNamingStyle: TFieldNamingStyle = fnsUpperCaseF); static;
   published
     property Code: TStringList read fCode;
@@ -59,7 +60,9 @@ type
       write fDataSetAccess;
     property FieldNamingStyle: TFieldNamingStyle read fFieldNamingStyle
       write fFieldNamingStyle;
-    property ObjectName: string read fObjectName write fObjectName;
+    property UnitName: string read fUnitName write fUnitName;
+    property NameOfClass: string read fNameOfClass write fNameOfClass;
+
     property IdentationText: string read fIdentationText write fIdentationText;
   end;
 
@@ -70,7 +73,8 @@ begin
   inherited;
   fCode := TStringList.Create;
   fDataSet := nil;
-  fObjectName := 'Something';
+  fUnitName := 'Unit1';
+  fNameOfClass := 'TFoo';
   fDataSetAccess := dsaNoAccess;
   fIdentationText := '  ';
   fGeneratorMode := pgmUnit;
@@ -91,7 +95,7 @@ end;
 function TDataProxyGenerator.Gen_UnitHeader: string;
 begin
   Result :=
-    {} 'unit Proxy.' + fObjectName + ';' + sLineBreak +
+    {} 'unit ' + fUnitName + ';' + sLineBreak +
     {} sLineBreak;
 end;
 
@@ -176,8 +180,7 @@ begin
   // ----
   Result :=
   {} 'type' + sLineBreak +
-  {} fIdentationText + 'T' + fObjectName + 'Proxy = class(TDatasetProxy)' +
-    sLineBreak +
+  {} fIdentationText + fNameOfClass + ' = class(TDatasetProxy)' + sLineBreak +
   {} fIdentationText + 'private' + sLineBreak +
   {} aPrivateFields +
   {} fIdentationText + 'protected' + sLineBreak +
@@ -208,7 +211,7 @@ begin
     aFieldAssigments := '';
   end;
   Result :=
-  {} 'procedure T' + fObjectName + 'Proxy.ConnectFields;' + sLineBreak +
+  {} 'procedure ' + fNameOfClass + '.ConnectFields;' + sLineBreak +
   {} 'const' + sLineBreak +
   {} fIdentationText + 'ExpectedFieldCount = ' + aFieldCount.ToString + ';' +
     sLineBreak +
@@ -249,8 +252,18 @@ begin
   Result := sFileName.Substring(0, Length(sFileName) - aExtLength);
 end;
 
+function ExtractUnitName(const aFileName: string): string;
+var
+  aName: string;
+  aLen: Integer;
+begin
+  aName := ExtractFileName(aFileName);
+  aLen := ExtractFileExt(aFileName).Length;
+  Result := aName.Substring(0, aName.Length - aLen);
+end;
+
 class procedure TDataProxyGenerator.SaveToFile(const aFileName: string;
-  aDataSet: TDataSet; const aSubjectName: string;
+  aDataSet: TDataSet; const aNameOfClass: string;
   const aIndentationText: string; aNamingStyle: TFieldNamingStyle);
 var
   aGenerator: TDataProxyGenerator;
@@ -260,7 +273,8 @@ begin
   aGenerator := TDataProxyGenerator.Create(nil);
   try
     aGenerator.DataSet := aDataSet;
-    aGenerator.ObjectName := aSubjectName;
+    aGenerator.UnitName := ExtractUnitName(aFileName);
+    aGenerator.NameOfClass := aNameOfClass;
     aGenerator.IdentationText := aIndentationText;
     aGenerator.FieldNamingStyle := aNamingStyle;
     aGenerator.Execute;
@@ -277,7 +291,7 @@ begin
 end;
 
 class procedure TDataProxyGenerator.SaveToClipboard(aDataSet: TDataSet;
-  const aProxyClassName: string; const aIndentationText: string;
+  const aNameOfClass: string; const aIndentationText: string;
   aNamingStyle: TFieldNamingStyle);
 var
   aGenerator: TDataProxyGenerator;
@@ -285,7 +299,7 @@ begin
   aGenerator := TDataProxyGenerator.Create(nil);
   try
     aGenerator.DataSet := aDataSet;
-    aGenerator.ObjectName := aProxyClassName;
+    aGenerator.NameOfClass := aNameOfClass;
     aGenerator.IdentationText := aIndentationText;
     aGenerator.FieldNamingStyle := aNamingStyle;
     aGenerator.GeneratorMode := pgmClass;

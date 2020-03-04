@@ -34,6 +34,7 @@ type
     procedure SaveToFile_CheckUnitName;
     procedure SaveToFile_CheckAllUnit;
     procedure SaveToFile_CheckIndetnationAndNamingStyle;
+    procedure SaveToFile_DiffrentUnitNameAndNameOfClass;
     // ---
     procedure SaveToClipboard_ClipboardNotEmpty;
     procedure SaveToClipboard_CheckClipboardText;
@@ -136,7 +137,7 @@ begin
   TDataProxyGenerator.SaveToFile(
     {} fTemporaryFileName,
     {} GivenDataSet_MiniHistoricalEvents(fOwner),
-    {} 'HistoricalEvents');
+    {} 'TEventsProxy');
 
   fStringList.LoadFromFile(fTemporaryFileName);
 
@@ -150,7 +151,7 @@ begin
   TDataProxyGenerator.SaveToFile(
     {} fTemporaryFileName,
     {} GivenDataSet_MiniHistoricalEvents(fOwner),
-    {} 'HistoricalEvents');
+    {} 'THistoricalEventsProxy');
 
   fStringList.LoadFromFile(fTemporaryFileName);
 
@@ -210,6 +211,22 @@ begin
     fStringList[18]);
 end;
 
+procedure TestGeneratorClassMethods.SaveToFile_DiffrentUnitNameAndNameOfClass;
+begin
+  fTemporaryFileName := TPath.GetTempPath + 'ProxyUnit.pas';
+
+  TDataProxyGenerator.SaveToFile(
+    {} fTemporaryFileName,
+    {} GivenDataSet_MiniHistoricalEvents(fOwner),
+    {} 'TFooProxy');
+
+  fStringList.LoadFromFile(fTemporaryFileName);
+
+  Assert.AreEqual('unit ProxyUnit;', fStringList[0]);
+  Assert.AreEqual('  TFooProxy = class(TDatasetProxy)', fStringList[10]);
+  Assert.AreEqual('procedure TFooProxy.ConnectFields;', fStringList[25]);
+end;
+
 // -----------------------------------------------------------------------
 // Tests: SaveToClipboard
 // -----------------------------------------------------------------------
@@ -218,7 +235,7 @@ procedure TestGeneratorClassMethods.SaveToClipboard_ClipboardNotEmpty;
 begin
   TDataProxyGenerator.SaveToClipboard(
     {} GivenDataSet_MiniHistoricalEvents(fOwner),
-    {} 'HistoricalEvents');
+    {} 'TEventsProxy');
 
   Assert.IsTrue(Clipboard.AsText.Length > 0,
     'Expected proxy code, but the clipboard content is empty');
@@ -228,7 +245,7 @@ procedure TestGeneratorClassMethods.SaveToClipboard_CheckClipboardText;
 begin
   TDataProxyGenerator.SaveToClipboard(
     {} GivenDataSet_MiniHistoricalEvents(fOwner),
-    {} 'HistoricalEvents');
+    {} 'THistoricalEventsProxy');
 
   Assert.AreMemosEqual(
   {} 'type'#13 +
@@ -260,7 +277,7 @@ procedure TestGeneratorClassMethods.SaveToClipboard_IndetationAndNamingStyle;
 begin
   TDataProxyGenerator.SaveToClipboard(
     {} GivenDataSet_MiniHistoricalEvents(fOwner),
-    {} 'HistoricalEvents',
+    {} 'THistoricalEventsProxy',
     {} '    ',
     {} fnsLowerCaseF);
 
