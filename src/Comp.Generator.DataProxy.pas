@@ -63,7 +63,8 @@ type
     property UnitName: string read fUnitName write fUnitName;
     property NameOfClass: string read fNameOfClass write fNameOfClass;
 
-    property IndentationText: string read fIndentationText write fIndentationText;
+    property IndentationText: string read fIndentationText
+      write fIndentationText;
   end;
 
 implementation
@@ -149,17 +150,19 @@ var
   aPrivateFields: string;
   aPublicProperties: string;
   aDatasePropertyCode: string;
+  aIden: string;
 begin
   aPrivateFields := '';
   aPublicProperties := '';
+  aIden := fIndentationText;
   if fDataSet <> nil then
   begin
     for fld in fDataSet.Fields do
     begin
-      aPrivateFields := aPrivateFields + fIndentationText + fIndentationText +
-        Gen_PrivateField(fld) + sLineBreak;
-      aPublicProperties := aPublicProperties + fIndentationText + fIndentationText
-        + Gen_PublicProperty(fld) + sLineBreak;
+      aPrivateFields := aPrivateFields +
+        {} aIden + aIden + Gen_PrivateField(fld) + sLineBreak;
+      aPublicProperties := aPublicProperties +
+        {} aIden + aIden + Gen_PublicProperty(fld) + sLineBreak;
     end;
   end;
   // ----
@@ -168,28 +171,27 @@ begin
       aDatasePropertyCode := '';
     dsaGenComment:
       aDatasePropertyCode :=
-      {} fIndentationText + fIndentationText + '// the following property' +
-        ' should be hidden (uncomment if required)' + sLineBreak +
-      {} fIndentationText + fIndentationText + '// property DataSet: TDataSet' +
-        ' read FDataSet;' + sLineBreak;
+        {} aIden + aIden + '// the following property should be hidden ' +
+        '(uncomment if required)' + sLineBreak +
+        {} aIden + aIden + '// property DataSet: TDataSet read FDataSet;' +
+        sLineBreak;
     dsaFullAccess:
       aDatasePropertyCode :=
-      {} fIndentationText + fIndentationText + 'property DataSet: TDataSet' +
-        ' read FDataSet;' + sLineBreak;
+      {} aIden + aIden + 'property DataSet: TDataSet read FDataSet;' +
+        sLineBreak;
   end;
   // ----
   Result :=
   {} 'type' + sLineBreak +
-  {} fIndentationText + fNameOfClass + ' = class(TDatasetProxy)' + sLineBreak +
-  {} fIndentationText + 'private' + sLineBreak +
+  {} aIden + fNameOfClass + ' = class(TDatasetProxy)' + sLineBreak +
+  {} aIden + 'private' + sLineBreak +
   {} aPrivateFields +
-  {} fIndentationText + 'protected' + sLineBreak +
-  {} fIndentationText + fIndentationText + 'procedure ConnectFields; override;' +
-    sLineBreak +
-  {} fIndentationText + 'public' + sLineBreak +
+  {} aIden + 'protected' + sLineBreak +
+  {} aIden + aIden + 'procedure ConnectFields; override;' + sLineBreak +
+  {} aIden + 'public' + sLineBreak +
   {} aPublicProperties +
   {} aDatasePropertyCode +
-  {} fIndentationText + 'end;' + sLineBreak;
+  {} aIden + 'end;' + sLineBreak;
 end;
 
 function TDataProxyGenerator.Gen_MethodConnectFields: string;
