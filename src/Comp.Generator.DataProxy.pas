@@ -180,8 +180,7 @@ begin
   // ----
   Result :=
   {} 'type' + sLineBreak +
-  {} fIdentationText + fNameOfClass + ' = class(TDatasetProxy)' +
-    sLineBreak +
+  {} fIdentationText + fNameOfClass + ' = class(TDatasetProxy)' + sLineBreak +
   {} fIdentationText + 'private' + sLineBreak +
   {} aPrivateFields +
   {} fIdentationText + 'protected' + sLineBreak +
@@ -253,6 +252,16 @@ begin
   Result := sFileName.Substring(0, Length(sFileName) - aExtLength);
 end;
 
+function ExtractUnitName(const aFileName: string): string;
+var
+  aName: string;
+  aLen: Integer;
+begin
+  aName := ExtractFileName(aFileName);
+  aLen := ExtractFileExt(aFileName).Length;
+  Result := aName.Substring(0, aName.Length - aLen);
+end;
+
 class procedure TDataProxyGenerator.SaveToFile(const aFileName: string;
   aDataSet: TDataSet; const aNameOfClass: string;
   const aIndentationText: string; aNamingStyle: TFieldNamingStyle);
@@ -264,7 +273,7 @@ begin
   aGenerator := TDataProxyGenerator.Create(nil);
   try
     aGenerator.DataSet := aDataSet;
-    // aGenerator.UnitName := ExtractUnitNameFromPath(aFileName);
+    aGenerator.UnitName := ExtractUnitName(aFileName);
     aGenerator.NameOfClass := aNameOfClass;
     aGenerator.IdentationText := aIndentationText;
     aGenerator.FieldNamingStyle := aNamingStyle;
