@@ -34,6 +34,7 @@ type
     procedure SaveToFile_CheckUnitName;
     procedure SaveToFile_CheckAllUnit;
     procedure SaveToFile_CheckIndetnationAndNamingStyle;
+    procedure SaveToFile_DiffrentUnitNameAndNameOfClass;
     // ---
     procedure SaveToClipboard_ClipboardNotEmpty;
     procedure SaveToClipboard_CheckClipboardText;
@@ -208,6 +209,22 @@ begin
   Assert.AreEqual('  fEventID :TIntegerField;', fStringList[12]);
   Assert.AreEqual('  property EventID :TIntegerField read fEventID;',
     fStringList[18]);
+end;
+
+procedure TestGeneratorClassMethods.SaveToFile_DiffrentUnitNameAndNameOfClass;
+begin
+  fTemporaryFileName := TPath.GetTempPath + 'ProxyUnit.pas';
+
+  TDataProxyGenerator.SaveToFile(
+    {} fTemporaryFileName,
+    {} GivenDataSet_MiniHistoricalEvents(fOwner),
+    {} 'TFooProxy');
+
+  fStringList.LoadFromFile(fTemporaryFileName);
+
+  Assert.AreEqual('unit ProxyUnit;', fStringList[0]);
+  Assert.AreEqual('  TFooProxy = class(TDatasetProxy)', fStringList[10]);
+  Assert.AreEqual('procedure TFooProxy.ConnectFields;', fStringList[25]);
 end;
 
 // -----------------------------------------------------------------------
