@@ -133,7 +133,7 @@ procedure TestGenerator.GenUsesSection_Identation_4spaces;
 var
   actualCode: string;
 begin
-  fGenerator.IdentationText := '    ';
+  fGenerator.IndentationText := '    ';
 
   actualCode := fGenerator.Generate_UsesSection;
 
@@ -278,7 +278,7 @@ begin
     {} ['CustomerID', ftInteger],
     {} ['CompanyName', ftString]]);
   fGenerator.NameOfClass := 'TProxyWith2Fields';
-  fGenerator.IdentationText := '    ';
+  fGenerator.IndentationText := '    ';
 
   actualCode := fGenerator.Generate_ClassDeclaration;
 
@@ -440,7 +440,7 @@ begin
     {} ['CustomerID', ftInteger],
     {} ['CompanyName', ftString]]);
   fGenerator.NameOfClass := 'TFooProxy';
-  fGenerator.IdentationText := '    ';
+  fGenerator.IndentationText := '    ';
 
   actualCode := fGenerator.Generate_MethodConnectFields;
 
