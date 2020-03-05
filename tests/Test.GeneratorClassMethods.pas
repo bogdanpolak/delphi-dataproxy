@@ -209,10 +209,10 @@ begin
 
   fStringList.LoadFromFile(fTemporaryFileName);
 
-  Assert.AreEqual(' Data.DB,', fStringList[3]);
-  Assert.AreEqual('  fEventID :TIntegerField;', fStringList[12]);
+  Assert.AreEqual(' Data.DB,', fStringList[5]);
+  Assert.AreEqual('  fEventID :TIntegerField;', fStringList[14]);
   Assert.AreEqual('  property EventID :TIntegerField read fEventID;',
-    fStringList[18]);
+    fStringList[20]);
 end;
 
 procedure TestGeneratorClassMethods.SaveToFile_DiffrentUnitNameAndNameOfClass;
@@ -227,8 +227,8 @@ begin
   fStringList.LoadFromFile(fTemporaryFileName);
 
   Assert.AreEqual('unit ProxyUnit;', fStringList[0]);
-  Assert.AreEqual('  TFooProxy = class(TDatasetProxy)', fStringList[10]);
-  Assert.AreEqual('procedure TFooProxy.ConnectFields;', fStringList[25]);
+  Assert.AreEqual('  TFooProxy = class(TDatasetProxy)', fStringList[12]);
+  Assert.AreEqual('procedure TFooProxy.ConnectFields;', fStringList[27]);
 end;
 
 // -----------------------------------------------------------------------
