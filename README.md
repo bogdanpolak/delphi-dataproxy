@@ -127,8 +127,25 @@ end;
 
 procedure TDataModule1.InitOrders(aDataSet: TDataSet);
 begin
-  fBookProxy.WithDataSet(aDataSet).Open;
+  fOrdersProxy.WithDataSet(aDataSet).Open;
   fOrdersInitialized := True;
+end;
+```
+
+### DataSetProxy helpers
+
+Current release of `TDataSetProxy` component is containing only one helper methods which was implemented as an example. Developers are able to expand this collection according to the team coding practices. Suggested of expanding proxy class is using the inheritance. Sample usage of existing `ForEach` helper method:
+
+```pas
+function TDataModule.CalculateTotalOrders (const aCustomerID: string): Currency;
+begin
+  Result := 0;
+  procedure ForEach(OnElem: TProc);
+  fOrdersProxy.ForEach(procedure
+    begin
+      if fOrdersProxy.CustomerID.Value = aCustomerID then
+        Result := Result + fOrdersProxy.GetTotalOrderValue;
+    end;
 end;
 ```
 
