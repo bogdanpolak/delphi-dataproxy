@@ -23,66 +23,130 @@ Dataset proxy is a temporary solution and after covering code with the tests eng
 
 Together with code and quality improvement developers will learn how to write cleaner code or how to use test first approach and work better.
 
-Supportive projects
+Supportive project:
 
 | Project | GitHub Repo |
 | --- | --- |
-| Command Pattern for Delphi | https://github.com/bogdanpolak/command-delphi |
 | DataSet Generator | https://github.com/bogdanpolak/dataset-generator |
 
 ## Proxy generation
 
 Project includes source code of base class `TDataSetProxy` and two different types of proxy generators:
 
-1) **Component TDataProxyGenerator**
+1) Component: **TDataProxyGenerator**
    - unit `src/Comp.Generator.DataProxy.pas`
-   - As an input receives dataset and as an output generates text/code: unit containing proxy class inherited from `TDataSetProxy`
+   - As an input receives dataset and as an output generates source code: unit containing proxy class inherited from `TDataSetProxy`
 2) Tool: **Generator App for FireDAC**
    - tool source: `tools/generator-app`
    - VCL Forms application written in Delphi which is able to connect to SQL server via FireDAC, then prepare SQL command, fetch result dataset and generate proxy class together with dataset fake
 
-Component is useful when engineer wants to generate proxy for exiting dataset in production code. This is two steps easy task: (1) add component unit to uses section, (2) find code using dataset and call generator execute method:
+### Component
+
+Component `TDataProxyGenerator` is useful when engineer wants to generate proxy for exiting dataset in production code. This is two steps easy task: (1) add component unit to uses section, (2) find code using dataset and call generator method:
+
+Current production code:
 
 ```pas
-// --------------------------------
-// curent production code:
-dbgridBooks.DataSource.Dataset := fDBConnection.
-  ConstructSQLSataSet(aOwner, APPSQL_SelectBooks);
-// --------------------------------
-// injected generator code:
-proxy := TDataProxyGenerator.Create(aOwner);
-proxy.ObjectName := 'Books';
-proxy.DataSet := dbgridBooks.DataSource.Dataset;
-proxy.Execute;
-proxy.Code.SaveToFile('Proxy.Books.pas');
+aBooksDataSet := fDBConnection.ConstructSQLDataSet(
+  aOwner, APPSQL_SelectBooks);
+dbgridBooks.DataSource.Dataset := aBooksDataSet;
 ```
 
-**Generator App for FireDAC** is alternative tool created mostly for demo purposes. In practice it can be less useful then component generator, but can be used for coaching and training the team. For more information check: [Generator App for FireDAC - User Guide](doc/generator-app-guide.md).
+Injected generator code:
+
+```pas
+TDataProxyGenerator.SaveToFile('../../src/Proxy.Books',
+  aBooksDataSet, 'TBookProxy');
+```
+
+### Tool
+
+**Generator App for FireDAC** is alternative tool created mostly for demo purposes. In practice using this tool can be less useful then using directly the component generator. Generator App is dedicated  for coaching and training purposes. For more information check: [Generator App for FireDAC - User Guide](doc/generator-app-guide.md).
   
-## TDataSetProxy class
-
-TBD
-
-Sample proxy class created by generator:
+## Sample proxy class
 
 ```pas
 type
   TBookProxy = class(TDatasetProxy)
   private
-    FISBN :TWideStringField;
-    FTitle :TWideStringField;
-    FReleseDate :TDateField;
-    FPages :TIntegerField;
-    FPrice :TBCDField;
+    fISBN :TWideStringField;
+    fTitle :TWideStringField;
+    fReleseDate :TDateField;
+    fPages :TIntegerField;
+    fPrice :TBCDField;
   protected
     procedure ConnectFields; override;
   public
-    property ISBN :TWideStringField read FISBN;
-    property Title :TWideStringField read FTitle;
-    property ReleseDate :TDateField read FReleseDate;
-    property Pages :TIntegerField read FPages;
-    property Price :TBCDField read FPrice;
+    property ISBN :TWideStringField read fISBN;
+    property Title :TWideStringField read fTitle;
+    property ReleseDate :TDateField read fReleseDate;
+    property Pages :TIntegerField read fPages;
+    property Price :TBCDField read fPrice;
   end;
+
+procedure TBookProxy.ConnectFields;
+begin
+  Assert(fDataSet.Fields.Count = 5);
+  fISBN := fDataSet.FieldByName('ISBN');
+  fTitle := fDataSet.FieldByName('Title');
+  fReleseDate := fDataSet.FieldByName('ReleseDate');
+  fPages := fDataSet.FieldByName('Pages');
+  fPrice := fDataSet.FieldByName('Price');
+end;
+```
+
+## TDataSetProxy class
+
+DataSetProxy component is a proxy class, which has almost identical methods to classic TDataSet component. Developer can easily replace any DataSet component with this proxy applying only few and low risk changes to the production code. From the production code point o view change is small small and not much important but from the testing perspective this is fundamental change, because developer is able to reconfigure proxy to use lightweight memory dataset.
+
+Most of the `TDataSetProxy` methods are just clones of TDataSet once. You can easily expand set of this methods adding missing once or build new unique ones. This proxy methods are: `Append`, `Edit`, `Cancel`, `Delete`, `Close`, `Post`, `RecordCount`, `First`, `Last`, `Eof`, `Next`, `Prior`, `EnableControls`, `DisableControls`, `Locate`, `Lookup`, `Refresh` and others. Documentation and this methods usage is the same like standard Delphi documentation for `TDataSet` class.
+
+Rest of `TDataSetProxy` methods can be divided into two groups: proxy setup methods (configuration) and proxy helper methods (expanding classic dataset functionality).
+
+### TDataSetProxy setup
+
+```pas
+procedure TDataModule1.OnCreate(Sender: TObject);
+begin
+  fOrdersProxy := TOrdersProxy.Create(fOwner);
+  fOrdersDataSource := fOrdersProxy.ConstructDataSource;
+end;
+
+procedure TDataModule1.InitOrders(aYear, aMonth: word);
+begin
+  fOrdersProxy.WithFiredacSQL( FDConnection1,
+    'SELECT OrderID, CustomerID, OrderDate, Freight' +
+    ' FROM {id Orders} WHERE OrderDate between' +
+    ' :StartDate and :EndDate', 
+    [ GetMonthStart(aYear, aMonth), 
+      GetMonthEnd(aYear, aMonth) ],
+    [ftDate, ftDate])
+    .Open;
+  fOrdersInitialized := True;
+end;
+
+procedure TDataModule1.InitOrders(aDataSet: TDataSet);
+begin
+  fOrdersProxy.WithDataSet(aDataSet).Open;
+  fOrdersInitialized := True;
+end;
+```
+
+### DataSetProxy helpers
+
+Current release of `TDataSetProxy` component is containing only one helper methods which was implemented as an example. Developers are able to expand this collection according to the team coding practices. Suggested of expanding proxy class is using the inheritance. Sample usage of existing `ForEach` helper method:
+
+```pas
+function TDataModule.CalculateTotalOrders (const aCustomerID: string): Currency;
+begin
+  Result := 0;
+  procedure ForEach(OnElem: TProc);
+  fOrdersProxy.ForEach(procedure
+    begin
+      if fOrdersProxy.CustomerID.Value = aCustomerID then
+        Result := Result + fOrdersProxy.GetTotalOrderValue;
+    end;
+end;
 ```
 
 ## Why engineers need to change?
