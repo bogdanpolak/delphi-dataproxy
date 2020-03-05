@@ -101,6 +101,37 @@ DataSetProxy component is a proxy class, which has almost identical methods to c
 
 Most of the `TDataSetProxy` methods are just clones of TDataSet once. You can easily expand set of this methods adding missing once or build new unique ones. This proxy methods are: `Append`, `Edit`, `Cancel`, `Delete`, `Close`, `Post`, `RecordCount`, `First`, `Last`, `Eof`, `Next`, `Prior`, `EnableControls`, `DisableControls`, `Locate`, `Lookup`, `Refresh` and others. Documentation and this methods usage is the same like standard Delphi documentation for `TDataSet` class.
 
+Rest of `TDataSetProxy` methods can be divided into two groups: proxy setup methods (configuration) and proxy helper methods (expanding classic dataset functionality).
+
+### TDataSetProxy setup
+
+```pas
+procedure TDataModule1.OnCreate(Sender: TObject);
+begin
+  fOrdersProxy := TOrdersProxy.Create(fOwner);
+  fOrdersDataSource := fOrdersProxy.ConstructDataSource;
+end;
+
+procedure TDataModule1.InitOrders(aYear, aMonth: word);
+begin
+  fOrdersProxy.WithFiredacSQL( FDConnection1,
+    'SELECT OrderID, CustomerID, OrderDate, Freight' +
+    ' FROM {id Orders} WHERE OrderDate between' +
+    ' :StartDate and :EndDate', 
+    [ GetMonthStart(aYear, aMonth), 
+      GetMonthEnd(aYear, aMonth) ],
+    [ftDate, ftDate])
+    .Open;
+  fOrdersInitialized := True;
+end;
+
+procedure TDataModule1.InitOrders(aDataSet: TDataSet);
+begin
+  fBookProxy.WithDataSet(aDataSet).Open;
+  fOrdersInitialized := True;
+end;
+```
+
 ## Why engineers need to change?
 
 This project is effect of many years and multiple teams experience. This teams found that classic event based Delphi approach is not only less productive, but even dangerous for the developers, the managers and for the customers.
