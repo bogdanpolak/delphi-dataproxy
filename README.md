@@ -23,41 +23,45 @@ Dataset proxy is a temporary solution and after covering code with the tests eng
 
 Together with code and quality improvement developers will learn how to write cleaner code or how to use test first approach and work better.
 
-Supportive projects
+Supportive project:
 
 | Project | GitHub Repo |
 | --- | --- |
-| Command Pattern for Delphi | https://github.com/bogdanpolak/command-delphi |
 | DataSet Generator | https://github.com/bogdanpolak/dataset-generator |
 
 ## Proxy generation
 
 Project includes source code of base class `TDataSetProxy` and two different types of proxy generators:
 
-1) **Component TDataProxyGenerator**
+1) Component: **TDataProxyGenerator**
    - unit `src/Comp.Generator.DataProxy.pas`
-   - As an input receives dataset and as an output generates text/code: unit containing proxy class inherited from `TDataSetProxy`
+   - As an input receives dataset and as an output generates source code: unit containing proxy class inherited from `TDataSetProxy`
 2) Tool: **Generator App for FireDAC**
    - tool source: `tools/generator-app`
    - VCL Forms application written in Delphi which is able to connect to SQL server via FireDAC, then prepare SQL command, fetch result dataset and generate proxy class together with dataset fake
 
-Component is useful when engineer wants to generate proxy for exiting dataset in production code. This is two steps easy task: (1) add component unit to uses section, (2) find code using dataset and call generator execute method:
+### Component
+
+Component `TDataProxyGenerator` is useful when engineer wants to generate proxy for exiting dataset in production code. This is two steps easy task: (1) add component unit to uses section, (2) find code using dataset and call generator method:
+
+Current production code:
 
 ```pas
-// --------------------------------
-// curent production code:
-dbgridBooks.DataSource.Dataset := fDBConnection.
-  ConstructSQLSataSet(aOwner, APPSQL_SelectBooks);
-// --------------------------------
-// injected generator code:
-proxy := TDataProxyGenerator.Create(aOwner);
-proxy.ObjectName := 'Books';
-proxy.DataSet := dbgridBooks.DataSource.Dataset;
-proxy.Execute;
-proxy.Code.SaveToFile('Proxy.Books.pas');
+aBooksDataSet := fDBConnection.ConstructSQLDataSet(
+  aOwner, APPSQL_SelectBooks);
+dbgridBooks.DataSource.Dataset := aBooksDataSet;
 ```
 
-**Generator App for FireDAC** is alternative tool created mostly for demo purposes. In practice it can be less useful then component generator, but can be used for coaching and training the team. For more information check: [Generator App for FireDAC - User Guide](doc/generator-app-guide.md).
+Injected generator code:
+
+```pas
+TDataProxyGenerator.SaveToFile('../../src/Proxy.Books',
+  aBooksDataSet, 'TBookProxy');
+```
+
+### Tool
+
+**Generator App for FireDAC** is alternative tool created mostly for demo purposes. In practice using this tool can be less useful then using directly the component generator. Generator App is dedicated  for coaching and training purposes. For more information check: [Generator App for FireDAC - User Guide](doc/generator-app-guide.md).
   
 ## Sample proxy class
 
