@@ -59,31 +59,41 @@ proxy.Code.SaveToFile('Proxy.Books.pas');
 
 **Generator App for FireDAC** is alternative tool created mostly for demo purposes. In practice it can be less useful then component generator, but can be used for coaching and training the team. For more information check: [Generator App for FireDAC - User Guide](doc/generator-app-guide.md).
   
-## TDataSetProxy class
-
-TBD
-
-Sample proxy class created by generator:
+## Sample proxy class
 
 ```pas
 type
   TBookProxy = class(TDatasetProxy)
   private
-    FISBN :TWideStringField;
-    FTitle :TWideStringField;
-    FReleseDate :TDateField;
-    FPages :TIntegerField;
-    FPrice :TBCDField;
+    fISBN :TWideStringField;
+    fTitle :TWideStringField;
+    fReleseDate :TDateField;
+    fPages :TIntegerField;
+    fPrice :TBCDField;
   protected
     procedure ConnectFields; override;
   public
-    property ISBN :TWideStringField read FISBN;
-    property Title :TWideStringField read FTitle;
-    property ReleseDate :TDateField read FReleseDate;
-    property Pages :TIntegerField read FPages;
-    property Price :TBCDField read FPrice;
+    property ISBN :TWideStringField read fISBN;
+    property Title :TWideStringField read fTitle;
+    property ReleseDate :TDateField read fReleseDate;
+    property Pages :TIntegerField read fPages;
+    property Price :TBCDField read fPrice;
   end;
+
+procedure TBookProxy.ConnectFields;
+begin
+  Assert(fDataSet.Fields.Count = 5);
+  fISBN := fDataSet.FieldByName('ISBN');
+  fTitle := fDataSet.FieldByName('Title');
+  fReleseDate := fDataSet.FieldByName('ReleseDate');
+  fPages := fDataSet.FieldByName('Pages');
+  fPrice := fDataSet.FieldByName('Price');
+end;
 ```
+
+## TDataSetProxy class
+
+TBD
 
 ## Why engineers need to change?
 
