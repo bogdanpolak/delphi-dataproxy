@@ -97,6 +97,8 @@ function TDataProxyGenerator.Gen_UnitHeader: string;
 begin
   Result :=
     {} 'unit ' + fUnitName + ';' + sLineBreak +
+    {} sLineBreak +
+    {} 'interface' + sLineBreak +
     {} sLineBreak;
 end;
 
@@ -241,7 +243,9 @@ begin
       {} sLineBreak +
       {} 'implementation' + sLineBreak +
       {} sLineBreak +
-      {} Gen_MethodConnectFields;
+      {} Gen_MethodConnectFields +
+      {} sLineBreak +
+      {} 'end.' + sLineBreak;
 end;
 
 function ExtractNameFromFullPath(const aFullPath: string): string;

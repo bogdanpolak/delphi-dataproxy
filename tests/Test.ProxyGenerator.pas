@@ -476,6 +476,8 @@ begin
   Assert.AreMemosEqual(
     {} 'unit Proxy.Books;'#13#10
     {} + sLineBreak
+    {} + 'interface'#13#10
+    {} + sLineBreak
     {} + 'uses'#13#10
     {} + '  Data.DB,'#13#10
     {} + '  Data.DataProxy,'#13#10
@@ -516,7 +518,9 @@ begin
     {} + '  FPages := FDataSet.FieldByName(''Pages'') as TIntegerField;'#13#10
     {} + '  FPrice := FDataSet.FieldByName(''Price'') as TBCDField;'#13#10
     {} + '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13#10
-    {} + 'end;'#13#10, fGenerator.Code.Text);
+    {} + 'end;'#13#10
+    {} + sLineBreak
+    {} + 'end.'#13#10, fGenerator.Code.Text);
 end;
 
 procedure TestGenerator.Generate_BooksProxy_Class;
