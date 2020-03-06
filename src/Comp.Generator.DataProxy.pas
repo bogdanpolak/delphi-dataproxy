@@ -27,7 +27,7 @@ type
     fGeneratorMode: TProxyGeneratorMode;
     fDataSetAccess: TDataSetAccess;
     fFieldNamingStyle: TFieldNamingStyle;
-    fUnitName: string;
+    fNameOfUnit: string;
     fNameOfClass: string;
     fIndentationText: string;
     procedure Guard;
@@ -60,7 +60,7 @@ type
       write fDataSetAccess;
     property FieldNamingStyle: TFieldNamingStyle read fFieldNamingStyle
       write fFieldNamingStyle;
-    property UnitName: string read fUnitName write fUnitName;
+    property NameOfUnit: string read fNameOfUnit write fNameOfUnit;
     property NameOfClass: string read fNameOfClass write fNameOfClass;
 
     property IndentationText: string read fIndentationText
@@ -74,7 +74,7 @@ begin
   inherited;
   fCode := TStringList.Create;
   fDataSet := nil;
-  fUnitName := 'Unit1';
+  fNameOfUnit := 'Unit1';
   fNameOfClass := 'TFoo';
   fDataSetAccess := dsaNoAccess;
   fIndentationText := '  ';
@@ -96,7 +96,7 @@ end;
 function TDataProxyGenerator.Gen_UnitHeader: string;
 begin
   Result :=
-    {} 'unit ' + fUnitName + ';' + sLineBreak +
+    {} 'unit ' + fNameOfUnit + ';' + sLineBreak +
     {} sLineBreak +
     {} 'interface' + sLineBreak +
     {} sLineBreak;
@@ -279,7 +279,7 @@ begin
   aGenerator := TDataProxyGenerator.Create(nil);
   try
     aGenerator.DataSet := aDataSet;
-    aGenerator.UnitName := ExtractUnitName(aFileName);
+    aGenerator.NameOfUnit := ExtractUnitName(aFileName);
     aGenerator.NameOfClass := aNameOfClass;
     aGenerator.IndentationText := aIndentationText;
     aGenerator.FieldNamingStyle := aNamingStyle;
