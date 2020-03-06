@@ -2,7 +2,7 @@ object FormMain: TFormMain
   Left = 0
   Top = 0
   Caption = 'FormMain'
-  ClientHeight = 498
+  ClientHeight = 515
   ClientWidth = 824
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -51,12 +51,16 @@ object FormMain: TFormMain
     Left = 152
     Top = 58
     Width = 669
-    Height = 437
+    Height = 454
     ActivePage = tshDataSet
     Align = alRight
+    TabHeight = 26
     TabOrder = 1
+    TabWidth = 200
     object tshDataSet: TTabSheet
       Caption = 'Prepare DataDet'
+      ExplicitTop = 24
+      ExplicitHeight = 426
       object Splitter1: TSplitter
         Left = 0
         Top = 225
@@ -69,7 +73,7 @@ object FormMain: TFormMain
       end
       object GridPanel2: TGridPanel
         Left = 0
-        Top = 377
+        Top = 386
         Width = 661
         Height = 32
         Align = alBottom
@@ -101,6 +105,7 @@ object FormMain: TFormMain
             Value = 100.000000000000000000
           end>
         TabOrder = 2
+        ExplicitTop = 394
         object btnGenerateDAO: TButton
           AlignWithMargins = True
           Left = 223
@@ -136,7 +141,7 @@ object FormMain: TFormMain
         Left = 3
         Top = 232
         Width = 655
-        Height = 142
+        Height = 151
         Margins.Top = 1
         Align = alClient
         DataSource = DataSource1
@@ -271,12 +276,14 @@ object FormMain: TFormMain
     object tshProxyCode: TTabSheet
       Caption = 'Generated code: DataSetProxy'
       ImageIndex = 1
+      ExplicitTop = 24
+      ExplicitHeight = 426
       object mmProxyCode: TMemo
         AlignWithMargins = True
         Left = 199
         Top = 3
         Width = 459
-        Height = 403
+        Height = 412
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -288,16 +295,18 @@ object FormMain: TFormMain
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
+        ExplicitHeight = 420
       end
       object grbxProxyGenOptions: TGroupBox
         AlignWithMargins = True
         Left = 3
         Top = 3
         Width = 190
-        Height = 403
+        Height = 412
         Align = alLeft
         Caption = 'Proxy generator options:'
         TabOrder = 1
+        ExplicitHeight = 420
         object Label4: TLabel
           AlignWithMargins = True
           Left = 7
@@ -307,14 +316,15 @@ object FormMain: TFormMain
           Margins.Left = 5
           Margins.Top = 6
           Margins.Right = 5
+          Margins.Bottom = 0
           Align = alTop
-          Caption = 'Proxy name:'
-          ExplicitWidth = 61
+          Caption = 'Unit name:'
+          ExplicitWidth = 52
         end
         object Label5: TLabel
           AlignWithMargins = True
           Left = 5
-          Top = 63
+          Top = 61
           Width = 180
           Height = 13
           Margins.Top = 0
@@ -329,24 +339,55 @@ object FormMain: TFormMain
           ParentFont = False
           ExplicitWidth = 144
         end
-        object edtProxyName: TEdit
+        object Label6: TLabel
           AlignWithMargins = True
           Left = 7
-          Top = 40
+          Top = 88
+          Width = 176
+          Height = 13
+          Margins.Left = 5
+          Margins.Top = 6
+          Margins.Right = 5
+          Margins.Bottom = 0
+          Align = alTop
+          Caption = 'Class Name:'
+          ExplicitWidth = 59
+        end
+        object Label7: TLabel
+          AlignWithMargins = True
+          Left = 5
+          Top = 128
+          Width = 180
+          Height = 13
+          Margins.Top = 0
+          Margins.Bottom = 8
+          Align = alTop
+          Caption = 'type [Enter] to apply changes'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clInactiveCaption
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsItalic]
+          ParentFont = False
+          ExplicitWidth = 144
+        end
+        object edtUnitName: TEdit
+          AlignWithMargins = True
+          Left = 7
+          Top = 37
           Width = 176
           Height = 21
           Margins.Left = 5
           Margins.Right = 5
-          Margins.Bottom = 2
           Align = alTop
           TabOrder = 0
-          Text = 'edtProxyName'
-          OnKeyPress = edtProxyNameKeyPress
+          Text = 'edtUnitName'
+          OnKeyPress = edtUnitNameKeyPress
         end
         object GroupBox5: TGroupBox
           AlignWithMargins = True
           Left = 7
-          Top = 97
+          Top = 162
           Width = 176
           Height = 72
           Margins.Left = 5
@@ -385,7 +426,7 @@ object FormMain: TFormMain
         object GroupBox6: TGroupBox
           AlignWithMargins = True
           Left = 7
-          Top = 185
+          Top = 250
           Width = 176
           Height = 72
           Margins.Left = 5
@@ -424,7 +465,7 @@ object FormMain: TFormMain
         object GroupBox7: TGroupBox
           AlignWithMargins = True
           Left = 7
-          Top = 273
+          Top = 338
           Width = 176
           Height = 56
           Margins.Left = 5
@@ -452,20 +493,36 @@ object FormMain: TFormMain
               '4 spaces')
           end
         end
+        object edtClassName: TEdit
+          AlignWithMargins = True
+          Left = 7
+          Top = 104
+          Width = 176
+          Height = 21
+          Margins.Left = 5
+          Margins.Right = 5
+          Align = alTop
+          TabOrder = 4
+          Text = 'edtClassName'
+          OnKeyPress = edtClassNameKeyPress
+        end
       end
     end
     object tshFakeDataset: TTabSheet
       Caption = 'Generated code: Fake DataSet'
       ImageIndex = 2
+      ExplicitTop = 24
+      ExplicitHeight = 426
       object gxbxFakeGenOptions: TGroupBox
         AlignWithMargins = True
         Left = 3
         Top = 3
         Width = 190
-        Height = 403
+        Height = 412
         Align = alLeft
         Caption = 'Fake DataSet generator options:'
         TabOrder = 0
+        ExplicitHeight = 420
         object GroupBox3: TGroupBox
           AlignWithMargins = True
           Left = 7
@@ -554,7 +611,7 @@ object FormMain: TFormMain
         Left = 199
         Top = 3
         Width = 459
-        Height = 403
+        Height = 412
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -566,6 +623,7 @@ object FormMain: TFormMain
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 1
+        ExplicitHeight = 420
       end
     end
   end

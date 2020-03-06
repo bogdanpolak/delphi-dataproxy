@@ -46,7 +46,7 @@ type
     Label3: TLabel;
     Button4: TButton;
     grbxProxyGenOptions: TGroupBox;
-    edtProxyName: TEdit;
+    edtUnitName: TEdit;
     Label4: TLabel;
     Label5: TLabel;
     tshFakeDataset: TTabSheet;
@@ -66,6 +66,9 @@ type
     rbtnProxyOptionCommnetedDataSet: TRadioButton;
     GroupBox7: TGroupBox;
     cbxProxyOptionIdentation: TComboBox;
+    Label6: TLabel;
+    edtClassName: TEdit;
+    Label7: TLabel;
     // --------------------------------------------------------------------
     // Startup
     procedure FormCreate(Sender: TObject);
@@ -77,7 +80,7 @@ type
     procedure actExecSQLExecute(Sender: TObject);
     procedure actGenerateProxyExecute(Sender: TObject);
     procedure actQueryBuilderExecute(Sender: TObject);
-    procedure edtProxyNameKeyPress(Sender: TObject; var Key: Char);
+    procedure edtUnitNameKeyPress(Sender: TObject; var Key: Char);
     procedure rbtnFakeOptionFDMemTableClick(Sender: TObject);
     procedure rbtnFakeOptionClientDataSetClick(Sender: TObject);
     procedure rbtnFakeOptionAppendMultilineClick(Sender: TObject);
@@ -87,6 +90,7 @@ type
     procedure rbtnProxyOptionNoDataSetAccessClick(Sender: TObject);
     procedure rbtnProxyOptionCommnetedDataSetClick(Sender: TObject);
     procedure cbxProxyOptionIdentationChange(Sender: TObject);
+    procedure edtClassNameKeyPress(Sender: TObject; var Key: Char);
   private
     fProxyGenerator: TDataProxyGenerator;
     fDataSetGenerator: TDSGenerator;
@@ -319,8 +323,10 @@ begin
   // -------------------------------------------------------
   fDataSet := DataModule1.GetMainDataQuery;
   DataSource1.DataSet := fDataSet;
-  fProxyGenerator.ObjectName := 'Something';
-  edtProxyName.Text := fProxyGenerator.ObjectName;
+  fProxyGenerator.NameOfUnit := 'Proxy.Foo';
+  edtUnitName.Text := fProxyGenerator.UnitName;
+  fProxyGenerator.NameOfClass := 'TFooProxy';
+  edtClassName.Text := fProxyGenerator.NameOfClass;
   InitializeControls;
   // -------------------------------------------------------
   // Inititialize actions
@@ -397,10 +403,11 @@ begin
   // DataSet Fake generator
   // ----------------------------------------------------
   fProxyGenerator.DataSet := DataSource1.DataSet;
-  fProxyGenerator.ObjectName := edtProxyName.Text;
+  fProxyGenerator.NameOfUnit := edtUnitName.Text;
+  fProxyGenerator.NameOfClass := edtClassName.Text;
   fProxyGenerator.DataSetAccess := dsaNoAccess;
   fProxyGenerator.FieldNamingStyle := fnsUpperCaseF;
-  fProxyGenerator.IdentationText := '  ';
+  fProxyGenerator.IndentationText := '  ';
   fProxyGenerator.Execute;
   mmProxyCode.Lines.Text := fProxyGenerator.Code.Text;
   // ----------------------------------------------------
@@ -455,11 +462,23 @@ begin
   end;
 end;
 
-procedure TFormMain.edtProxyNameKeyPress(Sender: TObject; var Key: Char);
+procedure TFormMain.edtClassNameKeyPress(Sender: TObject; var Key: Char);
 begin
   if (Key = #13) then
   begin
-    fProxyGenerator.ObjectName := edtProxyName.Text;
+    fProxyGenerator.NameOfUnit := edtUnitName.Text;
+    fProxyGenerator.NameOfClass := edtClassName.Text;
+    UpdateProxyCode_AfterOptionChange;
+    Key := #0;
+  end;
+end;
+
+procedure TFormMain.edtUnitNameKeyPress(Sender: TObject; var Key: Char);
+begin
+  if (Key = #13) then
+  begin
+    fProxyGenerator.NameOfUnit := edtUnitName.Text;
+    fProxyGenerator.NameOfClass := edtClassName.Text;
     UpdateProxyCode_AfterOptionChange;
     Key := #0;
   end;
@@ -469,9 +488,9 @@ procedure TFormMain.cbxProxyOptionIdentationChange(Sender: TObject);
 begin
   case cbxProxyOptionIdentation.ItemIndex of
     0:
-      fProxyGenerator.IdentationText := '  ';
+      fProxyGenerator.IndentationText := '  ';
     1:
-      fProxyGenerator.IdentationText := '    ';
+      fProxyGenerator.IndentationText := '    ';
   end;
   UpdateProxyCode_AfterOptionChange;
 end;
