@@ -194,38 +194,42 @@ TBD
 ### Original code - before modernization
 
 ```pas
-procedure TForm1.LoadDataToListBox( aBookDataSet: TFDQuery );
+procedure TFormMain.LoadBooksToListBox(Sender: TObject);
 var
   aIndex: integer;
-  aBookDataSet: TBookmark;
+  aBookmark: TBookmark;
   aBook: TBook;
-  aBookText: string;
+  isDatePrecise: boolean;
 begin
   ListBox1.ItemIndex := -1;
-  for aIndex := 0 to ListBox1.Items.Count
-    ListBox1.Objects[aIndex].Free;
+  for aIndex := 0 to ListBox1.Items.Count - 1 do
+    ListBox1.Items.Objects[aIndex].Free;
   ListBox1.Clear;
-  aBookmark := aBookDataSet.GetBoomark;
+  aBookmark := fdqBook.GetBookmark;
   try
-    aBookDataSet.DiableControls;
+    fdqBook.DisableControls;
     try
-      while not aBookDataSet.Eof do
+      while not fdqBook.Eof do
       begin
         aBook := TBook.Create;
-        aBook.ISBN := aBookDataSet.FieldByName('ISBN').AsString;
-        aBook.Auhtor := aBookDataSet.FieldByName('Auhtor').AsString;
-        aBook.Title := aBookDataSet.FieldByName('Title').AsString;
-        aBook.ReleseDate := aBookDataSet.FieldByName('ReleseDate').AsString;
-        aBookText := aBookDataSet.FieldByName('Auhtor').AsString + 
-          ' - ' + aBookDataSet.FieldByName('Title').AsString;
-        ListBox1.AddItem( aBookText, aBook );
-        aBookDataSet.Next;
+        ListBox1.AddItem(fdqBook.FieldByName('ISBN').AsString + ' - ' +
+          fdqBook.FieldByName('Title').AsString, aBook);
+        aBook.ISBN := fdqBook.FieldByName('ISBN').AsString;
+        aBook.Authors.AddRange(BuildAuhtorsList(
+          fdqBook.FieldByName('Authors').AsString));
+        aBook.Title := fdqBook.FieldByName('Title').AsString;
+        aBook.ReleaseDate := ConvertReleaseDate(
+          fdqBook.FieldByName('ReleaseDate').AsString);
+        aBook.Price := fdqBook.FieldByName('Price').AsCurrency;
+        aBook.PriceCurrency := fdqBook.FieldByName('Currency').AsString;
+        ValidateCurrency(aBook.PriceCurrency);
+        fdqBook.Next;
       end;
     finally
-      aBookDataSet.EnableControls;
+      fdqBook.EnableControls;
     end
   finally
-    aBookDataSet.FreeBoomark( aBookmark );
+    fdqBook.FreeBookmark(aBookmark);
   end;
 end;
 ```
