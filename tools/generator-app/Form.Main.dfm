@@ -52,15 +52,13 @@ object FormMain: TFormMain
     Top = 58
     Width = 669
     Height = 454
-    ActivePage = tshDataSet
+    ActivePage = tshProxyCode
     Align = alRight
     TabHeight = 26
     TabOrder = 1
     TabWidth = 200
     object tshDataSet: TTabSheet
       Caption = 'Prepare DataDet'
-      ExplicitTop = 24
-      ExplicitHeight = 426
       object Splitter1: TSplitter
         Left = 0
         Top = 225
@@ -81,13 +79,13 @@ object FormMain: TFormMain
         Caption = ' '
         ColumnCollection = <
           item
-            Value = 33.333333333333340000
+            Value = 33.333333333333330000
           end
           item
-            Value = 33.333333333333340000
+            Value = 33.333333333333330000
           end
           item
-            Value = 33.333333333333340000
+            Value = 33.333333333333330000
           end>
         ControlCollection = <
           item
@@ -105,7 +103,6 @@ object FormMain: TFormMain
             Value = 100.000000000000000000
           end>
         TabOrder = 2
-        ExplicitTop = 394
         object btnGenerateDAO: TButton
           AlignWithMargins = True
           Left = 223
@@ -201,13 +198,13 @@ object FormMain: TFormMain
           Caption = ' '
           ColumnCollection = <
             item
-              Value = 33.333333333333340000
+              Value = 33.333333333333330000
             end
             item
-              Value = 33.333333333333340000
+              Value = 33.333333333333330000
             end
             item
-              Value = 33.333333333333340000
+              Value = 33.333333333333330000
             end>
           ControlCollection = <
             item
@@ -276,8 +273,6 @@ object FormMain: TFormMain
     object tshProxyCode: TTabSheet
       Caption = 'Generated code: DataSetProxy'
       ImageIndex = 1
-      ExplicitTop = 24
-      ExplicitHeight = 426
       object mmProxyCode: TMemo
         AlignWithMargins = True
         Left = 199
@@ -295,7 +290,6 @@ object FormMain: TFormMain
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
-        ExplicitHeight = 420
       end
       object grbxProxyGenOptions: TGroupBox
         AlignWithMargins = True
@@ -306,7 +300,6 @@ object FormMain: TFormMain
         Align = alLeft
         Caption = 'Proxy generator options:'
         TabOrder = 1
-        ExplicitHeight = 420
         object Label4: TLabel
           AlignWithMargins = True
           Left = 7
@@ -395,7 +388,7 @@ object FormMain: TFormMain
           Margins.Right = 5
           Align = alTop
           Caption = 'Field naming convetion:'
-          TabOrder = 1
+          TabOrder = 2
           object rbtnProxyOptionFieldLowerCase: TRadioButton
             AlignWithMargins = True
             Left = 15
@@ -434,7 +427,7 @@ object FormMain: TFormMain
           Margins.Right = 5
           Align = alTop
           Caption = 'Internal DataSet access:'
-          TabOrder = 2
+          TabOrder = 3
           object rbtnProxyOptionNoDataSetAccess: TRadioButton
             AlignWithMargins = True
             Left = 15
@@ -473,7 +466,7 @@ object FormMain: TFormMain
           Margins.Right = 5
           Align = alTop
           Caption = 'Code identation'
-          TabOrder = 3
+          TabOrder = 4
           object cbxProxyOptionIdentation: TComboBox
             AlignWithMargins = True
             Left = 7
@@ -502,7 +495,7 @@ object FormMain: TFormMain
           Margins.Left = 5
           Margins.Right = 5
           Align = alTop
-          TabOrder = 4
+          TabOrder = 1
           Text = 'edtClassName'
           OnKeyPress = edtClassNameKeyPress
         end
@@ -511,8 +504,6 @@ object FormMain: TFormMain
     object tshFakeDataset: TTabSheet
       Caption = 'Generated code: Fake DataSet'
       ImageIndex = 2
-      ExplicitTop = 24
-      ExplicitHeight = 426
       object gxbxFakeGenOptions: TGroupBox
         AlignWithMargins = True
         Left = 3
@@ -522,7 +513,6 @@ object FormMain: TFormMain
         Align = alLeft
         Caption = 'Fake DataSet generator options:'
         TabOrder = 0
-        ExplicitHeight = 420
         object GroupBox3: TGroupBox
           AlignWithMargins = True
           Left = 7
@@ -623,7 +613,6 @@ object FormMain: TFormMain
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 1
-        ExplicitHeight = 420
       end
     end
   end

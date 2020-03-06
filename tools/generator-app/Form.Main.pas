@@ -324,7 +324,7 @@ begin
   fDataSet := DataModule1.GetMainDataQuery;
   DataSource1.DataSet := fDataSet;
   fProxyGenerator.NameOfUnit := 'Proxy.Foo';
-  edtUnitName.Text := fProxyGenerator.UnitName;
+  edtUnitName.Text := fProxyGenerator.NameOfUnit;
   fProxyGenerator.NameOfClass := 'TFooProxy';
   edtClassName.Text := fProxyGenerator.NameOfClass;
   InitializeControls;
