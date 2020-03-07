@@ -284,6 +284,8 @@ begin
 end;
 ```
 
+Finally, the form method looks nice and clear. This is a good sign that we are going in the right direction. Code extracted and moved to a dataset proxy looks almost like previous:
+
 ```pas
 procedure TBooksProxy.LoadAndValidate;
 var
@@ -309,6 +311,10 @@ begin
     end);
 end;
 ```
+
+Together with this code we had to move all dependent methods responsible for converting and validating data: `BuildAuhtorsList`, `ConvertReleaseDate` and `ValidateCurrency`.
+
+This proxy contains internal collection of book `fBookList` which is used to fill ListBox. At that moment we moved this code to dataset proxy class to reduce number of changes, but letter it should be moved into proper class:
 
 ```pas
 procedure TBooksProxy.FillStringsWithBooks(
