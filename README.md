@@ -1,4 +1,4 @@
-﻿# DataProxy Pattern for Delphi
+# DataProxy Pattern for Delphi
 
 ![ Delphi Support ](https://img.shields.io/badge/Delphi%20Support-%20XE8%20..%2010.3%20Rio-blue.svg)
 ![ version ](https://img.shields.io/badge/version-%201.0-yellow.svg)
@@ -271,84 +271,55 @@ end;
 
 The code is more readable and safer, but is still in the form. It's time to remove it and separate from all dependencies to enable testing.
 
-### Modernization - Stage 2 (decomposition)
+### Stage 2. Code Decouple
 
 ```pas
-procedure TForm1.LoadDataToListBox( aBookProxy: TBookProxy );
+procedure TForm1.LoadBooksToListBox();
 begin
-  fBookContainer.LoadFromProxy( aBookProxy );
-  fBookContainer.PopulateStringList ( ListBox1 );
+  ListBox1.Clear;
+  fProxyBooks.LoadAndValidate;
+  fProxyBooks.FillStringsWithBooks(ListBox1.Items);
 end;
+```
 
-// -----------------------------------------
-// unit: Model.BookContainer.pas
-
-procedure TBookContainer.LoadFromProxy ( aBookProxy: TBookProxy);
-begin
-  fBooks := aBookProxy.LoadAll;
-end;
-
-procedure TBookContainer.PopulateStringList ( aGuiList: TStrings);
+```pas
+procedure TBooksProxy.LoadAndValidate;
 var
   aBook: TBook;
+  isDatePrecise: boolean;
 begin
-  for aBook in fBooks do
-    aGuiList.AddItem( aBook.GetAuthorAndTtile, aBook );
-end;
-
-// -----------------------------------------
-// unit: BookProxy.Book.pas
-
-function TBookProxy.LoadAll: IList<TBook>;
-var
-  aBook: TBook;
-begin
-  Result := TCollections.CreateList<TBook>;
-  Self.ForEach(
+  fBooksList.Clear;
+  ForEach(
     procedure
     begin
       aBook := TBook.Create;
-      aBook.ISBN := Self.ISBN.AsString;
-      aBook.Auhtor := Self.Auhtor.AsString;
-      aBook.Title := Self.Title.AsString;
-      aBook.ReleseDate := Self.ReleseDate.AsString;
-      Result.Add( aBook );
-    end;
-  )
+      fBooksList.Add(aBook);
+      aBook.ISBN := ISBN.Value;
+      aBook.Authors.AddRange(
+        BuildAuhtorsList(Authors.Value));
+      aBook.Title := Title.Value;
+      aBook.ReleaseDate := ConvertReleaseDate(
+        ReleaseDate.Value, isDatePrecise);
+      aBook.IsPreciseReleaseDate := isDatePrecise;
+      aBook.Price := Price.AsCurrency;
+      aBook.PriceCurrency := Currency.Value;
+      ValidateCurrency(aBook.PriceCurrency);
+    end);
 end;
 ```
 
-### Modernization - Stage 3 (DAO)
-
 ```pas
-procedure TForm1.LoadDataToListBox;
-begin
-  fBookContainer.PopulateStringList ( ListBox1 );
-end;
-
-// -----------------------------------------
-// unit: Model.BookContainer.pas
-
-constructor TBookContainer.Create (aBookDAO: IBookDAO);
-begin
-  fBookDAO := aBookDAO;
-end;
-
-procedure TBookContainer.LoadFromDAO;
-begin
-  fBooks := fBookDAO.LoadAll;
-end;
-
-procedure TBookContainer.PopulateStringList ( aStrList: TStrings);
+procedure TBooksProxy.FillStringsWithBooks(
+  aStrings: TStrings);
 var
   aBook: TBook;
 begin
-  LoadFromDAO;
-  for aBook in fBooks do
-    aStrList.AddItem( aBook.GetAuthorAndTtile, aBook );
+  aStrings.Clear;
+  for aBook in fBooksList do
+    aStrings.AddObject(
+      aBook.ISBN + ' - ' + aBook.Title, aBook);
 end;
 ```
-
 
 ## More proxy samples
 
