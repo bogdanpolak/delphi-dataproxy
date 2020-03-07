@@ -2,7 +2,12 @@ unit Procesor.Currency.Intf;
 
 interface
 
+uses
+  System.SysUtils;
+
 type
+  EInvalidCurrency = class(Exception);
+
   TCurrencyRate = record
     Code: String;
     Rate: Currency;

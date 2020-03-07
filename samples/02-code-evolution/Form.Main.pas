@@ -28,8 +28,6 @@ uses
   Procesor.Currency.Intf;
 
 type
-  EInvalidCurrency = class(Exception);
-
   TFormMain = class(TForm)
     ListBox1: TListBox;
     FDConnection1: TFDConnection;
