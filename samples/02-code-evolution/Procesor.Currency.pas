@@ -6,6 +6,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.JSON,
+  System.Generics.Collections,
   System.Net.HttpClient,
 
   Procesor.Currency.Intf;
@@ -42,7 +43,6 @@ procedure TCurrencyProcessor.Download(const aURL: string);
 var
   aStringStream: TStringStream;
   aHTTPClient: THTTPClient;
-  sResponse: string;
   jsResult: TJSONObject;
   jsRates: TJSONObject;
   idx: integer;
