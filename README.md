@@ -1,4 +1,4 @@
-# DataProxy Pattern for Delphi
+﻿# DataProxy Pattern for Delphi
 
 ![ Delphi Support ](https://img.shields.io/badge/Delphi%20Support-%20XE8%20..%2010.3%20Rio-blue.svg)
 ![ version ](https://img.shields.io/badge/version-%201.0-yellow.svg)
@@ -272,6 +272,8 @@ end;
 The code is more readable and safer, but is still in the form. It's time to remove it and separate from all dependencies to enable testing.
 
 ### Stage 2. Code Decouple
+
+We must start with an important architectural decision. Currently in the code we have two similar classes: `TBook` storing data and `TBookProxy` processing them. It is important to decide which of these classes depends on the other. `TBook` is part of the model layer and should be not aware about about data access object. 
 
 ```pas
 procedure TForm1.LoadBooksToListBox();
