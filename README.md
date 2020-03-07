@@ -236,33 +236,40 @@ end;
 
 This method is loading data from SQL database, using `fdqBook` TFDQuery. An object of class `TBook` is created for each row, its fields are filled with data set values and validated. Because `TBook` objects are stored in the `TListBox` control, which also owns them, this method must release them first. 
 
-### Modernization - Stage 1 (replacement)
+### Stage 1. DataSet Replacement
+
+We replace the data set with the proxy object. In addition, we are modernizing the code by changing the classic `while-not-eof` loop with a functional `ForEach` method. At the same time, we are introducing a safer variant of accessing field values. It is possible to separate this phase in 3 separate phases, but for this article we need to keep content compact.
 
 ```pas
-procedure TForm1.LoadDataToListBox( aBookProxy: TBookProxy );
+procedure TFormMain.LoadBooksToListBox();
 var
   aIndex: integer;
-  aBookDataSet: TBookmark;
-  aBookText: string;
+  aBook: TBook;
 begin
   ListBox1.ItemIndex := -1;
-  for aIndex := 0 to ListBox1.Items.Count
-    ListBox1.Objects[aIndex].Free;
+  for aIndex := 0 to ListBox1.Items.Count - 1 do
+    ListBox1.Items.Objects[aIndex].Free;
   ListBox1.Clear;
-  aBookProxy.ForEach(
+  fProxyBooks.ForEach(
     procedure
     begin
       aBook := TBook.Create;
-      aBook.ISBN := aBookProxy.ISBN.AsString;
-      aBook.Auhtor := aBookProxy.Auhtor.AsString;
-      aBook.Title := aBookProxy.Title.AsString;
-      aBook.ReleseDate := aBookProxy.ReleseDate.AsString;
-      aBookText := aBookProxy.Auhtor.AsString + ' - ' +
-        aBookProxy.Title.AsString;
-      ListBox1.AddItem( aBookText, aBook );
+      ListBox1.AddItem(fProxyBooks.ISBN.Value + ' - ' +
+        fProxyBooks.Title.Value, aBook);
+      aBook.ISBN := fProxyBooks.ISBN.Value;
+      aBook.Authors.AddRange(
+        BuildAuhtorsList(fProxyBooks.Authors.Value));
+      aBook.Title := fProxyBooks.Title.Value;
+      aBook.ReleaseDate := ConvertReleaseDate(
+        fProxyBooks.ReleaseDate.Value);
+      aBook.Price := fProxyBooks.Price.AsCurrency;
+      aBook.PriceCurrency := fProxyBooks.Currency.Value;
+      ValidateCurrency(aBook.PriceCurrency);
     end);
 end;
 ```
+
+The code is more readable and safer, but is still in the form. It's time to remove it and separate from all dependencies to enable testing.
 
 ### Modernization - Stage 2 (decomposition)
 
