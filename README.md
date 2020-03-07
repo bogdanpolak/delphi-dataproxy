@@ -189,12 +189,10 @@ The modernization process includes following steps:
 
 ## Code evolution with proxy
 
-TBD
-
-### Original code - before modernization
+Look at example showing the migration path of a legacy VCL project using a TDataSetProxy. We'll start with the classic method defined in the form:
 
 ```pas
-procedure TFormMain.LoadBooksToListBox(Sender: TObject);
+procedure TFormMain.LoadBooksToListBox();
 var
   aIndex: integer;
   aBookmark: TBookmark;
@@ -233,6 +231,10 @@ begin
   end;
 end;
 ```
+
+> **Notice!** Presented above solution is a bad practice, but unfortunately is often used by Delphi developers. Goal of using TDataProxy is to improve this state and separate business logic from visualization.
+
+This method is loading data from SQL database, using `fdqBook` TFDQuery. An object of class `TBook` is created for each row, its fields are filled with data set values and validated. Because `TBook` objects are stored in the `TListBox` control, which also owns them, this method must release them first. 
 
 ### Modernization - Stage 1 (replacement)
 
