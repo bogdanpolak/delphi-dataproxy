@@ -83,6 +83,7 @@ begin
     '  Pages, Price, Currency FROM {id Books}');
   fProxyBooks := TBooksProxy.Create(Self);
   fProxyBooks.WithDataSet(fdqBook);
+  fProxyBooks.SetCurrencyProcessor(fCurrencyProcessor);
 end;
 
 procedure TFormMain.ListBox1Click(Sender: TObject);
@@ -286,7 +287,9 @@ end;
 
 procedure TFormMain.btnPhase2Click(Sender: TObject);
 begin
-  // TODO: Phase 2
+  ListBox1.Clear;
+  fProxyBooks.LoadAndValidate;
+  fProxyBooks.FillStringsWithBooks(ListBox1.Items);
 end;
 
 end.
