@@ -4,6 +4,7 @@
 ![ version ](https://img.shields.io/badge/version-%201.0-yellow.svg)
 
 ------------------------------------------------------------------
+1. Generate proxy using `Execute`
 1. Class method: `TDataProxyGenerator.SavetToFile`
 1. Class method: `TDataProxyGenerator.SaveToClipboard`
 1. UnitName  - `property UnitName` = name of unit and file
