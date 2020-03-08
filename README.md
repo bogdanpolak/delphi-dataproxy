@@ -4,8 +4,6 @@
 ![ version ](https://img.shields.io/badge/version-%201.0-yellow.svg)
 
 ------------------------------------------------------------------
-1. GeneratorMode: `property GeneratorMode: TProxyGeneratorMode` #67 
-1. Update sample code in Code Evolution section. Implemented in #64
 1. Class method: `TDataProxyGenerator.SavetToFile`
 1. Class method: `TDataProxyGenerator.SaveToClipboard`
 1. UnitName  - `property UnitName` = name of unit and file
@@ -150,7 +148,6 @@ Current release of `TDataSetProxy` component is containing only one helper metho
 function TDataModule.CalculateTotalOrders (const aCustomerID: string): Currency;
 begin
   Result := 0;
-  procedure ForEach(OnElem: TProc);
   fOrdersProxy.ForEach(procedure
     begin
       if fOrdersProxy.CustomerID.Value = aCustomerID then
@@ -158,6 +155,30 @@ begin
     end;
 end;
 ```
+
+## TDataProxyGenerator
+
+- Unit: `Comp.Generator.DataProxy.pas`
+- Class methods:
+   - `SaveToFile`
+   - `SaveToClipboard`
+- Methods:
+   - `Execute`
+- Properties:
+   - `Code`
+   - `DataSet`
+   - `GeneratorMode`
+   - `DataSetAccess`
+   - `FieldNamingStyle`
+   - `NameOfUnit`
+   - `NameOfClass`
+   - `IndentationText`
+
+### Generator options
+
+| Option | Values | Description |
+| --- | --- | --- |
+| GeneratorMode | pgmClass, pgmUnit | Generates only class header and implementation or whole unit with a class |
 
 ## Why engineers need to change?
 
