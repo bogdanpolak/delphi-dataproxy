@@ -4,7 +4,6 @@
 ![ version ](https://img.shields.io/badge/version-%201.0-yellow.svg)
 
 ------------------------------------------------------------------
-1. Generator Tool: Add images to `generator-app-guide.md` and short description
 1. GeneratorMode: `property GeneratorMode: TProxyGeneratorMode` #67 
 1. Update sample code in Code Evolution section. Implemented in #64
 1. Class method: `TDataProxyGenerator.SavetToFile`
