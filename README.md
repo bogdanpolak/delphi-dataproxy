@@ -3,6 +3,17 @@
 ![ Delphi Support ](https://img.shields.io/badge/Delphi%20Support-%20XE8%20..%2010.3%20Rio-blue.svg)
 ![ version ](https://img.shields.io/badge/version-%201.0-yellow.svg)
 
+------------------------------------------------------------------
+1. Generator Tool: Add images to `generator-app-guide.md` and short description
+1. GeneratorMode: `property GeneratorMode: TProxyGeneratorMode` #67 
+1. Update sample code in Code Evolution section. Implemented in #64
+1. Class method: `TDataProxyGenerator.SavetToFile`
+1. Class method: `TDataProxyGenerator.SaveToClipboard`
+1. UnitName  - `property UnitName` = name of unit and file
+1. NameOfClass - `property NameOfClass` = name of generated proxy class
+1. Rename `IdentationText -> IndentationText`
+------------------------------------------------------------------
+
 ## Overview
 
 TDataSetProxy is a wrapper component for the classic Delphi dataset component. It allows to replace any dataset with a fake dataset (in-memory table). Proxy can be used to separate a business class from datasets, this separation is helpful when the business code needs to be putted into automated test harness (unit tests).
