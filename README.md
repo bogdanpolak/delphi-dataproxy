@@ -140,7 +140,6 @@ Current release of `TDataSetProxy` component is containing only one helper metho
 function TDataModule.CalculateTotalOrders (const aCustomerID: string): Currency;
 begin
   Result := 0;
-  procedure ForEach(OnElem: TProc);
   fOrdersProxy.ForEach(procedure
     begin
       if fOrdersProxy.CustomerID.Value = aCustomerID then
@@ -148,6 +147,75 @@ begin
     end;
 end;
 ```
+
+## TDataProxyGenerator
+
+- Unit: `Comp.Generator.DataProxy.pas`
+- Class methods:
+   - `SaveToFile`
+   - `SaveToClipboard`
+- Methods:
+   - `Execute`
+- Properties:
+   - `Code`
+   - `DataSet`
+   - `GeneratorMode`
+   - `DataSetAccess`
+   - `FieldNamingStyle`
+   - `NameOfUnit`
+   - `NameOfClass`
+   - `IndentationText`
+
+### Generator options
+
+| Option | Values | Description |
+| --- | --- | --- |
+| `GeneratorMode` | (`pgmClass`, `pgmUnit`) | Generates only class header and implementation or whole unit with a class |
+| `NameOfUnit` | `String` | Name of the generated unit uses to create unit header |
+| `NameOfClass` | `String` | Name of a generated proxy class |
+| `FieldNamingStyle` | (`fnsUpperCaseF`, `fnsLowerCaseF`) | Decides how class fields are named: using upper case F suffix or lower-case |
+| `IndentationText` | `String` | Text uses for each code indentation, default value is two spaces |
+| `DataSetAccess` | (`dsaNoAccess`, `dsaGenComment`, `dsaFullAccess`) | Defines access to internal proxy dataset: full access = read-only property is generated to have an access. No access option is default and recommended |
+
+### Generating using Execute
+
+To generate poxy class you can use Execute method, but before calling it you should setup all options and `DataSet` properties. After calling `Execute` generated code will be stored in the internal `TStringList` accessible through `Code` property. See sample code bellow:
+
+```pas
+aProxyGenerator:= TDataProxyGenerator.Create(Self);
+try
+  aProxyGenerator.DataSet := fdqEmployees;
+  aProxyGenerator.NameOfUnit := 'Proxy.Employee';
+  aProxyGenerator.NameOfClass := 'TEmployeeProxy';
+  aProxyGenerator.IndentationText := '    ';
+  aProxyGenerator.Execute;
+  Memo1.Lines := aProxyGenerator.Code;
+finally
+  aProxyGenerator.Free;
+end;
+```
+
+### Generating using class methods
+
+Much easier and compact way of generating proxy classes is to use generator class methods: `SaveToFile` or `SaveToClipboard`. Its names are enough meaningful to understand their functionality. SaveToFile generates whole unit and writes it into file and SaveToClipboard generates only a class and writes to Windows Clipboard. See samples bellow:
+
+```pas
+TDataProxyGenerator.SaveToFile( 
+  'src/Proxy.Employee',
+  fdqEmployees, 
+  'TEmployeeProxy',
+  '    '
+  fnsLowerCaseF);
+```
+
+```pas
+TDataProxyGenerator.SaveToClipboard( 
+  fdqEmployees, 
+  'TEmployeeProxy',
+  '    '
+  fnsLowerCaseF);
+```
+
 
 ## Why engineers need to change?
 
