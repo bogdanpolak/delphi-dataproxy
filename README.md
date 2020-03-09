@@ -7,9 +7,6 @@
 1. Generate proxy using `Execute`
 1. Class method: `TDataProxyGenerator.SavetToFile`
 1. Class method: `TDataProxyGenerator.SaveToClipboard`
-1. UnitName  - `property UnitName` = name of unit and file
-1. NameOfClass - `property NameOfClass` = name of generated proxy class
-1. Rename `IdentationText -> IndentationText`
 ------------------------------------------------------------------
 
 ## Overview
@@ -179,7 +176,12 @@ end;
 
 | Option | Values | Description |
 | --- | --- | --- |
-| GeneratorMode | pgmClass, pgmUnit | Generates only class header and implementation or whole unit with a class |
+| `GeneratorMode` | (`pgmClass`, `pgmUnit`) | Generates only class header and implementation or whole unit with a class |
+| `NameOfUnit` | `String` | Name of the generated unit uses to create unit header |
+| `NameOfClass` | `String` | Name of a generated proxy class |
+| `FieldNamingStyle` | (`fnsUpperCaseF`, `fnsLowerCaseF`) | Decides how class fields are named: using upper case F suffix or lower-case |
+| `IndentationText` | `String` | Text uses for each code indentation, default value is two spaces |
+| `DataSetAccess` | (`dsaNoAccess`, `dsaGenComment`, `dsaFullAccess`) | Defines access to internal proxy dataset: full access = read-only property is generated to have an access. No access option is default and recommended |
 
 ## Why engineers need to change?
 
