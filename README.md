@@ -183,6 +183,24 @@ end;
 | `IndentationText` | `String` | Text uses for each code indentation, default value is two spaces |
 | `DataSetAccess` | (`dsaNoAccess`, `dsaGenComment`, `dsaFullAccess`) | Defines access to internal proxy dataset: full access = read-only property is generated to have an access. No access option is default and recommended |
 
+### Generating using Execute
+
+To generate poxy class you can use Execute method, but before calling it you should setup all options and `DataSet` properties. After calling `Execute` generated code will be stored in the internal `TStringList` accessible through `Code` property. See sample code bellow:
+
+```pas
+aProxyGenerator:= TDataProxyGenerator.Create(Self);
+try
+  aProxyGenerator.DataSet := fdqEmployees;
+  aProxyGenerator.NameOfUnit := 'Proxy.Employee';
+  aProxyGenerator.NameOfClass := 'TEmployeeProxy';
+  aProxyGenerator.IndentationText := '    ';
+  aProxyGenerator.Execute;
+  Memo1.Lines := aProxyGenerator.Code;
+finally
+  aProxyGenerator.Free;
+end;
+```
+
 ## Why engineers need to change?
 
 This project is effect of many years and multiple teams experience. This teams found that classic event based Delphi approach is not only less productive, but even dangerous for the developers, the managers and for the customers.
