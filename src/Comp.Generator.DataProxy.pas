@@ -20,7 +20,7 @@ type
 
   TDataProxyGenerator = class(TComponent)
   private const
-    Version = '1.0';
+    Version = '1.1';
   private
     fDataSet: TDataSet;
     fCode: TStringList;

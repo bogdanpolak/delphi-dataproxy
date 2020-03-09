@@ -6,8 +6,8 @@ type
   TAppInfo = class
   const
     AppName = 'Proxy Generator for FireDAC';
-    Version = '1.0';
-    ReleaseDate = '2020-01-29';
+    Version = '1.1';
+    ReleaseDate = '2020-03-09';
   end;
 
 // -----------------------------------------------------
@@ -15,6 +15,7 @@ type
 // -----------------------------------------------------
 (*
 [
+  {"releaseDate": "2020-03-09", "version": "1.1"},
   {"releaseDate": "2020-01-29", "version": "1.0"},
   {"releaseDate": "2020-01-18", "version": "0.9"},
   {"releaseDate": "2019-10-02", "version": "0.8"},
