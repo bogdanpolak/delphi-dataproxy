@@ -54,7 +54,8 @@ type
     procedure GenMethod_ConnectFields_TwoFields_LowerCaseStyle;
     procedure GenMethod_ConnectFields_Identation4;
     // ---
-    procedure Generate_BooksProxy;
+    procedure Generate_BooksProxy_Unit;
+    procedure Generate_BooksProxy_Class;
   end;
 
 implementation
@@ -132,7 +133,7 @@ procedure TestGenerator.GenUsesSection_Identation_4spaces;
 var
   actualCode: string;
 begin
-  fGenerator.IdentationText := '    ';
+  fGenerator.IndentationText := '    ';
 
   actualCode := fGenerator.Generate_UsesSection;
 
@@ -234,13 +235,13 @@ var
   actualCode: string;
 begin
   fGenerator.DataSet := nil;
-  fGenerator.ObjectName := 'Something1';
+  fGenerator.NameOfClass := 'TFoo';
 
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreMemosEqual(
     (* *) 'type'#13#10 +
-    (* *) '  TSomething1Proxy = class(TDatasetProxy)'#13#10 +
+    (* *) '  TFoo = class(TDatasetProxy)'#13#10 +
     (* *) '  private'#13#10 +
     (* *) '  protected'#13#10 +
     (* *) '    procedure ConnectFields; override;'#13#10 +
@@ -253,13 +254,13 @@ var
   actualCode: string;
 begin
   fGenerator.DataSet := GivenDataset([['FieldInteger', ftInteger]]);
-  fGenerator.ObjectName := 'Something2';
+  fGenerator.NameOfClass := 'TFooProxy';
 
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreMemosEqual(
     (* *) 'type'#13#10 +
-    (* *) '  TSomething2Proxy = class(TDatasetProxy)'#13#10 +
+    (* *) '  TFooProxy = class(TDatasetProxy)'#13#10 +
     (* *) '  private'#13#10 +
     (* *) '    FFieldInteger :TIntegerField;'#13#10 +
     (* *) '  protected'#13#10 +
@@ -276,14 +277,14 @@ begin
   fGenerator.DataSet := GivenDataset([
     {} ['CustomerID', ftInteger],
     {} ['CompanyName', ftString]]);
-  fGenerator.ObjectName := 'TwoField';
-  fGenerator.IdentationText := '    ';
+  fGenerator.NameOfClass := 'TProxyWith2Fields';
+  fGenerator.IndentationText := '    ';
 
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreMemosEqual(
     {} 'type'#13#10 +
-    {} '    TTwoFieldProxy = class(TDatasetProxy)'#13#10 +
+    {} '    TProxyWith2Fields = class(TDatasetProxy)'#13#10 +
     {} '    private'#13#10 +
     {} '        FCustomerID :TIntegerField;'#13#10 +
     {} '        FCompanyName :TStringField;'#13#10 +
@@ -301,14 +302,14 @@ var
 begin
   fGenerator.DataSet := GivenDataset([['CustomerID', ftInteger],
     ['CompanyName', ftString]]);
-  fGenerator.ObjectName := 'Something';
+  fGenerator.NameOfClass := 'TFoo';
   fGenerator.FieldNamingStyle := fnsLowerCaseF;
 
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreMemosEqual(
     (* *) 'type'#13#10 +
-    (* *) '  TSomethingProxy = class(TDatasetProxy)'#13#10 +
+    (* *) '  TFoo = class(TDatasetProxy)'#13#10 +
     (* *) '  private'#13#10 +
     (* *) '    fCustomerID :TIntegerField;'#13#10 +
     (* *) '    fCompanyName :TStringField;'#13#10 +
@@ -325,14 +326,14 @@ var
   actualCode: string;
 begin
   fGenerator.DataSet := GivenDataset([['FullName', ftString]]);
-  fGenerator.ObjectName := 'Something';
+  fGenerator.NameOfClass := 'TFoo';
   fGenerator.DataSetAccess := dsaGenComment;
 
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreMemosEqual(
     (* *) 'type'#13#10
-    (* *) + '  TSomethingProxy = class(TDatasetProxy)'#13#10
+    (* *) + '  TFoo = class(TDatasetProxy)'#13#10
     (* *) + '  private'#13#10
     (* *) + '    FFullName :TStringField;'#13#10
     (* *) + '  protected'#13#10
@@ -349,14 +350,14 @@ var
   actualCode: string;
 begin
   fGenerator.DataSet := GivenDataset([['FullName', ftString]]);
-  fGenerator.ObjectName := 'Something';
+  fGenerator.NameOfClass := 'TFoo';
   fGenerator.DataSetAccess := dsaFullAccess;
 
   actualCode := fGenerator.Generate_ClassDeclaration;
 
   Assert.AreMemosEqual(
     (* *) 'type'#13#10
-    (* *) + '  TSomethingProxy = class(TDatasetProxy)'#13#10
+    (* *) + '  TFoo = class(TDatasetProxy)'#13#10
     (* *) + '  private'#13#10
     (* *) + '    FFullName :TStringField;'#13#10
     (* *) + '  protected'#13#10
@@ -377,11 +378,12 @@ var
   actualCode: string;
 begin
   fGenerator.DataSet := nil;
+  fGenerator.NameOfClass := 'TFooProxy';
 
   actualCode := fGenerator.Generate_MethodConnectFields;
 
   Assert.AreMemosEqual(
-    (* *) 'procedure TSomethingProxy.ConnectFields;'#13#10 +
+    (* *) 'procedure TFooProxy.ConnectFields;'#13#10 +
     (* *) 'const'#13#10 +
     (* *) '  ExpectedFieldCount = 0;'#13#10 +
     (* *) 'begin'#13#10 +
@@ -394,11 +396,12 @@ var
   actualCode: string;
 begin
   fGenerator.DataSet := GivenDataset([['FullName', ftString]]);
+  fGenerator.NameOfClass := 'TFooProxy';
 
   actualCode := fGenerator.Generate_MethodConnectFields;
 
   Assert.AreMemosEqual(
-    (* *) 'procedure TSomethingProxy.ConnectFields;'#13#10 +
+    (* *) 'procedure TFooProxy.ConnectFields;'#13#10 +
     (* *) 'const'#13#10 +
     (* *) '  ExpectedFieldCount = 1;'#13#10 +
     (* *) 'begin'#13#10 +
@@ -413,13 +416,13 @@ var
 begin
   fGenerator.DataSet := GivenDataset([['CustomerID', ftInteger],
     ['CompanyName', ftString]]);
-  fGenerator.ObjectName := 'Something';
+  fGenerator.NameOfClass := 'TFooProxy';
   fGenerator.FieldNamingStyle := fnsLowerCaseF;
 
   actualCode := fGenerator.Generate_MethodConnectFields;
 
   Assert.AreMemosEqual(
-    (* *) 'procedure TSomethingProxy.ConnectFields;'#13#10
+    (* *) 'procedure TFooProxy.ConnectFields;'#13#10
     (* *) + 'const'#13#10
     (* *) + '  ExpectedFieldCount = 2;'#13#10
     (* *) + 'begin'#13#10
@@ -436,8 +439,8 @@ begin
   fGenerator.DataSet := GivenDataset([
     {} ['CustomerID', ftInteger],
     {} ['CompanyName', ftString]]);
-  fGenerator.ObjectName := 'Foo';
-  fGenerator.IdentationText := '    ';
+  fGenerator.NameOfClass := 'TFooProxy';
+  fGenerator.IndentationText := '    ';
 
   actualCode := fGenerator.Generate_MethodConnectFields;
 
@@ -456,7 +459,7 @@ end;
 // Tests: Generate books proxy
 // -----------------------------------------------------------------------
 
-procedure TestGenerator.Generate_BooksProxy;
+procedure TestGenerator.Generate_BooksProxy_Unit;
 begin
   fGenerator.DataSet := GivenDataset([
     {} ['ISBN', ftWideString, 20],
@@ -465,12 +468,17 @@ begin
     {} ['ReleseDate', ftDate],
     {} ['Pages', ftInteger],
     {} ['Price', ftBCD, 12, 2]]);
-  fGenerator.ObjectName := 'Books';
+  fGenerator.UnitName := 'Proxy.Books';
+  fGenerator.NameOfClass := 'TBooksProxy';
 
   fGenerator.Execute;
 
   Assert.AreMemosEqual(
-    {} 'uses'#13#10
+    {} 'unit Proxy.Books;'#13#10
+    {} + sLineBreak
+    {} + 'interface'#13#10
+    {} + sLineBreak
+    {} + 'uses'#13#10
     {} + '  Data.DB,'#13#10
     {} + '  Data.DataProxy,'#13#10
     {} + '  System.SysUtils,'#13#10
@@ -496,9 +504,9 @@ begin
     {} + '    property Pages :TIntegerField read FPages;'#13#10
     {} + '    property Price :TBCDField read FPrice;'#13#10
     {} + '  end;'#13#10
-    {} + ''#13#10
+    {} + sLineBreak
     {} + 'implementation'#13#10
-    {} + ''#13#10
+    {} + sLineBreak
     {} + 'procedure TBooksProxy.ConnectFields;'#13#10
     {} + 'const'#13#10
     {} + '  ExpectedFieldCount = 6;'#13#10
@@ -509,6 +517,41 @@ begin
     {} + '  FReleseDate := FDataSet.FieldByName(''ReleseDate'') as TDateField;'#13#10
     {} + '  FPages := FDataSet.FieldByName(''Pages'') as TIntegerField;'#13#10
     {} + '  FPrice := FDataSet.FieldByName(''Price'') as TBCDField;'#13#10
+    {} + '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13#10
+    {} + 'end;'#13#10
+    {} + sLineBreak
+    {} + 'end.'#13#10, fGenerator.Code.Text);
+end;
+
+procedure TestGenerator.Generate_BooksProxy_Class;
+begin
+  fGenerator.DataSet := GivenDataset([
+    {} ['ISBN', ftWideString, 20],
+    {} ['Pages', ftInteger]]);
+  fGenerator.NameOfClass := 'TBooksProxy';
+
+  fGenerator.GeneratorMode := pgmClass;
+  fGenerator.Execute;
+
+  Assert.AreMemosEqual(
+    {} 'type'#13#10
+    {} + '  TBooksProxy = class(TDatasetProxy)'#13#10
+    {} + '  private'#13#10
+    {} + '    FISBN :TWideStringField;'#13#10
+    {} + '    FPages :TIntegerField;'#13#10
+    {} + '  protected'#13#10
+    {} + '    procedure ConnectFields; override;'#13#10
+    {} + '  public'#13#10
+    {} + '    property ISBN :TWideStringField read FISBN;'#13#10
+    {} + '    property Pages :TIntegerField read FPages;'#13#10
+    {} + '  end;'#13#10
+    {} + sLineBreak
+    {} + 'procedure TBooksProxy.ConnectFields;'#13#10
+    {} + 'const'#13#10
+    {} + '  ExpectedFieldCount = 2;'#13#10
+    {} + 'begin'#13#10
+    {} + '  FISBN := FDataSet.FieldByName(''ISBN'') as TWideStringField;'#13#10
+    {} + '  FPages := FDataSet.FieldByName(''Pages'') as TIntegerField;'#13#10
     {} + '  Assert(FDataSet.Fields.Count = ExpectedFieldCount);'#13#10
     {} + 'end;'#13#10, fGenerator.Code.Text);
 end;

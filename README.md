@@ -1,7 +1,7 @@
 ﻿# DataProxy Pattern for Delphi
 
 ![ Delphi Support ](https://img.shields.io/badge/Delphi%20Support-%20XE8%20..%2010.3%20Rio-blue.svg)
-![ version ](https://img.shields.io/badge/version-%201.0-yellow.svg)
+![ version ](https://img.shields.io/badge/version-%201.1-yellow.svg)
 
 ## Overview
 
@@ -23,67 +23,199 @@ Dataset proxy is a temporary solution and after covering code with the tests eng
 
 Together with code and quality improvement developers will learn how to write cleaner code or how to use test first approach and work better.
 
-Supportive projects
+Supportive project:
 
 | Project | GitHub Repo |
 | --- | --- |
-| Command Pattern for Delphi | https://github.com/bogdanpolak/command-delphi |
 | DataSet Generator | https://github.com/bogdanpolak/dataset-generator |
 
 ## Proxy generation
 
 Project includes source code of base class `TDataSetProxy` and two different types of proxy generators:
 
-1) **Component TDataProxyGenerator**
+1) Component: **TDataProxyGenerator**
    - unit `src/Comp.Generator.DataProxy.pas`
-   - As an input receives dataset and as an output generates text/code: unit containing proxy class inherited from `TDataSetProxy`
+   - As an input receives dataset and as an output generates source code: unit containing proxy class inherited from `TDataSetProxy`
 2) Tool: **Generator App for FireDAC**
    - tool source: `tools/generator-app`
    - VCL Forms application written in Delphi which is able to connect to SQL server via FireDAC, then prepare SQL command, fetch result dataset and generate proxy class together with dataset fake
 
-Component is useful when engineer wants to generate proxy for exiting dataset in production code. This is two steps easy task: (1) add component unit to uses section, (2) find code using dataset and call generator execute method:
+### Component
+
+Component `TDataProxyGenerator` is useful when engineer wants to generate proxy for exiting dataset in production code. This is two steps easy task: (1) add component unit to uses section, (2) find code using dataset and call generator method:
+
+Current production code:
 
 ```pas
-// --------------------------------
-// curent production code:
-dbgridBooks.DataSource.Dataset := fDBConnection.
-  ConstructSQLSataSet(aOwner, APPSQL_SelectBooks);
-// --------------------------------
-// injected generator code:
-proxy := TDataProxyGenerator.Create(aOwner);
-proxy.ObjectName := 'Books';
-proxy.DataSet := dbgridBooks.DataSource.Dataset;
-proxy.Execute;
-proxy.Code.SaveToFile('Proxy.Books.pas');
+aBooksDataSet := fDBConnection.ConstructSQLDataSet(
+  aOwner, APPSQL_SelectBooks);
+dbgridBooks.DataSource.Dataset := aBooksDataSet;
 ```
 
-**Generator App for FireDAC** is alternative tool created mostly for demo purposes. In practice it can be less useful then component generator, but can be used for coaching and training the team. For more information check: [Generator App for FireDAC - User Guide](doc/generator-app-guide.md).
+Injected generator code:
+
+```pas
+TDataProxyGenerator.SaveToFile('../../src/Proxy.Books',
+  aBooksDataSet, 'TBookProxy');
+```
+
+### Tool
+
+**Generator App for FireDAC** is alternative tool created mostly for demo purposes. In practice using this tool can be less useful then using directly the component generator. Generator App is dedicated  for coaching and training purposes. For more information check: [Generator App for FireDAC - User Guide](doc/generator-app-guide.md).
   
-## TDataSetProxy class
-
-TBD
-
-Sample proxy class created by generator:
+## Sample proxy class
 
 ```pas
 type
   TBookProxy = class(TDatasetProxy)
   private
-    FISBN :TWideStringField;
-    FTitle :TWideStringField;
-    FReleseDate :TDateField;
-    FPages :TIntegerField;
-    FPrice :TBCDField;
+    fISBN :TWideStringField;
+    fTitle :TWideStringField;
+    fReleseDate :TDateField;
+    fPages :TIntegerField;
+    fPrice :TBCDField;
   protected
     procedure ConnectFields; override;
   public
-    property ISBN :TWideStringField read FISBN;
-    property Title :TWideStringField read FTitle;
-    property ReleseDate :TDateField read FReleseDate;
-    property Pages :TIntegerField read FPages;
-    property Price :TBCDField read FPrice;
+    property ISBN :TWideStringField read fISBN;
+    property Title :TWideStringField read fTitle;
+    property ReleseDate :TDateField read fReleseDate;
+    property Pages :TIntegerField read fPages;
+    property Price :TBCDField read fPrice;
   end;
+
+procedure TBookProxy.ConnectFields;
+begin
+  Assert(fDataSet.Fields.Count = 5);
+  fISBN := fDataSet.FieldByName('ISBN');
+  fTitle := fDataSet.FieldByName('Title');
+  fReleseDate := fDataSet.FieldByName('ReleseDate');
+  fPages := fDataSet.FieldByName('Pages');
+  fPrice := fDataSet.FieldByName('Price');
+end;
 ```
+
+## TDataSetProxy class
+
+DataSetProxy component is a proxy class, which has almost identical methods to classic TDataSet component. Developer can easily replace any DataSet component with this proxy applying only few and low risk changes to the production code. From the production code point o view change is small small and not much important but from the testing perspective this is fundamental change, because developer is able to reconfigure proxy to use lightweight memory dataset.
+
+Most of the `TDataSetProxy` methods are just clones of TDataSet once. You can easily expand set of this methods adding missing once or build new unique ones. This proxy methods are: `Append`, `Edit`, `Cancel`, `Delete`, `Close`, `Post`, `RecordCount`, `First`, `Last`, `Eof`, `Next`, `Prior`, `EnableControls`, `DisableControls`, `Locate`, `Lookup`, `Refresh` and others. Documentation and this methods usage is the same like standard Delphi documentation for `TDataSet` class.
+
+Rest of `TDataSetProxy` methods can be divided into two groups: proxy setup methods (configuration) and proxy helper methods (expanding classic dataset functionality).
+
+### TDataSetProxy setup
+
+```pas
+procedure TDataModule1.OnCreate(Sender: TObject);
+begin
+  fOrdersProxy := TOrdersProxy.Create(fOwner);
+  fOrdersDataSource := fOrdersProxy.ConstructDataSource;
+end;
+
+procedure TDataModule1.InitOrders(aYear, aMonth: word);
+begin
+  fOrdersProxy.WithFiredacSQL( FDConnection1,
+    'SELECT OrderID, CustomerID, OrderDate, Freight' +
+    ' FROM {id Orders} WHERE OrderDate between' +
+    ' :StartDate and :EndDate', 
+    [ GetMonthStart(aYear, aMonth), 
+      GetMonthEnd(aYear, aMonth) ],
+    [ftDate, ftDate])
+    .Open;
+  fOrdersInitialized := True;
+end;
+
+procedure TDataModule1.InitOrders(aDataSet: TDataSet);
+begin
+  fOrdersProxy.WithDataSet(aDataSet).Open;
+  fOrdersInitialized := True;
+end;
+```
+
+### DataSetProxy helpers
+
+Current release of `TDataSetProxy` component is containing only one helper methods which was implemented as an example. Developers are able to expand this collection according to the team coding practices. Suggested of expanding proxy class is using the inheritance. Sample usage of existing `ForEach` helper method:
+
+```pas
+function TDataModule.CalculateTotalOrders (const aCustomerID: string): Currency;
+begin
+  Result := 0;
+  fOrdersProxy.ForEach(procedure
+    begin
+      if fOrdersProxy.CustomerID.Value = aCustomerID then
+        Result := Result + fOrdersProxy.GetTotalOrderValue;
+    end;
+end;
+```
+
+## TDataProxyGenerator
+
+- Unit: `Comp.Generator.DataProxy.pas`
+- Class methods:
+   - `SaveToFile`
+   - `SaveToClipboard`
+- Methods:
+   - `Execute`
+- Properties:
+   - `Code`
+   - `DataSet`
+   - `GeneratorMode`
+   - `DataSetAccess`
+   - `FieldNamingStyle`
+   - `NameOfUnit`
+   - `NameOfClass`
+   - `IndentationText`
+
+### Generator options
+
+| Option | Values | Description |
+| --- | --- | --- |
+| `GeneratorMode` | (`pgmClass`, `pgmUnit`) | Generates only class header and implementation or whole unit with a class |
+| `NameOfUnit` | `String` | Name of the generated unit uses to create unit header |
+| `NameOfClass` | `String` | Name of a generated proxy class |
+| `FieldNamingStyle` | (`fnsUpperCaseF`, `fnsLowerCaseF`) | Decides how class fields are named: using upper case F suffix or lower-case |
+| `IndentationText` | `String` | Text uses for each code indentation, default value is two spaces |
+| `DataSetAccess` | (`dsaNoAccess`, `dsaGenComment`, `dsaFullAccess`) | Defines access to internal proxy dataset: full access = read-only property is generated to have an access. No access option is default and recommended |
+
+### Generating using Execute
+
+To generate poxy class you can use Execute method, but before calling it you should setup all options and `DataSet` properties. After calling `Execute` generated code will be stored in the internal `TStringList` accessible through `Code` property. See sample code bellow:
+
+```pas
+aProxyGenerator:= TDataProxyGenerator.Create(Self);
+try
+  aProxyGenerator.DataSet := fdqEmployees;
+  aProxyGenerator.NameOfUnit := 'Proxy.Employee';
+  aProxyGenerator.NameOfClass := 'TEmployeeProxy';
+  aProxyGenerator.IndentationText := '    ';
+  aProxyGenerator.Execute;
+  Memo1.Lines := aProxyGenerator.Code;
+finally
+  aProxyGenerator.Free;
+end;
+```
+
+### Generating using class methods
+
+Much easier and compact way of generating proxy classes is to use generator class methods: `SaveToFile` or `SaveToClipboard`. Its names are enough meaningful to understand their functionality. SaveToFile generates whole unit and writes it into file and SaveToClipboard generates only a class and writes to Windows Clipboard. See samples bellow:
+
+```pas
+TDataProxyGenerator.SaveToFile( 
+  'src/Proxy.Employee',
+  fdqEmployees, 
+  'TEmployeeProxy',
+  '    '
+  fnsLowerCaseF);
+```
+
+```pas
+TDataProxyGenerator.SaveToClipboard( 
+  fdqEmployees, 
+  'TEmployeeProxy',
+  '    '
+  fnsLowerCaseF);
+```
+
 
 ## Why engineers need to change?
 
@@ -125,153 +257,145 @@ The modernization process includes following steps:
 
 ## Code evolution with proxy
 
-TBD
-
-### Original code - before modernization
+Look at example showing the migration path of a legacy VCL project using a TDataSetProxy. We'll start with the classic method defined in the form:
 
 ```pas
-procedure TForm1.LoadDataToListBox( aBookDataSet: TFDQuery );
+procedure TFormMain.LoadBooksToListBox();
 var
   aIndex: integer;
-  aBookDataSet: TBookmark;
+  aBookmark: TBookmark;
   aBook: TBook;
-  aBookText: string;
+  isDatePrecise: boolean;
 begin
   ListBox1.ItemIndex := -1;
-  for aIndex := 0 to ListBox1.Items.Count
-    ListBox1.Objects[aIndex].Free;
+  for aIndex := 0 to ListBox1.Items.Count - 1 do
+    ListBox1.Items.Objects[aIndex].Free;
   ListBox1.Clear;
-  aBookmark := aBookDataSet.GetBoomark;
+  aBookmark := fdqBook.GetBookmark;
   try
-    aBookDataSet.DiableControls;
+    fdqBook.DisableControls;
     try
-      while not aBookDataSet.Eof do
+      while not fdqBook.Eof do
       begin
         aBook := TBook.Create;
-        aBook.ISBN := aBookDataSet.FieldByName('ISBN').AsString;
-        aBook.Auhtor := aBookDataSet.FieldByName('Auhtor').AsString;
-        aBook.Title := aBookDataSet.FieldByName('Title').AsString;
-        aBook.ReleseDate := aBookDataSet.FieldByName('ReleseDate').AsString;
-        aBookText := aBookDataSet.FieldByName('Auhtor').AsString + 
-          ' - ' + aBookDataSet.FieldByName('Title').AsString;
-        ListBox1.AddItem( aBookText, aBook );
-        aBookDataSet.Next;
+        ListBox1.AddItem(fdqBook.FieldByName('ISBN').AsString + ' - ' +
+          fdqBook.FieldByName('Title').AsString, aBook);
+        aBook.ISBN := fdqBook.FieldByName('ISBN').AsString;
+        aBook.Authors.AddRange(BuildAuhtorsList(
+          fdqBook.FieldByName('Authors').AsString));
+        aBook.Title := fdqBook.FieldByName('Title').AsString;
+        aBook.ReleaseDate := ConvertReleaseDate(
+          fdqBook.FieldByName('ReleaseDate').AsString);
+        aBook.Price := fdqBook.FieldByName('Price').AsCurrency;
+        aBook.PriceCurrency := fdqBook.FieldByName('Currency').AsString;
+        ValidateCurrency(aBook.PriceCurrency);
+        fdqBook.Next;
       end;
     finally
-      aBookDataSet.EnableControls;
+      fdqBook.EnableControls;
     end
   finally
-    aBookDataSet.FreeBoomark( aBookmark );
+    fdqBook.FreeBookmark(aBookmark);
   end;
 end;
 ```
 
-### Modernization - Stage 1 (replacement)
+> **Notice!** Presented above solution is a bad practice, but unfortunately is often used by Delphi developers. Goal of using TDataProxy is to improve this state and separate business logic from visualization.
+
+This method is loading data from SQL database, using `fdqBook` TFDQuery. An object of class `TBook` is created for each row, its fields are filled with data set values and validated. Because `TBook` objects are stored in the `TListBox` control, which also owns them, this method must release them first. 
+
+### Stage 1. DataSet Replacement
+
+We replace the data set with the proxy object. In addition, we are modernizing the code by changing the classic `while-not-eof` loop with a functional `ForEach` method. At the same time, we are introducing a safer variant of accessing field values. It is possible to separate this phase in 3 separate phases, but for this article we need to keep content compact.
 
 ```pas
-procedure TForm1.LoadDataToListBox( aBookProxy: TBookProxy );
+procedure TFormMain.LoadBooksToListBox();
 var
   aIndex: integer;
-  aBookDataSet: TBookmark;
-  aBookText: string;
+  aBook: TBook;
 begin
   ListBox1.ItemIndex := -1;
-  for aIndex := 0 to ListBox1.Items.Count
-    ListBox1.Objects[aIndex].Free;
+  for aIndex := 0 to ListBox1.Items.Count - 1 do
+    ListBox1.Items.Objects[aIndex].Free;
   ListBox1.Clear;
-  aBookProxy.ForEach(
+  fProxyBooks.ForEach(
     procedure
     begin
       aBook := TBook.Create;
-      aBook.ISBN := aBookProxy.ISBN.AsString;
-      aBook.Auhtor := aBookProxy.Auhtor.AsString;
-      aBook.Title := aBookProxy.Title.AsString;
-      aBook.ReleseDate := aBookProxy.ReleseDate.AsString;
-      aBookText := aBookProxy.Auhtor.AsString + ' - ' +
-        aBookProxy.Title.AsString;
-      ListBox1.AddItem( aBookText, aBook );
+      ListBox1.AddItem(fProxyBooks.ISBN.Value + ' - ' +
+        fProxyBooks.Title.Value, aBook);
+      aBook.ISBN := fProxyBooks.ISBN.Value;
+      aBook.Authors.AddRange(
+        BuildAuhtorsList(fProxyBooks.Authors.Value));
+      aBook.Title := fProxyBooks.Title.Value;
+      aBook.ReleaseDate := ConvertReleaseDate(
+        fProxyBooks.ReleaseDate.Value);
+      aBook.Price := fProxyBooks.Price.AsCurrency;
+      aBook.PriceCurrency := fProxyBooks.Currency.Value;
+      ValidateCurrency(aBook.PriceCurrency);
     end);
 end;
 ```
 
-### Modernization - Stage 2 (decomposition)
+The code is more readable and safer, but is still in the form. It's time to remove it and separate from all dependencies to enable testing.
+
+### Stage 2. Code Decouple
+
+We must start with an important architectural decision. Currently in the code we have two similar classes: `TBook` storing data and `TBookProxy` processing them. It is important to decide which of these classes depends on the other. `TBook` is part of the model layer and should be not aware about about data access object. 
 
 ```pas
-procedure TForm1.LoadDataToListBox( aBookProxy: TBookProxy );
+procedure TForm1.LoadBooksToListBox();
 begin
-  fBookContainer.LoadFromProxy( aBookProxy );
-  fBookContainer.PopulateStringList ( ListBox1 );
+  ListBox1.Clear;
+  fProxyBooks.LoadAndValidate;
+  fProxyBooks.FillStringsWithBooks(ListBox1.Items);
 end;
+```
 
-// -----------------------------------------
-// unit: Model.BookContainer.pas
+Finally, the form method looks nice and clear. This is a good sign that we are going in the right direction. Code extracted and moved to a dataset proxy looks almost like previous:
 
-procedure TBookContainer.LoadFromProxy ( aBookProxy: TBookProxy);
-begin
-  fBooks := aBookProxy.LoadAll;
-end;
-
-procedure TBookContainer.PopulateStringList ( aGuiList: TStrings);
+```pas
+procedure TBooksProxy.LoadAndValidate;
 var
   aBook: TBook;
+  isDatePrecise: boolean;
 begin
-  for aBook in fBooks do
-    aGuiList.AddItem( aBook.GetAuthorAndTtile, aBook );
-end;
-
-// -----------------------------------------
-// unit: BookProxy.Book.pas
-
-function TBookProxy.LoadAll: IList<TBook>;
-var
-  aBook: TBook;
-begin
-  Result := TCollections.CreateList<TBook>;
-  Self.ForEach(
+  fBooksList.Clear;
+  ForEach(
     procedure
     begin
       aBook := TBook.Create;
-      aBook.ISBN := Self.ISBN.AsString;
-      aBook.Auhtor := Self.Auhtor.AsString;
-      aBook.Title := Self.Title.AsString;
-      aBook.ReleseDate := Self.ReleseDate.AsString;
-      Result.Add( aBook );
-    end;
-  )
+      fBooksList.Add(aBook);
+      aBook.ISBN := ISBN.Value;
+      aBook.Authors.AddRange(
+        BuildAuhtorsList(Authors.Value));
+      aBook.Title := Title.Value;
+      aBook.ReleaseDate := ConvertReleaseDate(
+        ReleaseDate.Value, isDatePrecise);
+      aBook.IsPreciseReleaseDate := isDatePrecise;
+      aBook.Price := Price.AsCurrency;
+      aBook.PriceCurrency := Currency.Value;
+      ValidateCurrency(aBook.PriceCurrency);
+    end);
 end;
 ```
 
-### Modernization - Stage 3 (DAO)
+Together with this code we had to move all dependent methods responsible for converting and validating data: `BuildAuhtorsList`, `ConvertReleaseDate` and `ValidateCurrency`.
+
+This proxy contains internal collection of book `fBookList` which is used to fill ListBox. At that moment we moved this code to dataset proxy class to reduce number of changes, but letter it should be moved into proper class:
 
 ```pas
-procedure TForm1.LoadDataToListBox;
-begin
-  fBookContainer.PopulateStringList ( ListBox1 );
-end;
-
-// -----------------------------------------
-// unit: Model.BookContainer.pas
-
-constructor TBookContainer.Create (aBookDAO: IBookDAO);
-begin
-  fBookDAO := aBookDAO;
-end;
-
-procedure TBookContainer.LoadFromDAO;
-begin
-  fBooks := fBookDAO.LoadAll;
-end;
-
-procedure TBookContainer.PopulateStringList ( aStrList: TStrings);
+procedure TBooksProxy.FillStringsWithBooks(
+  aStrings: TStrings);
 var
   aBook: TBook;
 begin
-  LoadFromDAO;
-  for aBook in fBooks do
-    aStrList.AddItem( aBook.GetAuthorAndTtile, aBook );
+  aStrings.Clear;
+  for aBook in fBooksList do
+    aStrings.AddObject(
+      aBook.ISBN + ' - ' + aBook.Title, aBook);
 end;
 ```
-
 
 ## More proxy samples
 

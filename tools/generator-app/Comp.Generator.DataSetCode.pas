@@ -16,60 +16,60 @@ uses
   FireDAC.Comp.Client;
 
 type
-  TGeneratorMode = (genAll, genStructure, genAppend, genUnit, genFunction);
+  TGeneratorMode = (genStructure, genAppend, genFunction, genUnit);
   TDataSetType = (dstFDMemTable, dstClientDataSet);
   TAppendMode = (amMultilineAppends, amSinglelineAppends);
 
   TDSGenerator = class(TComponent)
-  const
-    // * --------------------------------------------------------------------
-    // * Signature
-    ReleaseVersion = '1.3';
-    // * --------------------------------------------------------------------
+  public const
+    Version = '1.4';
+  private const
     MaxLiteralLenght = 70;
   private
-    FCode: TStrings;
-    FStructureCode: TStringList;
-    FAppendCode: TStringList;
-    FTempCode: TStringList;
-    FDataSet: TDataSet;
-    FIndentationText: String;
-    FGeneratorMode: TGeneratorMode;
-    FDataSetType: TDataSetType;
-    FAppendMode: TAppendMode;
-    procedure Guard;
+    fCode: TStrings;
+    fDataSet: TDataSet;
+    fIndentationText: String;
+    fGeneratorMode: TGeneratorMode;
+    fDataSetType: TDataSetType;
+    fAppendMode: TAppendMode;
+    fUnitName: string;
+    fMaxRows: integer;
     function GetDataFieldPrecision(fld: TField): integer;
-    procedure GenerateOneAppend_Multiline(aFields: TFields);
-    procedure GenerateOneAppend_Singleline(aFields: TFields);
+    function GenerateOneAppend_Multiline: string;
+    function GenerateOneAppend_Singleline: string;
   protected
     function GenerateLine_FieldDefAdd(fld: TField): string;
     function GenerateLine_SetFieldValue(fld: TField): string;
-    procedure GenerateStructure(dataSet: TDataSet);
-    procedure GenerateOneAppend(aFields: TFields);
-    procedure GenerateAppendsBlock(dataSet: TDataSet);
+    function GenerateStructure: string;
+    function GenerateOneAppend: string;
+    function GenerateAppendsBlock: string;
     function FormatLongStringLiterals(const Literal: string): string;
-    function GenerateUnitHeader(const aUnitName: string): string;
-    function GenerateUnitFooter(): string;
+    function GenerateUnitHeader: string;
+    function GenerateUnitFooter: string;
     function GenerateFunction: string;
+    function GenerateAll(aMode: TGeneratorMode): string;
+    class function GenetateUnit(ds: TDataSet; const aUnitName: string): string;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Execute;
     class function GenerateAsString(ds: TDataSet): string;
-    class function GenerateAsArray(ds: TDataSet): TStringDynArray;
+    class function GenerateAsArray(ds: TDataSet): TArray<String>;
     class procedure GenerateAndSaveToStream(ds: TDataSet; aStream: TStream);
     class procedure GenerateAndSaveToFile(ds: TDataSet;
       const aFileName: string);
     class procedure GenerateAndSaveClipboard(ds: TDataSet);
   published
-    property dataSet: TDataSet read FDataSet write FDataSet;
-    property Code: TStrings read FCode;
-    property IndentationText: String read FIndentationText
-      write FIndentationText;
-    property GeneratorMode: TGeneratorMode read FGeneratorMode
-      write FGeneratorMode;
-    property DataSetType: TDataSetType read FDataSetType write FDataSetType;
-    property AppendMode: TAppendMode read FAppendMode write FAppendMode;
+    property DataSet: TDataSet read fDataSet write fDataSet;
+    property Code: TStrings read fCode;
+    property IndentationText: String read fIndentationText
+      write fIndentationText;
+    property GeneratorMode: TGeneratorMode read fGeneratorMode
+      write fGeneratorMode;
+    property DataSetType: TDataSetType read fDataSetType write fDataSetType;
+    property AppendMode: TAppendMode read fAppendMode write fAppendMode;
+    property NameOfUnit: string read fUnitName write fUnitName;
+    property MaxRows: integer read fMaxRows write fMaxRows;
   end;
 
 implementation
@@ -83,23 +83,19 @@ begin
   inherited;
   // --------------------------------
   // Default options
-  FGeneratorMode := genAll;
-  FDataSetType := dstFDMemTable;
-  FAppendMode := amMultilineAppends;
-  FIndentationText := '  ';
+  fGeneratorMode := genFunction;
+  fDataSetType := dstFDMemTable;
+  fAppendMode := amMultilineAppends;
+  fIndentationText := '  ';
+  fUnitName := 'uSampleDataSet';
+  fMaxRows := 100;
   // --------------------------------
-  FCode := TStringList.Create;
-  FStructureCode := TStringList.Create;
-  FAppendCode := TStringList.Create;
-  FTempCode := TStringList.Create;
+  fCode := TStringList.Create;
 end;
 
 destructor TDSGenerator.Destroy;
 begin
-  FCode.Free;
-  FStructureCode.Free;
-  FAppendCode.Free;
-  FTempCode.Free;
+  fCode.Free;
   inherited;
 end;
 
@@ -140,10 +136,10 @@ begin
       FieldTypeToString(fld.DataType) + ');'
   else if (fld.DataType in [ftBCD, ftFMTBcd]) then
     Result := 'with FieldDefs.AddFieldDef do begin' + sLineBreak +
-      IndentationText + '    ' +
+      fIndentationText + '    ' +
       Format('Name := ''%s'';  DataType := %s;  Precision := %d;  Size := %d;',
       [fld.FieldName, FieldTypeToString(fld.DataType),
-      GetDataFieldPrecision(fld), fld.Size]) + sLineBreak + IndentationText
+      GetDataFieldPrecision(fld), fld.Size]) + sLineBreak + fIndentationText
       + '  end;'
   else if (fld.DataType in [ftString, ftWideString]) and (fld.Size > 9999) then
     Result := 'FieldDefs.Add(' + QuotedStr(fld.FieldName) + ', ' +
@@ -202,12 +198,12 @@ begin
     begin
       if Length(s1) < MaxLiteralLenght then
       begin
-        s2 := s2 + IndentationText + '    ' + s1;
+        s2 := s2 + fIndentationText + fIndentationText + s1;
         s1 := '';
       end
       else
       begin
-        s2 := s2 + IndentationText + IndentationText + IndentationText +
+        s2 := s2 + fIndentationText + fIndentationText +
           s1.Substring(0, MaxLiteralLenght - 1) + '''+' + sLineBreak;
         s1 := '''' + s1.Substring(MaxLiteralLenght - 1);
       end;
@@ -244,63 +240,67 @@ begin
   end;
 end;
 
-procedure TDSGenerator.Guard;
-begin
-  Assert(dataSet <> nil, 'Property DataSet not assigned!');
-end;
-
-procedure TDSGenerator.GenerateStructure(dataSet: TDataSet);
+function TDSGenerator.GenerateStructure: string;
 var
   fld: TField;
   sDataSetCreate: string;
+  sFieldDefinitions: string;
 begin
-  case FDataSetType of
+  case fDataSetType of
     dstFDMemTable:
       sDataSetCreate := 'TFDMemTable.Create(AOwner)';
     dstClientDataSet:
       sDataSetCreate := 'TClientDataSet.Create(AOwner)';
   end;
-  with FStructureCode do
-  begin
-    Add(IndentationText + 'ds := ' + sDataSetCreate + ';');
-    Add(IndentationText + 'with ds do');
-    Add(IndentationText + 'begin');
-    for fld in dataSet.Fields do
-      Add(IndentationText + IndentationText + GenerateLine_FieldDefAdd(fld));
-    Add(IndentationText + IndentationText + 'CreateDataSet;');
-    Add(IndentationText + 'end;');
-  end;
+  sFieldDefinitions := '';
+  if fDataSet <> nil then
+    for fld in fDataSet.Fields do
+      sFieldDefinitions := sFieldDefinitions +
+      {} fIndentationText + fIndentationText + GenerateLine_FieldDefAdd(fld) +
+        sLineBreak;
+  Result :=
+  {} fIndentationText + 'ds := ' + sDataSetCreate + ';' + sLineBreak +
+  {} fIndentationText + 'with ds do' + sLineBreak +
+  {} fIndentationText + 'begin' + sLineBreak +
+  {} sFieldDefinitions +
+  {} fIndentationText + fIndentationText + 'CreateDataSet;' + sLineBreak +
+  {} fIndentationText + 'end;' + sLineBreak
 end;
 
-procedure TDSGenerator.GenerateOneAppend_Multiline(aFields: TFields);
+function TDSGenerator.GenerateOneAppend_Multiline: string;
 var
   fld: TField;
   s1: string;
+  sl: TStringList;
 begin
-  with FAppendCode do
-  begin
-    Add(IndentationText + 'with ds do');
-    Add(IndentationText + 'begin');
-    Add(IndentationText + IndentationText + 'Append;');
-    for fld in aFields do
+  if (fDataSet = nil) or (fDataSet.Fields.Count = 0) then
+    Exit('');
+  sl := TStringList.Create;
+  try
+    sl.Add(fIndentationText + 'ds.Append;');
+    for fld in fDataSet.Fields do
     begin
       s1 := GenerateLine_SetFieldValue(fld);
       if s1 <> '' then
-        Add(IndentationText + IndentationText + s1);
+        sl.Add(fIndentationText + 'ds.' + s1);
     end;
-    Add(IndentationText + IndentationText + 'Post;');
-    Add(IndentationText + 'end;');
+    sl.Add(fIndentationText + 'ds.Post;');
+    Result := sl.Text;
+  finally
+    sl.Free;
   end;
 end;
 
-procedure TDSGenerator.GenerateOneAppend_Singleline(aFields: TFields);
+function TDSGenerator.GenerateOneAppend_Singleline: string;
 var
   sFieldsValues: string;
   fld: TField;
   s1: string;
 begin
+  if (fDataSet = nil) or (fDataSet.Fields.Count = 0) then
+    Exit('');
   sFieldsValues := '';
-  for fld in aFields do
+  for fld in fDataSet.Fields do
   begin
     if fld.IsNull then
       s1 := 'Null'
@@ -326,118 +326,138 @@ begin
     else
       sFieldsValues := sFieldsValues + ', ' + s1;
   end;
-  FAppendCode.Add(IndentationText + 'ds.AppendRecord([' + sFieldsValues
-    + ']);');
+  Result := fIndentationText + 'ds.AppendRecord([' + sFieldsValues + ']);' +
+    sLineBreak;
 end;
 
-procedure TDSGenerator.GenerateOneAppend(aFields: TFields);
+function TDSGenerator.GenerateOneAppend: string;
 begin
-  case FAppendMode of
+  case fAppendMode of
     amMultilineAppends:
-      GenerateOneAppend_Multiline(aFields);
+      Result := GenerateOneAppend_Multiline;
     amSinglelineAppends:
-      GenerateOneAppend_Singleline(aFields);
+      Result := GenerateOneAppend_Singleline;
+  else
+    Result := '';
   end;
 end;
 
-procedure TDSGenerator.GenerateAppendsBlock(dataSet: TDataSet);
+function TDSGenerator.GenerateAppendsBlock: string;
+var
+  sDataAppend: string;
+  aBookmark: TBookmark;
+  aRowCounter: integer;
 begin
-  FAppendCode.Add('{$REGION ''Append data''}');
-  dataSet.DisableControls;
-  dataSet.Open;
-  dataSet.First;
-  while not dataSet.Eof do
+  if (fDataSet = nil) or (fDataSet.Fields.Count = 0) then
+    Exit('');
+  if fMaxRows = 0 then
+    aRowCounter := MaxInt
+  else
+    aRowCounter := fMaxRows;
+  sDataAppend := '';
+  if DataSet <> nil then
   begin
-    GenerateOneAppend(dataSet.Fields);
-    dataSet.Next;
+    DataSet.DisableControls;
+    try
+      DataSet.Active := true;
+      aBookmark := DataSet.GetBookmark;
+      try
+        DataSet.First;
+        while not DataSet.Eof and (aRowCounter > 0) do
+        begin
+          sDataAppend := sDataAppend + GenerateOneAppend;
+          dec(aRowCounter);
+          DataSet.Next;
+        end;
+      finally
+        DataSet.GotoBookmark(aBookmark);
+        DataSet.FreeBookmark(aBookmark);
+      end;
+    finally
+      DataSet.EnableControls;
+    end;
   end;
-  dataSet.EnableControls;
-  FAppendCode.Add(IndentationText + 'ds.First;');
-  FAppendCode.Add('{$ENDREGION}');
+
+  Result :=
+  {} sDataAppend +
+  {} fIndentationText + 'ds.First;' + sLineBreak;
 end;
 
-function TDSGenerator.GenerateUnitHeader(const aUnitName: string): string;
+function TDSGenerator.GenerateUnitHeader: string;
 var
   sDataSetUnits: string;
 begin
-  case FDataSetType of
+  case fDataSetType of
     dstFDMemTable:
-      sDataSetUnits := IndentationText + 'FireDAC.Comp.Client;';
+      sDataSetUnits := fIndentationText + 'FireDAC.Comp.Client;';
     dstClientDataSet:
       sDataSetUnits :=
-      (* *) IndentationText + 'Datasnap.DBClient;'#13#10 +
-      (* *) IndentationText + 'MidasLib;';
+      {} fIndentationText + 'Datasnap.DBClient;'#13#10 +
+      {} fIndentationText + 'MidasLib;';
   end;
-  FTempCode.Clear;
-  with FTempCode do
-  begin
-    Add('unit ' + aUnitName + ';');
-    Add('');
-    Add('interface');
-    Add('');
-    Add('uses');
-    Add(IndentationText + 'System.Classes,');
-    Add(IndentationText + 'System.SysUtils,');
-    Add(IndentationText + 'System.Variants,');
-    Add(IndentationText + 'Data.DB,');
-    Add(sDataSetUnits);
-    Add('');
-    Add('function CreateDataSet (aOwner: TComponent): TDataSet;');
-    Add('');
-    Add('implementation');
-    Add('');
-  end;
-  Result := FTempCode.Text;
+  Result :=
+  {} 'unit ' + fUnitName + ';' + sLineBreak +
+  {} sLineBreak +
+  {} 'interface' + sLineBreak +
+  {} sLineBreak +
+  {} 'uses' + sLineBreak +
+  {} fIndentationText + 'System.Classes,' + sLineBreak +
+  {} fIndentationText + 'System.SysUtils,' + sLineBreak +
+  {} fIndentationText + 'System.Variants,' + sLineBreak +
+  {} fIndentationText + 'Data.DB,' + sLineBreak +
+  {} sDataSetUnits + sLineBreak +
+  {} sLineBreak +
+  {} 'function GivenDataSet (aOwner: TComponent): TDataSet;' + sLineBreak +
+  {} sLineBreak +
+  {} 'implementation' + sLineBreak +
+  {} sLineBreak;
 end;
 
-function TDSGenerator.GenerateFunction(): string;
+function TDSGenerator.GenerateFunction: string;
+var
+  aClassName: string;
 begin
-  FTempCode.Clear;
-  with FTempCode do
-  begin
-    Add('function CreateDataSet (aOwner: TComponent): TDataSet;');
-    Add('var');
-    Add('  ds: TFDMemTable;');
-    Add('begin');
-    AddStrings(FStructureCode);
-    AddStrings(FAppendCode);
-    Add('  Result := ds;');
-    Add('end;');
+  case fDataSetType of
+    dstFDMemTable:
+      aClassName := 'TFDMemTable';
+    dstClientDataSet:
+      aClassName := 'TClientDataSet';
   end;
-  Result := FTempCode.Text;
+  Result :=
+  {} 'function GivenDataSet (aOwner: TComponent): TDataSet;' + sLineBreak +
+  {} 'var' + sLineBreak +
+  {} '  ds: ' + aClassName + ';' + sLineBreak +
+  {} 'begin' + sLineBreak +
+  {} GenerateStructure() +
+  {} GenerateAppendsBlock() +
+  {} '  Result := ds;' + sLineBreak +
+  {} 'end;' + sLineBreak;
 end;
 
 function TDSGenerator.GenerateUnitFooter(): string;
 begin
-  FTempCode.Clear;
-  with FTempCode do
-  begin
-    Add('');
-    Add('end.');
+  Result := sLineBreak + 'end.' + sLineBreak;
+end;
+
+function TDSGenerator.GenerateAll(aMode: TGeneratorMode): string;
+begin
+  case aMode of
+    genStructure:
+      Result := GenerateStructure();
+    genAppend:
+      Result := GenerateAppendsBlock();
+    genUnit:
+      Result := GenerateUnitHeader + GenerateFunction + GenerateUnitFooter;
+    genFunction:
+      Result := GenerateFunction;
+  else
+    Result := '// Unsupported generator mode';
   end;
-  Result := FTempCode.Text;
 end;
 
 procedure TDSGenerator.Execute;
 begin
-  Guard;
-  FStructureCode.Clear;
-  FAppendCode.Clear;
-  GenerateStructure(dataSet);
-  GenerateAppendsBlock(dataSet);
-  case FGeneratorMode of
-    genAll:
-      FCode.Text := FStructureCode.Text + FAppendCode.Text;
-    genStructure:
-      FCode.Text := FStructureCode.Text;
-    genAppend:
-      FCode.Text := FAppendCode.Text;
-    genUnit:
-      FCode.Text := GenerateUnitHeader('uSampleDataSet') + GenerateFunction +
-        GenerateUnitFooter;
-    genFunction:
-      FCode.Text := GenerateFunction;
-  end;
+  fCode.Text := GenerateAll(fGeneratorMode);
 end;
 
 class function TDSGenerator.GenerateAsString(ds: TDataSet): string;
@@ -446,7 +466,7 @@ var
 begin
   gen := TDSGenerator.Create(nil);
   try
-    gen.dataSet := ds;
+    gen.DataSet := ds;
     gen.Execute;
     Result := gen.Code.Text;
   finally
@@ -454,18 +474,7 @@ begin
   end;
 end;
 
-(* This function replace (fix) standard  Delphi RTL TStrings.ToStringArray
-  .    method, because ot the following issue (in Delphi XE8 and older ones):
- Delphi 10.3 Rio:
- .   - TStringDynArray = TArray<string>;
- .   - function TStrings.ToStringArray: TArray<string>;
- .   - can assign: TArray<string> --> TStringDynArray
- Delphi XE8:
- .   - TStringDynArray = array of string;
- .   - function TStrings.ToStringArray: array of string;
- .   - not able to assign: array of string --> TStringDynArray
-*)
-function TStringsToStringDynArray(sl: TStrings): TStringDynArray;
+function TStringsToArray(sl: TStrings): TArray<String>;
 var
   i: integer;
 begin
@@ -474,50 +483,73 @@ begin
     Result[i] := sl[i];
 end;
 
-class function TDSGenerator.GenerateAsArray(ds: TDataSet): TStringDynArray;
+class function TDSGenerator.GenerateAsArray(ds: TDataSet): TArray<String>;
 var
   gen: TDSGenerator;
 begin
   gen := TDSGenerator.Create(nil);
   try
-    gen.dataSet := ds;
+    gen.DataSet := ds;
     gen.Execute;
-    Result := TStringsToStringDynArray(gen.Code);
+    Result := TStringsToArray(gen.Code);
   finally
     gen.Free;
+  end;
+end;
+
+class function TDSGenerator.GenetateUnit(ds: TDataSet;
+  const aUnitName: string): string;
+var
+  aGenerator: TDSGenerator;
+begin
+  aGenerator := TDSGenerator.Create(nil);
+  try
+    aGenerator.DataSet := ds;
+    aGenerator.fUnitName := aUnitName;
+    Result := aGenerator.GenerateAll(genUnit);
+  finally
+    aGenerator.Free;
   end;
 end;
 
 class procedure TDSGenerator.GenerateAndSaveToStream(ds: TDataSet;
   aStream: TStream);
 var
-  gen: TDSGenerator;
   sCode: Utf8String;
 begin
-  gen := TDSGenerator.Create(nil);
-  try
-    gen.dataSet := ds;
-    gen.GeneratorMode := genUnit;
-    gen.Execute;
-    sCode := Utf8String(gen.Code.Text);
-    {
-     aFilePreamble := TEncoding.UTF8.GetPreamble;
-     aStream.Write(aFilePreamble[0], Length(aFilePreamble));
-    }
-    aStream.Write(sCode[1], Length(sCode));
-  finally
-    gen.Free;
-  end;
+  sCode := Utf8String(GenetateUnit(ds, 'uSampleDataSet'));
+  aStream.Write(sCode[1], Length(sCode));
+end;
+
+function GetUnitName_FromFilePath(aFilePath: string): string;
+var
+  aUnitName: string;
+  aExtentionLen: integer;
+begin
+  aUnitName := ExtractFileName(aFilePath);
+  aExtentionLen := Length(ExtractFileExt(aFilePath));
+  if aExtentionLen > 0 then
+    Result := aUnitName.Substring(0, aUnitName.Length - aExtentionLen)
+  else
+    Result := aUnitName;
 end;
 
 class procedure TDSGenerator.GenerateAndSaveToFile(ds: TDataSet;
   const aFileName: string);
 var
   fs: TFileStream;
+  sCode: Utf8String;
+  aUnitName: string;
 begin
+  aUnitName := GetUnitName_FromFilePath(aFileName);
+  sCode := Utf8String(GenetateUnit(ds, aUnitName));
   fs := TFileStream.Create(aFileName, fmCreate);
   try
-    GenerateAndSaveToStream(ds, fs);
+    {
+     aFilePreamble := TEncoding.UTF8.GetPreamble;
+     aStream.Write(aFilePreamble[0], Length(aFilePreamble));
+    }
+    fs.Write(sCode[1], Length(sCode));
   finally
     fs.Free;
   end;
@@ -525,16 +557,14 @@ end;
 
 class procedure TDSGenerator.GenerateAndSaveClipboard(ds: TDataSet);
 var
-  gen: TDSGenerator;
+  aGenerator: TDSGenerator;
 begin
-  gen := TDSGenerator.Create(nil);
+  aGenerator := TDSGenerator.Create(nil);
   try
-    gen.dataSet := ds;
-    gen.GeneratorMode := genFunction;
-    gen.Execute;
-    Clipboard.AsText := gen.Code.Text;
+    aGenerator.DataSet := ds;
+    Clipboard.AsText := aGenerator.GenerateFunction;
   finally
-    gen.Free;
+    aGenerator.Free;
   end;
 end;
 

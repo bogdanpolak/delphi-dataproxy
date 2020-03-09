@@ -46,7 +46,7 @@ type
     Label3: TLabel;
     Button4: TButton;
     grbxProxyGenOptions: TGroupBox;
-    edtProxyName: TEdit;
+    edtUnitName: TEdit;
     Label4: TLabel;
     Label5: TLabel;
     tshFakeDataset: TTabSheet;
@@ -66,6 +66,14 @@ type
     rbtnProxyOptionCommnetedDataSet: TRadioButton;
     GroupBox7: TGroupBox;
     cbxProxyOptionIdentation: TComboBox;
+    Label6: TLabel;
+    edtClassName: TEdit;
+    Label7: TLabel;
+    Label8: TLabel;
+    edtDSUnitName: TEdit;
+    Label9: TLabel;
+    GroupBox1: TGroupBox;
+    cbxNumberOfRows: TComboBox;
     // --------------------------------------------------------------------
     // Startup
     procedure FormCreate(Sender: TObject);
@@ -77,7 +85,7 @@ type
     procedure actExecSQLExecute(Sender: TObject);
     procedure actGenerateProxyExecute(Sender: TObject);
     procedure actQueryBuilderExecute(Sender: TObject);
-    procedure edtProxyNameKeyPress(Sender: TObject; var Key: Char);
+    procedure edtUnitNameKeyPress(Sender: TObject; var Key: Char);
     procedure rbtnFakeOptionFDMemTableClick(Sender: TObject);
     procedure rbtnFakeOptionClientDataSetClick(Sender: TObject);
     procedure rbtnFakeOptionAppendMultilineClick(Sender: TObject);
@@ -87,6 +95,9 @@ type
     procedure rbtnProxyOptionNoDataSetAccessClick(Sender: TObject);
     procedure rbtnProxyOptionCommnetedDataSetClick(Sender: TObject);
     procedure cbxProxyOptionIdentationChange(Sender: TObject);
+    procedure edtClassNameKeyPress(Sender: TObject; var Key: Char);
+    procedure edtDSUnitNameKeyPress(Sender: TObject; var Key: Char);
+    procedure cbxNumberOfRowsChange(Sender: TObject);
   private
     fProxyGenerator: TDataProxyGenerator;
     fDataSetGenerator: TDSGenerator;
@@ -295,6 +306,17 @@ begin
   end;
 end;
 
+function ComboBoxToRowsNumber(cbx:TComboBox): integer;
+var
+  ss: string;
+  idx: Integer;
+begin
+  ss := cbx.Text;
+  idx := ss.IndexOf(' ');
+  if idx=-1 then
+    Exit(0);
+  Result := StrToInt(ss.Substring(0,idx));
+end;
 
 // --------------------------------------------------------------------------
 // Application start-up
@@ -319,8 +341,13 @@ begin
   // -------------------------------------------------------
   fDataSet := DataModule1.GetMainDataQuery;
   DataSource1.DataSet := fDataSet;
-  fProxyGenerator.ObjectName := 'Something';
-  edtProxyName.Text := fProxyGenerator.ObjectName;
+  fProxyGenerator.NameOfUnit := 'Proxy.Foo';
+  fProxyGenerator.NameOfClass := 'TFooProxy';
+  fDataSetGenerator.NameOfUnit := 'Fake.DataSet';
+  fDataSetGenerator.MaxRows := ComboBoxToRowsNumber(cbxNumberOfRows);
+  edtUnitName.Text := fProxyGenerator.NameOfUnit;
+  edtClassName.Text := fProxyGenerator.NameOfClass;
+  edtDSUnitName.Text := fDataSetGenerator.NameOfUnit;
   InitializeControls;
   // -------------------------------------------------------
   // Inititialize actions
@@ -397,20 +424,23 @@ begin
   // DataSet Fake generator
   // ----------------------------------------------------
   fProxyGenerator.DataSet := DataSource1.DataSet;
-  fProxyGenerator.ObjectName := edtProxyName.Text;
+  fProxyGenerator.NameOfUnit := edtUnitName.Text;
+  fProxyGenerator.NameOfClass := edtClassName.Text;
   fProxyGenerator.DataSetAccess := dsaNoAccess;
   fProxyGenerator.FieldNamingStyle := fnsUpperCaseF;
-  fProxyGenerator.IdentationText := '  ';
+  fProxyGenerator.IndentationText := '  ';
   fProxyGenerator.Execute;
   mmProxyCode.Lines.Text := fProxyGenerator.Code.Text;
   // ----------------------------------------------------
   // DataSet Fake generator
   // ----------------------------------------------------
   fDataSetGenerator.DataSet := DataSource1.DataSet;
+  fDataSetGenerator.NameOfUnit := edtDSUnitName.Text;
   fDataSetGenerator.GeneratorMode := genUnit;
   fDataSetGenerator.AppendMode := amMultilineAppends;
   fDataSetGenerator.DataSetType := dstFDMemTable;
   fDataSetGenerator.IndentationText := '  ';
+  fDataSetGenerator.MaxRows := ComboBoxToRowsNumber(cbxNumberOfRows);
   fDataSetGenerator.Execute;
   mmFakeDataSetCode.Lines.Text := fDataSetGenerator.Code.Text;
   // ----------------------------------------------------
@@ -455,23 +485,51 @@ begin
   end;
 end;
 
-procedure TFormMain.edtProxyNameKeyPress(Sender: TObject; var Key: Char);
+procedure TFormMain.edtClassNameKeyPress(Sender: TObject; var Key: Char);
 begin
   if (Key = #13) then
   begin
-    fProxyGenerator.ObjectName := edtProxyName.Text;
+    fProxyGenerator.NameOfUnit := edtUnitName.Text;
+    fProxyGenerator.NameOfClass := edtClassName.Text;
     UpdateProxyCode_AfterOptionChange;
     Key := #0;
   end;
+end;
+
+procedure TFormMain.edtDSUnitNameKeyPress(Sender: TObject; var Key: Char);
+begin
+  if (Key = #13) then
+  begin
+    fDataSetGenerator.NameOfUnit := edtDSUnitName.Text;
+    UpdateFakeCode_AfterOptionChange;
+    Key := #0;
+  end;
+end;
+
+procedure TFormMain.edtUnitNameKeyPress(Sender: TObject; var Key: Char);
+begin
+  if (Key = #13) then
+  begin
+    fProxyGenerator.NameOfUnit := edtUnitName.Text;
+    fProxyGenerator.NameOfClass := edtClassName.Text;
+    UpdateProxyCode_AfterOptionChange;
+    Key := #0;
+  end;
+end;
+
+procedure TFormMain.cbxNumberOfRowsChange(Sender: TObject);
+begin
+  fDataSetGenerator.MaxRows := ComboBoxToRowsNumber(cbxNumberOfRows);
+  UpdateFakeCode_AfterOptionChange;
 end;
 
 procedure TFormMain.cbxProxyOptionIdentationChange(Sender: TObject);
 begin
   case cbxProxyOptionIdentation.ItemIndex of
     0:
-      fProxyGenerator.IdentationText := '  ';
+      fProxyGenerator.IndentationText := '  ';
     1:
-      fProxyGenerator.IdentationText := '    ';
+      fProxyGenerator.IndentationText := '    ';
   end;
   UpdateProxyCode_AfterOptionChange;
 end;
